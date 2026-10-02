@@ -163,3 +163,24 @@ def evaluate_network(paths, net, K, kind, premium, cost, dt, T, batch_size=16384
             out[start : start + batch_size] = pnl.detach().cpu().numpy()
     net.train()
     return out
+
+
+def hedge_positions(paths, net, K, dt, T):
+    """The positions the policy holds, one column per decision point.
+
+    Training only ever shows the network through its P&L, so the frictionless
+    check -- does a cost-free hedger rediscover Black-Scholes delta? -- needs a
+    way to read the positions directly. Inferring the answer from P&L alone
+    would be weaker: several quite different policies produce nearly the same
+    P&L when the premium is large relative to the hedging error.
+    """
+    net.eval()
+    n_steps = paths.shape[1] - 1
+    pos = torch.zeros(paths.shape[0], device=paths.device, dtype=paths.dtype)
+    out = []
+    with torch.no_grad():
+        for j in range(n_steps):
+            pos = net(_features(paths[:, j], j, dt, T, K, pos))
+            out.append(pos.cpu().numpy())
+    net.train()
+    return np.stack(out, axis=1)

@@ -1,5 +1,10 @@
 # Ideas backlog
 
+> **Session paused for handoff.** See `.auto/handoff.md` for the full state of the
+> paper replications and the comparison addon. The items below are the frozen
+> deep-hedger optimisation backlog from the original autoresearch loop; they are
+> not the current workstream.
+
 - A mean objective with an explicit tail penalty: `-mean + lambda * CVaR`,
   swept over `lambda`. This is the obvious bridge between the two ends of the
   objective sweep already recorded in the prompt.
