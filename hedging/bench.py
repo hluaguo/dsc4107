@@ -59,7 +59,13 @@ class BenchConfig:
     K: float = 100.0
     T: float = 1.0 / 12.0
     r: float = 0.0
-    sigma_impl: float = 0.20
+    # Implied volatility sits above the Heston long-run level of 0.20 on purpose.
+    # Without a volatility risk premium, selling the option and doing nothing
+    # dominates any hedge, so a Sharpe-based comparison collapses into "trade as
+    # little as possible" and the network learns to skip hedging altogether. The
+    # premium makes variance reduction worth paying for, which is the setting the
+    # two papers actually study.
+    sigma_impl: float = 0.25
     kind: str = "call"
     cost: float = 0.002
     n_steps: int = 21

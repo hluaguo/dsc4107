@@ -1,6 +1,6 @@
 {
-  "strategy": "time",
-  "frequency": 21,
-  "delta_band": null,
+  "strategy": "band",
+  "frequency": 1,
+  "delta_band": 0.1,
   "price_band": null
 }

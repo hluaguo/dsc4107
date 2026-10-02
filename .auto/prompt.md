@@ -8,10 +8,15 @@ out-of-sample paths. The benchmark trains the network on one seed pool and
 scores it on a disjoint validation pool under a Heston market with proportional
 transaction costs.
 
-The starting point is not competitive. The default objective is CVaR, which
-gives a strong tail and a poor Sharpe ratio, while the classical baseline is
-Sharpe-tuned. Closing that gap is the task. The mean-versus-tail tradeoff is the
-main axis to explore.
+The benchmark carries a volatility risk premium: the option is sold at 25%
+implied volatility while the Heston long-run volatility is 20%. Without that
+premium, doing nothing dominates hedging and a Sharpe-based comparison collapses
+into "trade as little as possible", which the network discovers and which makes
+the metric meaningless. The premium keeps variance reduction worth paying for.
+
+The learned hedger currently starts behind. The frozen classical baseline is a
+delta band, tuned on its own seed pool, and the default CVaR hedger does not yet
+match it. Closing that gap is the task.
 
 ## Metrics
 
@@ -29,6 +34,9 @@ Read the guard rails before claiming a win:
   or rests on one lucky seed.
 - `cvar_edge_mean` is the second perspective. A change that lifts Sharpe by
   widening the tail is a tradeoff to record, not automatically a win.
+- Watch the P&L standard deviation behind `val_deep_sharpe_mean`. A strategy
+  that raises Sharpe by refusing to hedge is exploiting the premium, not
+  hedging, and does not count as a result.
 
 ## How to run
 
@@ -48,7 +56,7 @@ Read the guard rails before claiming a win:
 - `bench/classical_best.json`, the frozen baseline
 - `tests/` and `scripts/`: do not weaken a check to make a number pass
 - the holdout seed pool: never simulate it, never read it
-- pool sizes, cost level, contract and seeds are fixed
+- pool sizes, cost level, contract, premium and seeds are fixed
 
 `.auto/measure.sh` may be extended with extra instrumentation, but the metrics
 it reports and the benchmark it calls must not change.
@@ -64,17 +72,17 @@ it reports and the benchmark it calls must not change.
 
 ## What's been tried
 
-- Objective sweep at 120 epochs with 3 training seeds:
-  - `alpha=1.0` (mean objective): `edge_mean` +0.113, deep Sharpe +0.005
-  - `alpha=0.5`: `edge_mean` -0.393
-  - `alpha=0.1`: `edge_mean` -0.407
-  - `alpha=0.05` (default CVaR): `edge_mean` -0.405
-
-  The mean objective already clears the baseline, but it widens the tail
-  (`cvar_edge_mean` about -4.1). The CVaR objectives protect the tail
-  (`cvar_edge_mean` about +2.9) and surrender the Sharpe. A useful result sits
-  between the two ends.
-
-- The frozen baseline is `time` with `frequency=21`, that is, open the hedge at
-  t=0 and hold to maturity. At a 20 bp cost this is the Sharpe-optimal member of
-  the family the classical tune searches, so beating it is not free.
+- The first benchmark had implied volatility equal to realised (both 0.20). It
+  was discarded after diagnosis: the Sharpe-maximising strategy was to sell and
+  refuse to hedge, the mean objective found that strategy (P&L standard
+  deviation 3.2 against the classical 1.7), and the metric rewarded it. The
+  premium was introduced to remove this failure mode.
+- Under the premium, with a 200 epoch, 128 wide, 3 deep network:
+  - CVaR (`alpha=0.05`, the default): Sharpe +0.283, P&L standard deviation
+    0.63, a genuine hedge that clears the old classical bar.
+  - mean (`alpha=1.0`): Sharpe +0.188, standard deviation 3.2, still not
+    hedging and still cashing the premium.
+  So the tail objective is the one that hedges, and it is the correct default.
+- The frozen classical baseline is now a delta band (`delta_band=0.1`), Sharpe
+  about 0.353 on its tuning pool. Beating it is a real target rather than a
+  formality.
