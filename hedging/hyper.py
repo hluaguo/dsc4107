@@ -17,10 +17,10 @@ from dataclasses import dataclass
 
 @dataclass(frozen=True)
 class Hyper:
-    epochs: int = 60
+    epochs: int = 200
     batch_size: int = 1024
     lr: float = 1e-3
-    hidden: int = 64
-    depth: int = 2
+    hidden: int = 128
+    depth: int = 3
     alpha: float = 0.05
     torch_seeds: tuple[int, ...] = (0, 1, 2)
