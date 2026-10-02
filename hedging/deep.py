@@ -16,6 +16,12 @@ import numpy as np
 import torch
 from torch import nn
 
+# A one-month at-the-money log-moneyness rarely leaves about +/- 0.1, so feeding
+# it raw leaves the first layer reading near-identical inputs and slows the fit.
+# Rescaling to roughly unit size is a constant, not model knowledge, and hides
+# nothing from the comparison.
+MONEYNESS_SCALE = 20.0
+
 
 def _features(spot, j, dt, T, K, pos):
     """Observable state at one decision point.
@@ -25,7 +31,7 @@ def _features(spot, j, dt, T, K, pos):
     the same margin Sepp's hand-built bands chase, and leaving it out would make
     the comparison favour the classical strategy by construction.
     """
-    log_moneyness = torch.log(spot / K)
+    log_moneyness = torch.log(spot / K) * MONEYNESS_SCALE
     tau = torch.full_like(log_moneyness, T - j * dt)
     return torch.stack([log_moneyness, tau / T, pos], dim=-1)
 
