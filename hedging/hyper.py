@@ -22,5 +22,5 @@ class Hyper:
     lr: float = 1e-3
     hidden: int = 64
     depth: int = 2
-    alpha: float = 0.05
+    alpha: float = 1.0
     torch_seeds: tuple[int, ...] = (0, 1, 2)
