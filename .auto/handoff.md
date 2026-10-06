@@ -1,5 +1,13 @@
 # Handoff — classical vs learned option hedging (DSC4107)
 
+> **Update (later session).** The plan below is complete: the full comparison
+> map, the Optuna add-on, the Heston replication, the bootstrap intervals and
+> the locked holdout were all run, and `REPORT.md`, `SIDEQUEST.md` and
+> `EXPLORATION.md` were written. The JD variance issue listed under Open
+> issues is resolved (missing `q = sqrt(pi^3)/4` factor in `hedging/sepp.py`);
+> see `REPORT.md` and `scripts/diagnose_jd.py`. The historical text below is
+> kept unchanged.
+
 Written at a deliberate stopping point: **the two paper replications are
 implemented and tested, the comparison/addon harness is written and smoke-tested,
 but the full sweeps and the written report are not done.** Nothing below is

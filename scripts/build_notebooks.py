@@ -246,16 +246,17 @@ pl.DataFrame(rows)""",
 
 - The mean P&L matches to a few percent for all four processes.
 - The P&L volatility matches for DF, SV and SVJ.
-- The jump-diffusion case is the one visible gap: the simulator's volatility is
-  materially larger than the closed form. The paper's JD variance rate
-  (equation 7.12) uses a second-moment gamma that is not recovered exactly by
-  the Table 2 constants, and the residual is left visible here rather than
-  tuned away. It does not change the qualitative result -- jumps still lower
-  the optimal frequency and the Sharpe ratio.
+- The jump-diffusion case initially disagreed because the JD branch had dropped
+  the `q = sqrt(pi^3)/4` midpoint factor that equations (7.13)-(7.14) attach to
+  the `p` bracket and the jump part of `f`, and that the GBM and SVJ branches
+  already carry. With the factor restored the JD `p` sits within 6% of Table 2,
+  the analytic and simulated JD Sharpe ratios agree, and the residual case-II
+  volatility gap (about 12%) is the paper's own variance approximation rather
+  than a transcription error.
 
-The notebook therefore supports the paper's optimisation result, with the JD
-variance approximation flagged as the one place where the reproduction is
-weaker than the others.
+The notebook therefore supports the paper's optimisation result. The one
+remaining approximation is Sepp's variance formula for jumps at the longer
+maturity of case II, and it is left visible rather than tuned away.
 """,
     ),
 ]

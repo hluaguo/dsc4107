@@ -137,6 +137,20 @@ def test_bands_shrink_with_frequency_and_order_price_vs_delta():
     assert alpha_d_lo > alpha_s_lo
 
 
+def test_jd_variance_matches_paper_table2():
+    # Regression guard for the `q = sqrt(pi^3)/4` factor of equations
+    # (7.13)-(7.14): the JD branch once dropped it, putting `p` 24% below the
+    # paper and inflating the optimal frequency. Table 2, not the simulator, is
+    # the target for these coefficients (the simulator comparison lives in the
+    # replication script), so they are pinned to the printed values. The
+    # tolerances cover the paper's four-figure rounding and its own
+    # case-II variance approximation, and are tight enough that the old,
+    # unnormalised value fails.
+    stats = sepp.sepp_stats(sepp.table1_case("I", market.JUMP))
+    assert stats.p == pytest.approx(0.002006, rel=0.08)
+    assert stats.f == pytest.approx(0.000020, rel=0.12)
+
+
 def test_jumps_raise_the_irreducible_variance_and_lower_the_optimum():
     # The economic claim the JF model is meant to display: an unhedgeable jump
     # component raises `f` and pushes the optimal frequency down relative to the

@@ -34,20 +34,27 @@ relative error across the eight rows is 3.9%.
 | case | model | u ours | u paper | p ours | p paper | N* ours | N* paper | S ours | S paper |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | I | gbm | 0.5693 | 0.5692 | 0.2519 | 0.2461 | 242 | 239 | 0.83 | 0.89 |
-| I | jd | 0.5640 | 0.5510 | 0.1521 | 0.2006 | 144 | 138 | 0.76 | 0.66 |
+| I | jd | 0.5640 | 0.5510 | 0.2118 | 0.2006 | 147 | 138 | 0.65 | 0.66 |
 | I | heston | 0.6621 | 0.6703 | 0.2583 | 0.2524 | 75 | 74 | 0.43 | 0.45 |
 | I | svj | 0.6551 | 0.6550 | 0.2164 | 0.2085 | 70 | 68 | 0.43 | 0.45 |
 | II | gbm | 1.8080 | 1.8558 | 0.6138 | 0.5998 | 130 | 129 | 1.18 | 1.30 |
-| II | jd | 1.7826 | 1.7628 | 0.3423 | 0.4423 | 85 | 75 | 1.16 | 0.99 |
+| II | jd | 1.7826 | 1.7628 | 0.4765 | 0.4423 | 88 | 75 | 1.01 | 0.99 |
 | II | heston | 2.0054 | 2.0876 | 0.6359 | 0.6214 | 49 | 49 | 0.65 | 0.73 |
 | II | svj | 1.9738 | 1.9995 | 0.4903 | 0.4634 | 45 | 43 | 0.68 | 0.72 |
 
 `u` matches to four decimals for GBM case I (0.5693 vs 0.5692) and SVJ case I
-(0.6551 vs 0.6550). The one weak row is jump-diffusion, where the variance
-coefficient `p` is 24% below the paper and the optimal frequency is
-correspondingly high. This is a variance-rate discrepancy in the second-moment
-gamma that feeds the JD `q` coefficients, documented under Open issues rather
-than hidden; it does not touch the deep-versus-classical benchmark.
+(0.6551 vs 0.6550).
+
+Jump-diffusion needed a real fix rather than a caveat. The JD branch had
+dropped the same `q = sqrt(pi^3)/4` midpoint normalisation that the GBM and SVJ
+branches carry, so `p` came out 24% below the paper and the optimal frequency
+correspondingly high. Equations (7.13)-(7.14) attach `q` to the whole
+`2 sigma_r^4 + lambda sigma_r^2 nu^2` bracket of `p` and to the jump term of
+`f`; restoring it moves `p` to +5.6% and `f` to -9% of Table 2 and, more
+tellingly, matches the paper's JD Sharpe (0.65 vs 0.66 in case I, 1.01 vs 0.99
+in case II). `scripts/diagnose_jd.py` isolates the fix: the second-moment gamma
+`gamma2` was never the problem (it matches the simulator to 0.2%), only the
+coefficient was.
 
 **Sharpe-optimal frequencies and bands.** The optimum is interior: with no cost
 (`c = 0`) more frequent hedging always lowers variance, but with cost the Sharpe
@@ -58,11 +65,11 @@ complex, because a stochastic-volatility or jump process has a variance floor
 | case | model | N* | Sharpe | price band | delta band |
 | --- | --- | --- | --- | --- | --- |
 | I | gbm | 242 | 0.83 | 0.0096 | 0.0345 |
-| I | jd | 144 | 0.76 | 0.0125 | 0.0447 |
+| I | jd | 147 | 0.65 | 0.0124 | 0.0442 |
 | I | heston | 75 | 0.43 | 0.0174 | 0.0621 |
 | I | svj | 70 | 0.43 | 0.0180 | 0.0642 |
 | II | gbm | 130 | 1.18 | 0.0219 | 0.0446 |
-| II | jd | 85 | 1.17 | 0.0271 | 0.0551 |
+| II | jd | 88 | 1.01 | 0.0267 | 0.0543 |
 | II | heston | 49 | 0.65 | 0.0359 | 0.0730 |
 | II | svj | 45 | 0.68 | 0.0373 | 0.0758 |
 
@@ -71,20 +78,21 @@ Figures: `results/figures/sepp_pnl_case*.png`, `sepp_sharpe_case*.png`,
 
 **Monte Carlo cross-check.** `scripts/sepp_replication.py --mc --mc-paths 60000`
 re-simulates the market at the analytic optimum so the closed forms and the
-simulator can be compared directly. The mean P&L matches for every model; the
-P&L volatility matches for GBM, Heston and SVJ and is well above the analytic
-value for JD, which is the same variance-rate problem as the `p` row above.
-The analytic and simulated Sharpe ratios agree to a few hundredths except for
-JD.
+simulator can be compared directly. The mean P&L matches for every model and
+the P&L volatility matches for GBM, Heston and SVJ. After the `q` fix the JD
+volatility is within 3% at case I and 12% at case II, and the analytic and
+simulated JD Sharpe ratios now agree (0.65 vs 0.65; 1.01 vs 0.95). The residual
+case-II gap is the paper's own variance approximation, not a transcription
+error.
 
 | case | model | P&L analytic | P&L MC | vol analytic | vol MC | Sharpe analytic | Sharpe MC |
 | --- | --- | --- | --- | --- | --- | --- | --- |
 | I | gbm | 0.00318 | 0.00309 | 0.00385 | 0.00365 | 0.83 | 0.85 |
-| I | jd | 0.00374 | 0.00382 | 0.00493 | 0.00595 | 0.76 | 0.64 |
+| I | jd | 0.00373 | 0.00381 | 0.00571 | 0.00590 | 0.65 | 0.65 |
 | I | heston | 0.00511 | 0.00537 | 0.01191 | 0.01173 | 0.43 | 0.46 |
 | I | svj | 0.00515 | 0.00542 | 0.01187 | 0.01168 | 0.43 | 0.46 |
 | II | gbm | 0.01098 | 0.01102 | 0.00932 | 0.00916 | 1.18 | 1.20 |
-| II | jd | 0.01227 | 0.01302 | 0.01054 | 0.01371 | 1.16 | 0.95 |
+| II | jd | 0.01220 | 0.01295 | 0.01213 | 0.01370 | 1.01 | 0.95 |
 | II | heston | 0.01526 | 0.01695 | 0.02338 | 0.02369 | 0.65 | 0.72 |
 | II | svj | 0.01539 | 0.01709 | 0.02280 | 0.02380 | 0.68 | 0.72 |
 
@@ -279,10 +287,12 @@ regime where the two strategies nearly tie, which is itself the headline result.
 
 ## 5. Open issues and limitations
 
-- **Jump-diffusion variance.** The JD `p` (and the optimal frequency) disagree
-  with Sepp's Table 2 by more than the other rows. The likely cause is the
-  second-moment gamma convention at `T/2` in equation (7.12)/(7.13). This is a
-  known gap and does not affect the deep-hedging benchmark, which uses Heston.
+- **Jump-diffusion variance. Resolved.** The JD `p`/`f` were missing the
+  `q = sqrt(pi^3)/4` midpoint factor of equations (7.13)-(7.14), which the GBM
+  and SVJ branches already carried. Restoring it moves `p` from -24% to +5.6%
+  of Table 2 and matches the JD Sharpe. The only residual is the paper's own
+  variance approximation at case II, where the analytic volatility stays about
+  12% below the simulator; `scripts/diagnose_jd.py` separates the two.
 - **Classical family.** The classical candidates always open a full initial
   hedge, so they cannot express "under-hedge" or "hold flat". The high-cost deep
   wins are partly an artefact of that asymmetry. Adding an initial-trade flag or

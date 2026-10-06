@@ -451,9 +451,19 @@ def sepp_stats(model: SeppModel) -> SeppStats:
             - initial_cost
         )
         c = k * np.sqrt(2.0 * sigma_r**2 * T / np.pi) * gamma
-        p = gamma2 * (2.0 * sigma_r**4 + model.lam * sigma_r**2 * model.nu**2) * T**2
+        # The `p_jd`/`f_jd` pair of Section 4.2 carries the same
+        # ``q = sqrt(pi^3)/4`` midpoint factor the GBM equation (7.8) uses, on
+        # the whole `p` bracket and on the jump term of `f`. Omitting it put
+        # `p` 24% below Table 2; `scripts/diagnose_jd.py` shows `gamma2` was
+        # never at fault, only this coefficient.
+        p = (
+            Q_DF
+            * gamma2
+            * (2.0 * sigma_r**4 + model.lam * sigma_r**2 * model.nu**2)
+            * T**2
+        )
         f = (
-            gamma2 * model.lam * T * model.nu**4
+            Q_DF * gamma2 * model.lam * T * model.nu**4
             + (sigma_i**2 - theta_q) ** 2 * T**2 * (gamma2 - gamma_mid**2)
         )
     elif model.model in (market.HESTON, market.SVJ):
