@@ -50,6 +50,21 @@ def bs_delta_positions(cfg, paths) -> np.ndarray:
     return out
 
 
+def resolve_device(requested: str) -> str:
+    """Use CUDA when asked for ``auto`` and it is present.
+
+    The rollout is a stack of tiny per-step matmuls, which a GPU still handles
+    far faster than the CPU; keeping the CPU fallback means the script is not
+    tied to an accelerator being present.
+    """
+    if requested != "auto":
+        return requested
+    try:
+        return "cuda" if torch.cuda.is_available() else "cpu"
+    except Exception:
+        return "cpu"
+
+
 def frictionless_check(cfg, hyper, n_paths, seed, device="cpu"):
     """Train without cost and compare the learned policy with BS delta.
 
@@ -152,8 +167,15 @@ def main() -> None:
     parser.add_argument("--alpha", type=float, default=0.65)
     parser.add_argument("--frictionless-paths", type=int, default=20_000)
     parser.add_argument("--frictionless-seed", type=int, default=2001)
+    parser.add_argument(
+        "--device",
+        default="auto",
+        help="torch device for training ('auto', 'cpu', 'cuda')",
+    )
     parser.add_argument("--quick", action="store_true")
     args = parser.parse_args()
+    args.device = resolve_device(args.device)
+    print(f"device: {args.device}")
     if args.quick:
         args.costs = [0.0]
         args.epochs = 10
@@ -174,7 +196,11 @@ def main() -> None:
         torch_seeds=(0,),
     )
     check = frictionless_check(
-        frictionless_cfg, check_hyper, args.frictionless_paths, args.frictionless_seed
+        frictionless_cfg,
+        check_hyper,
+        args.frictionless_paths,
+        args.frictionless_seed,
+        device=args.device,
     )
     print("frictionless delta check (cost = 0):")
     print(
@@ -193,7 +219,7 @@ def main() -> None:
             alpha=args.alpha,
             torch_seeds=(0, 1, 2),
         )
-        rows = evaluate(cfg, hyper)
+        rows = evaluate(cfg, hyper, device=args.device)
         summary = summarize(
             rows, ["deep_sharpe", "bs_delta_sharpe", "band_sharpe", "edge_vs_delta", "edge_vs_band"]
         )
@@ -206,7 +232,11 @@ def main() -> None:
         )
 
     (OUT / "results.json").write_text(
-        json.dumps({"frictionless": check, "costs": results}, indent=2) + "\n"
+        json.dumps(
+            {"frictionless": check, "costs": results, "device": args.device},
+            indent=2,
+        )
+        + "\n"
     )
     pl.DataFrame(results[0]["rows"]).write_csv(OUT / "val_records_cost0.csv")
     path = figure_sharpe_vs_cost(results)

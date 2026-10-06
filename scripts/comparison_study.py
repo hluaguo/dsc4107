@@ -100,9 +100,27 @@ def tune_classical(cfg) -> dict:
     return scored[0][1]
 
 
-def deep_edge(cfg, classical: B.ClassicalStrategy, nets, seeds) -> float:
+def resolve_device(requested: str) -> str:
+    """Pick the accelerator when asked for ``auto``.
+
+    Training here is a rollout of many small steps, so the win is the throughput
+    of the many tiny matmuls rather than raw FLOPs; an RTX 4060 still finishes a
+    cell in a fraction of the CPU time. Falling back silently keeps the harness
+    runnable on a machine without CUDA.
+    """
+    if requested != "auto":
+        return requested
+    try:
+        import torch
+
+        return "cuda" if torch.cuda.is_available() else "cpu"
+    except Exception:
+        return "cpu"
+
+
+def deep_edge(cfg, classical: B.ClassicalStrategy, nets, seeds, device: str) -> float:
     """Mean per-seed Sharpe edge of the network over the classical strategy."""
-    learned = B.NetworkStrategy(cfg, nets)
+    learned = B.NetworkStrategy(cfg, nets, device=device)
     edges = []
     for seed in seeds:
         paths = cfg.simulate(cfg.model, seed, cfg.n_val_paths)
@@ -112,10 +130,11 @@ def deep_edge(cfg, classical: B.ClassicalStrategy, nets, seeds) -> float:
     return sum(edges) / len(edges)
 
 
-def report(cfg, classical: B.ClassicalStrategy, nets, seeds) -> dict:
+def report(cfg, classical: B.ClassicalStrategy, nets, seeds, device: str) -> dict:
     """The numbers that go in the table, plus the guard rails."""
-    learned = B.NetworkStrategy(cfg, nets)
+    learned = B.NetworkStrategy(cfg, nets, device=device)
     edges, deep, clas, cvar_edges = [], [], [], []
+    deep_std, class_std, deep_mean, class_mean = [], [], [], []
     for seed in seeds:
         paths = cfg.simulate(cfg.model, seed, cfg.n_val_paths)
         pnl_c = classical.pnl(paths)
@@ -125,9 +144,18 @@ def report(cfg, classical: B.ClassicalStrategy, nets, seeds) -> dict:
         cvar_edges.append(sc["cvar95"] - sd["cvar95"])
         deep.append(sd["sharpe"])
         clas.append(sc["sharpe"])
+        deep_std.append(sd["std"])
+        class_std.append(sc["std"])
+        deep_mean.append(sd["mean"])
+        class_mean.append(sc["mean"])
     n = len(edges)
     mean = sum(edges) / n
     sd_edge = (sum((e - mean) ** 2 for e in edges) / (n - 1)) ** 0.5
+    # The spread columns are the premium-harvesting guard: when the deep P&L
+    # standard deviation diverges from the classical one while its Sharpe rises,
+    # the network has changed its risk profile (typically by under-hedging and
+    # collecting the volatility risk premium) rather than hedged better. Without
+    # these a high-cost "win" would be uninterpretable.
     return {
         "edge_mean": mean,
         "edge_std": sd_edge,
@@ -136,6 +164,10 @@ def report(cfg, classical: B.ClassicalStrategy, nets, seeds) -> dict:
         "cvar_edge_mean": sum(cvar_edges) / n,
         "deep_sharpe": sum(deep) / n,
         "classical_sharpe": sum(clas) / n,
+        "deep_std": sum(deep_std) / n,
+        "classical_std": sum(class_std) / n,
+        "deep_mean": sum(deep_mean) / n,
+        "classical_mean": sum(class_mean) / n,
     }
 
 
@@ -163,8 +195,8 @@ def run_cell(model: str, cost: float, args) -> dict:
             alpha=args.fixed_alpha,
             torch_seeds=(0, 1, 2),
         )
-        nets, _ = B.train_ensemble(cfg, final_hyper)
-        result = report(cfg, classical, nets, cfg.val_seeds)
+        nets, _ = B.train_ensemble(cfg, final_hyper, device=args.device)
+        result = report(cfg, classical, nets, cfg.val_seeds, args.device)
         result.update(
             {
                 "model": model,
@@ -180,12 +212,14 @@ def run_cell(model: str, cost: float, args) -> dict:
                 },
                 "search_edge": None,
                 "n_trials": 0,
+                "device": args.device,
             }
         )
         print(
             f"{model:>6} cost={cost:<6} edge={result['edge_mean']:+.4f}  "
             f"win={result['win_rate']:.2f} deep={result['deep_sharpe']:.3f} "
-            f"class={result['classical_sharpe']:.3f}"
+            f"class={result['classical_sharpe']:.3f} "
+            f"(std {result['deep_std']:.3f}/{result['classical_std']:.3f})"
         )
         return result
 
@@ -203,8 +237,8 @@ def run_cell(model: str, cost: float, args) -> dict:
             alpha=float(trial.suggest_float("alpha", lo_a, hi_a)),
             torch_seeds=(0,),
         )
-        nets, _ = B.train_ensemble(cfg, hyper)
-        return deep_edge(cfg, classical, nets, SEARCH_SEEDS)
+        nets, _ = B.train_ensemble(cfg, hyper, device=args.device)
+        return deep_edge(cfg, classical, nets, SEARCH_SEEDS, args.device)
 
     optuna.logging.set_verbosity(optuna.logging.WARNING)
     study = optuna.create_study(
@@ -222,8 +256,8 @@ def run_cell(model: str, cost: float, args) -> dict:
         alpha=float(best["alpha"]),
         torch_seeds=(0, 1, 2),
     )
-    nets, _ = B.train_ensemble(cfg, final_hyper)
-    result = report(cfg, classical, nets, cfg.val_seeds)
+    nets, _ = B.train_ensemble(cfg, final_hyper, device=args.device)
+    result = report(cfg, classical, nets, cfg.val_seeds, args.device)
     result.update(
         {
             "model": model,
@@ -239,6 +273,7 @@ def run_cell(model: str, cost: float, args) -> dict:
             "search_seeds": list(SEARCH_SEEDS),
             "search_edge": study.best_value,
             "n_trials": args.trials,
+            "device": args.device,
         }
     )
     print(
@@ -302,7 +337,14 @@ def main() -> None:
     parser.add_argument("--fixed-depth", type=int, default=3)
     parser.add_argument("--fixed-lr", type=float, default=1e-3)
     parser.add_argument("--fixed-alpha", type=float, default=0.65)
+    parser.add_argument(
+        "--device",
+        default="auto",
+        help="torch device for training ('auto', 'cpu', 'cuda')",
+    )
     args = parser.parse_args()
+    args.device = resolve_device(args.device)
+    print(f"device: {args.device}")
     if args.quick:
         args.trials = min(args.trials, 2)
         args.epochs = min(args.epochs, 10)
