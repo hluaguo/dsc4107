@@ -76,6 +76,15 @@ and holdout, and it prints the deep and classical P&L standard deviations next
 to the Sharpe edge so a Sharpe gain from under-hedging is visible. The full
 findings are in `REPORT.md`.
 
+## Exploration
+
+Beyond the plan, `scripts/explore_*.py` probe the objective (hedging versus
+premium harvesting), the input features, cross-model transfer, bootstrap
+confidence intervals, and a larger search. They are read-only with respect to
+the frozen benchmark and the holdout pool; the findings are in
+`EXPLORATION.md` and `SIDEQUEST.md`, and the raw tables and plots under
+`results/exploration/` and `results/sidequest/`.
+
 ## Guarding against overfitting
 
 The obvious way to fool this setup is to tune against the paths you score on.

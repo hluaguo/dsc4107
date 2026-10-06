@@ -22,8 +22,15 @@ from torch import nn
 # nothing from the comparison.
 MONEYNESS_SCALE = 20.0
 
+# The default state, and the order the columns are stacked in. The set is a
+# parameter rather than a literal so the ablation in scripts/explore_features.py
+# can drop one observable at a time and measure what each contributes. Keeping
+# the default tuple identical to the historical columns means every existing
+# caller (bench, the replication scripts) is byte-for-byte unchanged.
+DEFAULT_FEATURES = ("log_moneyness", "time", "pos")
 
-def _features(spot, j, dt, T, K, pos):
+
+def _features(spot, j, dt, T, K, pos, features=DEFAULT_FEATURES):
     """Observable state at one decision point.
 
     The current position is part of the state so the network can learn
@@ -31,9 +38,15 @@ def _features(spot, j, dt, T, K, pos):
     the same margin Sepp's hand-built bands chase, and leaving it out would make
     the comparison favour the classical strategy by construction.
     """
-    log_moneyness = torch.log(spot / K) * MONEYNESS_SCALE
-    tau = torch.full_like(log_moneyness, T - j * dt)
-    return torch.stack([log_moneyness, tau / T, pos], dim=-1)
+    parts = []
+    if "log_moneyness" in features:
+        parts.append(torch.log(spot / K) * MONEYNESS_SCALE)
+    if "time" in features:
+        tau = torch.full_like(spot, T - j * dt)
+        parts.append(tau / T)
+    if "pos" in features:
+        parts.append(pos)
+    return torch.stack(parts, dim=-1)
 
 
 class HedgeNet(nn.Module):
@@ -59,7 +72,7 @@ class HedgeNet(nn.Module):
         return self.net(x).squeeze(-1)
 
 
-def hedge_pnl(paths, net, K, kind, premium, cost, dt, T):
+def hedge_pnl(paths, net, K, kind, premium, cost, dt, T, features=DEFAULT_FEATURES):
     """Roll the network over paths and return terminal cash P&L.
 
     Gradients are kept through every step because the position today changes the
@@ -73,7 +86,7 @@ def hedge_pnl(paths, net, K, kind, premium, cost, dt, T):
     )
     for j in range(n_steps):
         spot = paths[:, j]
-        new_pos = net(_features(spot, j, dt, T, K, pos))
+        new_pos = net(_features(spot, j, dt, T, K, pos, features))
         traded = new_pos - pos
         cash = cash - traded * spot - cost * torch.abs(traded) * spot
         pos = new_pos
@@ -120,6 +133,7 @@ def train_hedger(
     seed: int = 0,
     device: str = "cpu",
     verbose: bool = False,
+    features=DEFAULT_FEATURES,
 ):
     """Fit the hedger on a fixed path set.
 
@@ -128,7 +142,7 @@ def train_hedger(
     every epoch. That keeps the in-sample and out-of-sample gap meaningful.
     """
     torch.manual_seed(seed)
-    net = HedgeNet(hidden=hidden, depth=depth).to(device)
+    net = HedgeNet(hidden=hidden, depth=depth, in_dim=len(features)).to(device)
     opt = torch.optim.Adam(net.parameters(), lr=lr)
     n = paths.shape[0]
     history: list[float] = []
@@ -138,7 +152,9 @@ def train_hedger(
         batches = 0
         for start in range(0, n, batch_size):
             idx = perm[start : start + batch_size]
-            pnl = hedge_pnl(paths[idx], net, K, kind, premium, cost, dt, T)
+            pnl = hedge_pnl(
+                paths[idx], net, K, kind, premium, cost, dt, T, features
+            )
             loss = cvar_loss(pnl, alpha)
             opt.zero_grad(set_to_none=True)
             loss.backward()
@@ -152,20 +168,23 @@ def train_hedger(
     return net, history
 
 
-def evaluate_network(paths, net, K, kind, premium, cost, dt, T, batch_size=16384):
+def evaluate_network(
+    paths, net, K, kind, premium, cost, dt, T, batch_size=16384,
+    features=DEFAULT_FEATURES,
+):
     """Forward-only P&L, batched so large evaluation sets stay in memory."""
     net.eval()
     out = np.empty(paths.shape[0])
     with torch.no_grad():
         for start in range(0, paths.shape[0], batch_size):
             chunk = paths[start : start + batch_size]
-            pnl = hedge_pnl(chunk, net, K, kind, premium, cost, dt, T)
+            pnl = hedge_pnl(chunk, net, K, kind, premium, cost, dt, T, features)
             out[start : start + batch_size] = pnl.detach().cpu().numpy()
     net.train()
     return out
 
 
-def hedge_positions(paths, net, K, dt, T):
+def hedge_positions(paths, net, K, dt, T, features=DEFAULT_FEATURES):
     """The positions the policy holds, one column per decision point.
 
     Training only ever shows the network through its P&L, so the frictionless
@@ -180,7 +199,7 @@ def hedge_positions(paths, net, K, dt, T):
     out = []
     with torch.no_grad():
         for j in range(n_steps):
-            pos = net(_features(paths[:, j], j, dt, T, K, pos))
+            pos = net(_features(paths[:, j], j, dt, T, K, pos, features))
             out.append(pos.cpu().numpy())
     net.train()
     return np.stack(out, axis=1)
