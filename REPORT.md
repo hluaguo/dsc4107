@@ -270,6 +270,26 @@ fitting its own noise the holdout edge would be near zero or negative; it is
 not, so the small benchmark win is real. It remains small by design: this is the
 regime where the two strategies nearly tie, which is itself the headline result.
 
+### 3.5 The loss distribution
+
+The plan asks for the loss distribution next to the summary statistics, because
+Sharpe alone cannot show where the risk sits. `scripts/explore_distribution.py`
+plots the pooled terminal P&L of the learned hedger and the band on the frozen
+benchmark (figure `results/exploration/distribution.png`).
+
+| strategy | mean | std | skew | CVaR 95% | 5% quantile |
+| --- | --- | --- | --- | --- | --- |
+| learned | 0.240 | 0.626 | **-0.699** | **1.321** | -0.880 |
+| band | 0.216 | 0.613 | -0.010 | 1.066 | -0.752 |
+
+The two distributions have nearly the same spread, but the learned one is far
+more negatively skewed. The +0.032 Sharpe edge comes with a CVaR that is 24%
+worse: the network earns its extra mean by accepting a fatter left tail, which
+is exactly the trade the seller's own risk measure is meant to expose. So even
+at 20 bp, the one regime where the bootstrap says the edge is real, the edge is
+not a uniform improvement. Whether it counts as a win depends on whether the
+desk scores Sharpe or tail risk, and the two disagree.
+
 ## 4. Correctness and overfitting guards
 
 - **Frictionless delta recovery** (Section 2) has correlation 0.9907.

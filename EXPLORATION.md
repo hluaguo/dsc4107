@@ -154,6 +154,23 @@ of a standard-deviation guard) decides which strategy family the search lands
 in, so any claim that a learned hedger "wins" must be read together with its
 P&L spread.
 
+## 6. The learned edge buys mean with tail risk
+
+`scripts/explore_distribution.py` pools the frozen benchmark's validation P&L
+and compares the two distributions (Heston, 20 bp, default budget).
+
+| strategy | mean | std | skew | CVaR 95% | 5% quantile |
+| --- | --- | --- | --- | --- | --- |
+| learned | 0.240 | 0.626 | -0.699 | 1.321 | -0.880 |
+| band | 0.216 | 0.613 | -0.010 | 1.066 | -0.752 |
+
+Same spread, but the learned distribution is strongly left-skewed. The real,
++0.03 Sharpe edge is partly bought with a 24% worse CVaR, so the one regime
+where the edge survives every robustness check is still not a uniform win: it
+depends on whether the desk scores Sharpe or tail risk. This is the
+loss-distribution version of the standard-deviation guard in the comparison.
+Plot: `results/exploration/distribution.png`.
+
 ## Files
 
 | Path | Role |
@@ -163,5 +180,6 @@ P&L spread.
 | `scripts/explore_transfer.py` | cross-model transfer matrix |
 | `scripts/explore_robustness.py` | bootstrap CIs and path-count stability |
 | `scripts/explore_optimise.py` | 30-trial search on the two weak cells |
+| `scripts/explore_distribution.py` | terminal P&L distributions and CVaR |
 | `results/exploration/*.json` | the raw tables |
 | `results/exploration/*.png` | the plots |
