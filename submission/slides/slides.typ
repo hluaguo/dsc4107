@@ -47,7 +47,7 @@
   #v(2.4cm)
   #text(size: 17pt)[DSC4107 Final Project]
   #v(0.3em)
-  #text(size: 17pt)[Group members: _[to be completed]_]
+  #text(size: 17pt)[Lau Cheuk Yin]
   #v(0.3em)
   #text(size: 17pt)[November 2026]
 ]

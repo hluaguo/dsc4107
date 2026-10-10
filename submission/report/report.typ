@@ -54,7 +54,7 @@
     #text(size: 11pt)[
       DSC4107 Final Project \
       #v(0.3em)
-      Group members: _[to be completed]_ \
+      Lau Cheuk Yin \
       #v(0.3em)
       November 2026
     ]
