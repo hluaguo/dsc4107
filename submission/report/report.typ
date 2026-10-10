@@ -134,7 +134,8 @@ volatility (SV) and Heston with jumps (SVJ). Parameters are Sepp's own, so the
 replication lines up with his tables. Every experiment sells one at-the-money
 one-month call and hedges with the underlying. A proportional cost $c$ is
 charged on the hedge trade, including the opening and closing trades, so a
-strategy cannot hide a trade from the accounting.
+strategy cannot hide a trade from the accounting. Costs are quoted in basis
+points (1 bp is 0.01% of notional traded).
 
 *Sepp replication.* `hedging/sepp.py` implements the closed forms for the mean
 coefficient $u$, the cost coefficient $c$, the local-variance term $p$ and the
@@ -150,8 +151,7 @@ jump-diffusion factor in Section 4.1 was found.
 state at each step is log-moneyness, time to maturity and current position; the
 network outputs the position to hold next. Training minimises the conditional
 value at risk (CVaR) of terminal P&L at tail fraction $alpha = 0.65$. The
-learned hedger uses the same rollout as the classical strategies, so cost
-accounting is identical on both sides.
+learned hedger uses the same rollout, so cost accounting is identical.
 
 *Benchmark and comparison.* The frozen benchmark is Heston at a 20 bp
 proportional cost. The option is sold at 25% implied volatility against a 20%
