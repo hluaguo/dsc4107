@@ -1,0 +1,9 @@
+device: cuda
+heston cost=0.002  edge=+0.0213 (search +0.0110)  win=1.00 deep=0.374 class=0.352  hyper={'lr': 0.0007760497115822574, 'hidden': 256, 'depth': 3, 'alpha': 0.6246407335230735, 'epochs': 80}
+heston cost=0.005  edge=+0.1387 (search +0.1397)  win=1.00 deep=0.185 class=0.046  hyper={'lr': 0.00046073473364908904, 'hidden': 64, 'depth': 4, 'alpha': 0.7150366147163394, 'epochs': 80}
+heston cost=0.01   edge=+0.4354 (search +0.4356)  win=1.00 deep=0.185 class=-0.251  hyper={'lr': 0.0002008342839532476, 'hidden': 32, 'depth': 4, 'alpha': 0.675580366467599, 'epochs': 80}
+    jd cost=0.002  edge=-0.0774 (search -0.0745)  win=0.00 deep=-0.069 class=0.008  hyper={'lr': 0.00036754081631397217, 'hidden': 128, 'depth': 2, 'alpha': 0.7181877071984601, 'epochs': 80}
+    jd cost=0.005  edge=+0.1558 (search +0.1580)  win=1.00 deep=0.039 class=-0.117  hyper={'lr': 0.0005011036428931385, 'hidden': 128, 'depth': 2, 'alpha': 0.7268188360460055, 'epochs': 80}
+    jd cost=0.01   edge=+0.3773 (search +0.3790)  win=1.00 deep=0.052 class=-0.325  hyper={'lr': 0.0002008342839532476, 'hidden': 32, 'depth': 4, 'alpha': 0.675580366467599, 'epochs': 80}
+
+wrote results/comparison/edge_map.png and results/comparison/edge_map.csv

@@ -1,0 +1,23 @@
+device: cuda
+   gbm cost=0.0    edge=+0.0296  win=1.00 deep=1.258 class=1.228
+   gbm cost=0.002  edge=-0.0010  win=0.50 deep=0.347 class=0.348
+   gbm cost=0.005  edge=+0.0379  win=1.00 deep=0.073 class=0.035
+   gbm cost=0.01   edge=+0.4216  win=1.00 deep=0.161 class=-0.261
+   gbm cost=0.02   edge=+1.0086  win=1.00 deep=0.158 class=-0.851
+    jd cost=0.0    edge=-0.0055  win=0.00 deep=0.116 class=0.121
+    jd cost=0.002  edge=-0.0898  win=0.00 deep=-0.081 class=0.008
+    jd cost=0.005  edge=-0.0323  win=0.00 deep=-0.149 class=-0.117
+    jd cost=0.01   edge=+0.3692  win=1.00 deep=0.044 class=-0.325
+    jd cost=0.02   edge=+0.7850  win=1.00 deep=0.042 class=-0.743
+heston cost=0.0    edge=+0.0203  win=1.00 deep=1.159 class=1.139
+heston cost=0.002  edge=+0.0139  win=1.00 deep=0.366 class=0.352
+heston cost=0.005  edge=+0.0537  win=1.00 deep=0.100 class=0.046
+heston cost=0.01   edge=+0.4301  win=1.00 deep=0.179 class=-0.251
+heston cost=0.02   edge=+1.0201  win=1.00 deep=0.174 class=-0.846
+   svj cost=0.0    edge=-0.0119  win=0.00 deep=0.113 class=0.125
+   svj cost=0.002  edge=-0.0761  win=0.00 deep=-0.062 class=0.014
+   svj cost=0.005  edge=+0.0200  win=1.00 deep=-0.092 class=-0.112
+   svj cost=0.01   edge=+0.3723  win=1.00 deep=0.050 class=-0.322
+   svj cost=0.02   edge=+0.7983  win=1.00 deep=0.054 class=-0.744
+
+wrote results/comparison/edge_map.png and results/comparison/edge_map.csv
