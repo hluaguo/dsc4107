@@ -54,9 +54,7 @@
     #text(size: 11pt)[
       DSC4107 Final Project \
       #v(0.3em)
-      Lau Cheuk Yin \
-      #v(0.3em)
-      November 2026
+      Lau Cheuk Yin
     ]
   ]
   #v(1fr)

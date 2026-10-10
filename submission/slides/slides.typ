@@ -48,8 +48,6 @@
   #text(size: 17pt)[DSC4107 Final Project]
   #v(0.3em)
   #text(size: 17pt)[Lau Cheuk Yin]
-  #v(0.3em)
-  #text(size: 17pt)[November 2026]
 ]
 
 #pagebreak()
