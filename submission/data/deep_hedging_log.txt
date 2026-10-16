@@ -1,0 +1,9 @@
+device: cuda
+frictionless delta check (cost = 0):
+  correlation=0.9907  slope=1.148  rmse=0.0581  mean learned=0.499 mean delta=0.508
+cost=0.0    deep=1.154 delta=1.139 band=0.987  edge_vs_delta=+0.0159
+cost=0.002  deep=0.373 delta=0.254 band=0.352  edge_vs_delta=+0.1191
+cost=0.005  deep=0.105 delta=-0.970 band=-0.526  edge_vs_delta=+1.0747
+cost=0.01   deep=0.182 delta=-2.276 band=-1.573  edge_vs_delta=+2.4580
+
+wrote results/deep_hedging/sharpe_vs_cost.png and results/deep_hedging/results.json
