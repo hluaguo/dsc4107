@@ -1,0 +1,23 @@
+device: cuda
+   gbm cost=0.0    edge=+0.0296  win=1.00 deep=1.258 class=1.228 (std 0.457/0.469)
+   gbm cost=0.002  edge=-0.0010  win=0.50 deep=0.347 class=0.348 (std 0.551/0.576)
+   gbm cost=0.005  edge=+0.0379  win=1.00 deep=0.073 class=0.035 (std 1.723/1.740)
+   gbm cost=0.01   edge=+0.4216  win=1.00 deep=0.161 class=-0.261 (std 3.443/1.740)
+   gbm cost=0.02   edge=+1.0086  win=1.00 deep=0.158 class=-0.851 (std 3.478/1.742)
+    jd cost=0.0    edge=-0.0055  win=0.00 deep=0.116 class=0.121 (std 1.980/1.894)
+    jd cost=0.002  edge=-0.0898  win=0.00 deep=-0.081 class=0.008 (std 1.941/2.468)
+    jd cost=0.005  edge=-0.0323  win=0.00 deep=-0.149 class=-0.117 (std 2.186/2.467)
+    jd cost=0.01   edge=+0.3692  win=1.00 deep=0.044 class=-0.325 (std 4.209/2.466)
+    jd cost=0.02   edge=+0.7850  win=1.00 deep=0.042 class=-0.743 (std 4.367/2.464)
+heston cost=0.0    edge=+0.0203  win=1.00 deep=1.159 class=1.139 (std 0.511/0.521)
+heston cost=0.002  edge=+0.0139  win=1.00 deep=0.366 class=0.352 (std 0.613/0.613)
+heston cost=0.005  edge=+0.0537  win=1.00 deep=0.100 class=0.046 (std 1.599/1.736)
+heston cost=0.01   edge=+0.4301  win=1.00 deep=0.179 class=-0.251 (std 3.106/1.734)
+heston cost=0.02   edge=+1.0201  win=1.00 deep=0.174 class=-0.846 (std 3.170/1.730)
+   svj cost=0.0    edge=-0.0119  win=0.00 deep=0.113 class=0.125 (std 2.111/1.923)
+   svj cost=0.002  edge=-0.0761  win=0.00 deep=-0.062 class=0.014 (std 2.048/2.451)
+   svj cost=0.005  edge=+0.0200  win=1.00 deep=-0.092 class=-0.112 (std 2.355/2.450)
+   svj cost=0.01   edge=+0.3723  win=1.00 deep=0.050 class=-0.322 (std 3.970/2.447)
+   svj cost=0.02   edge=+0.7983  win=1.00 deep=0.054 class=-0.744 (std 4.100/2.442)
+
+wrote results/comparison/edge_map.png and results/comparison/edge_map.csv
