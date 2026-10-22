@@ -1,0 +1,248 @@
+{
+  "timestamp": "20261030T193832Z",
+  "verdict": "fail",
+  "research_question": "rq_b_mandate_activity_floor",
+  "bench": {
+    "name": "heston_atm_1m",
+    "model": "heston",
+    "cost": 0.002,
+    "n_steps": 21,
+    "val_seeds": [
+      2001,
+      2002
+    ],
+    "n_val_paths": 2000,
+    "quick": true
+  },
+  "hyper": {
+    "epochs": 5,
+    "batch_size": 1024,
+    "lr": 0.001,
+    "hidden": 128,
+    "depth": 3,
+    "alpha": 0.65,
+    "torch_seeds": [
+      0
+    ]
+  },
+  "mandate": {
+    "activity_weight": 450.0,
+    "floor_source": "classical_best OOS on shared val pool",
+    "mean_initial_abs_delta_floor": 0.5143924661285021,
+    "mean_turnover_floor": 1.8640238760997994,
+    "definitions": {
+      "mean_initial_abs_delta": "Mean over all validation paths of |\u03b4| after the first rebalance (j=0), before costs.",
+      "mean_turnover": "Mean path turnover from hedge.rollout: \u03a3|\u0394\u03b4| over decision steps plus terminal |\u03b4| (position units).",
+      "floor_met": "OOS pooled mean_initial_abs_delta \u2265 floor and mean_turnover \u2265 floor after mandate position map."
+    }
+  },
+  "classical": [
+    {
+      "label": "time_f1",
+      "kind": "classical",
+      "spec": {
+        "strategy": "time",
+        "frequency": 1,
+        "delta_band": null,
+        "price_band": null
+      },
+      "mean_cost": 0.45876660319060125,
+      "cvar95": 1.0224667394826334,
+      "pnl_mean": 0.11758652285171414,
+      "mean_initial_abs_delta": 0.5143924661285021,
+      "mean_turnover": 2.274248586366002
+    },
+    {
+      "label": "time_f3",
+      "kind": "classical",
+      "spec": {
+        "strategy": "time",
+        "frequency": 3,
+        "delta_band": null,
+        "price_band": null
+      },
+      "mean_cost": 0.3419499997692941,
+      "cvar95": 1.5896966171781852,
+      "pnl_mean": 0.22685798067689467,
+      "mean_initial_abs_delta": 0.5143924661285021,
+      "mean_turnover": 1.6923170227785997
+    },
+    {
+      "label": "time_f7",
+      "kind": "classical",
+      "spec": {
+        "strategy": "time",
+        "frequency": 7,
+        "delta_band": null,
+        "price_band": null
+      },
+      "mean_cost": 0.27491734397008316,
+      "cvar95": 2.239483610045968,
+      "pnl_mean": 0.31539522713643,
+      "mean_initial_abs_delta": 0.5143924661285021,
+      "mean_turnover": 1.3620563161301442
+    },
+    {
+      "label": "time_f21",
+      "kind": "classical",
+      "spec": {
+        "strategy": "time",
+        "frequency": 21,
+        "delta_band": null,
+        "price_band": null
+      },
+      "mean_cost": 0.2056763149213908,
+      "cvar95": 3.996449784530739,
+      "pnl_mean": 0.38087639904192916,
+      "mean_initial_abs_delta": 0.5143924661285021,
+      "mean_turnover": 1.0287849322570042
+    },
+    {
+      "label": "band_delta_0.05",
+      "kind": "classical",
+      "spec": {
+        "strategy": "band",
+        "frequency": 1,
+        "delta_band": 0.05,
+        "price_band": null
+      },
+      "mean_cost": 0.4238897139827062,
+      "cvar95": 1.0155421657119255,
+      "pnl_mean": 0.15485021230973117,
+      "mean_initial_abs_delta": 0.5143924661285021,
+      "mean_turnover": 2.100612668658671
+    },
+    {
+      "label": "band_delta_0.10",
+      "kind": "classical",
+      "spec": {
+        "strategy": "band",
+        "frequency": 1,
+        "delta_band": 0.1,
+        "price_band": null
+      },
+      "mean_cost": 0.3764398494346824,
+      "cvar95": 1.100986178501657,
+      "pnl_mean": 0.1988889484577366,
+      "mean_initial_abs_delta": 0.5143924661285021,
+      "mean_turnover": 1.8640238760997994
+    },
+    {
+      "label": "band_delta_0.20",
+      "kind": "classical",
+      "spec": {
+        "strategy": "band",
+        "frequency": 1,
+        "delta_band": 0.2,
+        "price_band": null
+      },
+      "mean_cost": 0.32101053022746984,
+      "cvar95": 1.4124103790746227,
+      "pnl_mean": 0.2557658954431403,
+      "mean_initial_abs_delta": 0.5143924661285021,
+      "mean_turnover": 1.587331393492778
+    },
+    {
+      "label": "band_price_0.01",
+      "kind": "classical",
+      "spec": {
+        "strategy": "band",
+        "frequency": 1,
+        "delta_band": null,
+        "price_band": 0.01
+      },
+      "mean_cost": 0.40194011744073194,
+      "cvar95": 1.0028643502218584,
+      "pnl_mean": 0.17047802490765132,
+      "mean_initial_abs_delta": 0.5143924661285021,
+      "mean_turnover": 1.8873598437449044
+    },
+    {
+      "label": "band_price_0.02",
+      "kind": "classical",
+      "spec": {
+        "strategy": "band",
+        "frequency": 1,
+        "delta_band": null,
+        "price_band": 0.02
+      },
+      "mean_cost": 0.3394600733459227,
+      "cvar95": 1.1728682810822262,
+      "pnl_mean": 0.22244504339489277,
+      "mean_initial_abs_delta": 0.5143924661285021,
+      "mean_turnover": 1.4951588932990953
+    },
+    {
+      "label": "band_price_0.05",
+      "kind": "classical",
+      "spec": {
+        "strategy": "band",
+        "frequency": 1,
+        "delta_band": null,
+        "price_band": 0.05
+      },
+      "mean_cost": 0.26200969909358224,
+      "cvar95": 1.7876605676422184,
+      "pnl_mean": 0.2944300010182545,
+      "mean_initial_abs_delta": 0.5143924661285021,
+      "mean_turnover": 0.6545305157295404
+    },
+    {
+      "label": "classical_best",
+      "kind": "classical",
+      "spec": {
+        "strategy": "band",
+        "frequency": 1,
+        "delta_band": 0.1,
+        "price_band": null
+      },
+      "mean_cost": 0.3764398494346824,
+      "cvar95": 1.100986178501657,
+      "pnl_mean": 0.1988889484577366,
+      "mean_initial_abs_delta": 0.5143924661285021,
+      "mean_turnover": 1.8640238760997994
+    }
+  ],
+  "deep_mandate": [
+    {
+      "label": "mandate_seed_0",
+      "kind": "seed",
+      "torch_seed": 0,
+      "mean_cost": 0.46232503494248967,
+      "cvar95": 8.549098304513286,
+      "pnl_mean": 0.12352363016402813,
+      "mean_initial_abs_delta": 0.7929335832595825,
+      "mean_turnover": 2.323016434311867,
+      "floor_met": true
+    },
+    {
+      "label": "mandate_ensemble",
+      "kind": "ensemble",
+      "torch_seeds": [
+        0
+      ],
+      "mean_cost": 0.46232503494248967,
+      "cvar95": 8.549098304513286,
+      "pnl_mean": 0.12352363016402813,
+      "mean_initial_abs_delta": 0.7929335832595825,
+      "mean_turnover": 2.323016434311867,
+      "floor_met": true
+    }
+  ],
+  "acceptance": {
+    "clears": false,
+    "interesting": false,
+    "fail": true,
+    "classical_best": {
+      "mean_cost": 0.3764398494346824,
+      "cvar95": 1.100986178501657,
+      "mean_initial_abs_delta": 0.5143924661285021,
+      "mean_turnover": 1.8640238760997994
+    },
+    "rules": {
+      "clears": "Any seed: floor_met and mean_cost < CB and cvar95 \u2264 CB",
+      "interesting": "Floor met, CVaR95 \u2264 CB, but mean_cost still \u2265 CB (no seed clears)"
+    }
+  },
+  "wall_time_s": 1.3437488079071045
+}
