@@ -1,0 +1,433 @@
+{
+  "timestamp": "20261030T173916Z",
+  "verdict": "flat",
+  "research_question": "rq_d_risk_matched",
+  "bench": {
+    "name": "heston_atm_1m",
+    "model": "heston",
+    "cost": 0.002,
+    "n_steps": 21,
+    "val_seeds": [
+      2001,
+      2002,
+      2003,
+      2004,
+      2005,
+      2006,
+      2007,
+      2008
+    ],
+    "n_val_paths": 40000,
+    "quick": false
+  },
+  "hyper": {
+    "epochs": 200,
+    "batch_size": 1024,
+    "lr": 0.001,
+    "hidden": 128,
+    "depth": 3,
+    "alpha": 0.65,
+    "torch_seeds": [
+      0,
+      1,
+      2
+    ]
+  },
+  "alpha_grid": [
+    0.05,
+    0.12,
+    0.2,
+    0.3,
+    0.4,
+    0.5,
+    0.65
+  ],
+  "classical": [
+    {
+      "label": "time_f1",
+      "kind": "classical",
+      "spec": {
+        "strategy": "time",
+        "frequency": 1,
+        "delta_band": null,
+        "price_band": null
+      },
+      "mean_cost": 0.4601594742515861,
+      "cvar95": 0.9988756096518908,
+      "pnl_mean": 0.13279103378316437
+    },
+    {
+      "label": "time_f3",
+      "kind": "classical",
+      "spec": {
+        "strategy": "time",
+        "frequency": 3,
+        "delta_band": null,
+        "price_band": null
+      },
+      "mean_cost": 0.34178099668106354,
+      "cvar95": 1.5048962070468062,
+      "pnl_mean": 0.2512090191887337
+    },
+    {
+      "label": "time_f7",
+      "kind": "classical",
+      "spec": {
+        "strategy": "time",
+        "frequency": 7,
+        "delta_band": null,
+        "price_band": null
+      },
+      "mean_cost": 0.2762289022555955,
+      "cvar95": 2.27060101390969,
+      "pnl_mean": 0.31749563019231003
+    },
+    {
+      "label": "time_f21",
+      "kind": "classical",
+      "spec": {
+        "strategy": "time",
+        "frequency": 21,
+        "delta_band": null,
+        "price_band": null
+      },
+      "mean_cost": 0.2057548596820442,
+      "cvar95": 4.118758785271026,
+      "pnl_mean": 0.3882612134252636
+    },
+    {
+      "label": "band_delta_0.05",
+      "kind": "classical",
+      "spec": {
+        "strategy": "band",
+        "frequency": 1,
+        "delta_band": 0.05,
+        "price_band": null
+      },
+      "mean_cost": 0.42547547906407035,
+      "cvar95": 0.9936219721314209,
+      "pnl_mean": 0.16744557397633736
+    },
+    {
+      "label": "band_delta_0.10",
+      "kind": "classical",
+      "spec": {
+        "strategy": "band",
+        "frequency": 1,
+        "delta_band": 0.1,
+        "price_band": null
+      },
+      "mean_cost": 0.37759414955577697,
+      "cvar95": 1.0660590298345474,
+      "pnl_mean": 0.21616427304261987
+    },
+    {
+      "label": "band_delta_0.20",
+      "kind": "classical",
+      "spec": {
+        "strategy": "band",
+        "frequency": 1,
+        "delta_band": 0.2,
+        "price_band": null
+      },
+      "mean_cost": 0.32154427968189975,
+      "cvar95": 1.3866634181977593,
+      "pnl_mean": 0.2723559613048939
+    },
+    {
+      "label": "band_price_0.01",
+      "kind": "classical",
+      "spec": {
+        "strategy": "band",
+        "frequency": 1,
+        "delta_band": null,
+        "price_band": 0.01
+      },
+      "mean_cost": 0.4026254780629745,
+      "cvar95": 0.9928389512320192,
+      "pnl_mean": 0.19050218289059767
+    },
+    {
+      "label": "band_price_0.02",
+      "kind": "classical",
+      "spec": {
+        "strategy": "band",
+        "frequency": 1,
+        "delta_band": null,
+        "price_band": 0.02
+      },
+      "mean_cost": 0.33910623532719947,
+      "cvar95": 1.1282158087673546,
+      "pnl_mean": 0.2549505444128895
+    },
+    {
+      "label": "band_price_0.05",
+      "kind": "classical",
+      "spec": {
+        "strategy": "band",
+        "frequency": 1,
+        "delta_band": null,
+        "price_band": 0.05
+      },
+      "mean_cost": 0.26209963956697463,
+      "cvar95": 1.7514177467920466,
+      "pnl_mean": 0.3316332172221785
+    },
+    {
+      "label": "classical_best",
+      "kind": "classical",
+      "spec": {
+        "strategy": "band",
+        "frequency": 1,
+        "delta_band": 0.1,
+        "price_band": null
+      },
+      "mean_cost": 0.37759414955577697,
+      "cvar95": 1.0660590298345474,
+      "pnl_mean": 0.21616427304261987
+    }
+  ],
+  "deep": [
+    {
+      "label": "deep_seed_0_alpha_0.05",
+      "kind": "sweep",
+      "torch_seed": 0,
+      "alpha": 0.05,
+      "mean_cost": 0.41509107886251195,
+      "cvar95": 0.94072591626589,
+      "pnl_mean": 0.17799929309948795
+    },
+    {
+      "label": "deep_seed_0_alpha_0.12",
+      "kind": "sweep",
+      "torch_seed": 0,
+      "alpha": 0.12,
+      "mean_cost": 0.41677666010800657,
+      "cvar95": 0.9410804135077518,
+      "pnl_mean": 0.17622604580387619
+    },
+    {
+      "label": "deep_seed_0_alpha_0.2",
+      "kind": "sweep",
+      "torch_seed": 0,
+      "alpha": 0.2,
+      "mean_cost": 0.42097417277212473,
+      "cvar95": 0.9920830635686364,
+      "pnl_mean": 0.17193250453053302
+    },
+    {
+      "label": "deep_seed_0_alpha_0.3",
+      "kind": "sweep",
+      "torch_seed": 0,
+      "alpha": 0.3,
+      "mean_cost": 0.40200057350326457,
+      "cvar95": 1.013107463277857,
+      "pnl_mean": 0.19096290820803025
+    },
+    {
+      "label": "deep_seed_0_alpha_0.4",
+      "kind": "sweep",
+      "torch_seed": 0,
+      "alpha": 0.4,
+      "mean_cost": 0.40342752394183673,
+      "cvar95": 1.0895730146808815,
+      "pnl_mean": 0.18943710029867325
+    },
+    {
+      "label": "deep_seed_0_alpha_0.5",
+      "kind": "sweep",
+      "torch_seed": 0,
+      "alpha": 0.5,
+      "mean_cost": 0.38633761277987466,
+      "cvar95": 1.145756145430365,
+      "pnl_mean": 0.20653084872720878
+    },
+    {
+      "label": "deep_seed_0_alpha_0.65",
+      "kind": "sweep",
+      "torch_seed": 0,
+      "alpha": 0.65,
+      "mean_cost": 0.3536094233798678,
+      "cvar95": 1.349124106202123,
+      "pnl_mean": 0.23945494528828484
+    },
+    {
+      "label": "deep_seed_0_selected",
+      "kind": "seed",
+      "torch_seed": 0,
+      "alpha": 0.3,
+      "mean_cost": 0.40200057350326457,
+      "cvar95": 1.013107463277857,
+      "pnl_mean": 0.19096290820803025,
+      "selection": "min cost among cvar<=baseline else min cvar"
+    },
+    {
+      "label": "deep_seed_1_alpha_0.05",
+      "kind": "sweep",
+      "torch_seed": 1,
+      "alpha": 0.05,
+      "mean_cost": 0.4093138030815333,
+      "cvar95": 0.9395850500084847,
+      "pnl_mean": 0.18376792882059753
+    },
+    {
+      "label": "deep_seed_1_alpha_0.12",
+      "kind": "sweep",
+      "torch_seed": 1,
+      "alpha": 0.12,
+      "mean_cost": 0.4174311208507361,
+      "cvar95": 0.9397011451047292,
+      "pnl_mean": 0.1755646981164873
+    },
+    {
+      "label": "deep_seed_1_alpha_0.2",
+      "kind": "sweep",
+      "torch_seed": 1,
+      "alpha": 0.2,
+      "mean_cost": 0.41244512878057815,
+      "cvar95": 0.9650320975700649,
+      "pnl_mean": 0.18053154251920625
+    },
+    {
+      "label": "deep_seed_1_alpha_0.3",
+      "kind": "sweep",
+      "torch_seed": 1,
+      "alpha": 0.3,
+      "mean_cost": 0.40626353480058164,
+      "cvar95": 1.0156554162393445,
+      "pnl_mean": 0.18666792964340895
+    },
+    {
+      "label": "deep_seed_1_alpha_0.4",
+      "kind": "sweep",
+      "torch_seed": 1,
+      "alpha": 0.4,
+      "mean_cost": 0.3939306025553322,
+      "cvar95": 1.0552894643923325,
+      "pnl_mean": 0.19900741805602437
+    },
+    {
+      "label": "deep_seed_1_alpha_0.5",
+      "kind": "sweep",
+      "torch_seed": 1,
+      "alpha": 0.5,
+      "mean_cost": 0.3817854969319652,
+      "cvar95": 1.1311698049904242,
+      "pnl_mean": 0.21113453322812892
+    },
+    {
+      "label": "deep_seed_1_alpha_0.65",
+      "kind": "sweep",
+      "torch_seed": 1,
+      "alpha": 0.65,
+      "mean_cost": 0.35553001610237095,
+      "cvar95": 1.2543489410500857,
+      "pnl_mean": 0.23742761595887724
+    },
+    {
+      "label": "deep_seed_1_selected",
+      "kind": "seed",
+      "torch_seed": 1,
+      "alpha": 0.4,
+      "mean_cost": 0.3939306025553322,
+      "cvar95": 1.0552894643923325,
+      "pnl_mean": 0.19900741805602437,
+      "selection": "min cost among cvar<=baseline else min cvar"
+    },
+    {
+      "label": "deep_seed_2_alpha_0.05",
+      "kind": "sweep",
+      "torch_seed": 2,
+      "alpha": 0.05,
+      "mean_cost": 0.41804530264942125,
+      "cvar95": 0.9613376915314603,
+      "pnl_mean": 0.17499255433703007
+    },
+    {
+      "label": "deep_seed_2_alpha_0.12",
+      "kind": "sweep",
+      "torch_seed": 2,
+      "alpha": 0.12,
+      "mean_cost": 0.4188226862172285,
+      "cvar95": 0.9476311246217165,
+      "pnl_mean": 0.17418924248276893
+    },
+    {
+      "label": "deep_seed_2_alpha_0.2",
+      "kind": "sweep",
+      "torch_seed": 2,
+      "alpha": 0.2,
+      "mean_cost": 0.4052191900626287,
+      "cvar95": 0.9692730220195749,
+      "pnl_mean": 0.1877779482917204
+    },
+    {
+      "label": "deep_seed_2_alpha_0.3",
+      "kind": "sweep",
+      "torch_seed": 2,
+      "alpha": 0.3,
+      "mean_cost": 0.4135571899467153,
+      "cvar95": 1.0576003482568745,
+      "pnl_mean": 0.17930367329841523
+    },
+    {
+      "label": "deep_seed_2_alpha_0.4",
+      "kind": "sweep",
+      "torch_seed": 2,
+      "alpha": 0.4,
+      "mean_cost": 0.4041183275478648,
+      "cvar95": 1.1228283164545991,
+      "pnl_mean": 0.188719238204943
+    },
+    {
+      "label": "deep_seed_2_alpha_0.5",
+      "kind": "sweep",
+      "torch_seed": 2,
+      "alpha": 0.5,
+      "mean_cost": 0.39455672395035035,
+      "cvar95": 1.196461520881839,
+      "pnl_mean": 0.19823411214613929
+    },
+    {
+      "label": "deep_seed_2_alpha_0.65",
+      "kind": "sweep",
+      "torch_seed": 2,
+      "alpha": 0.65,
+      "mean_cost": 0.36924406384599945,
+      "cvar95": 1.3750264500003158,
+      "pnl_mean": 0.22355984482079475
+    },
+    {
+      "label": "deep_seed_2_selected",
+      "kind": "seed",
+      "torch_seed": 2,
+      "alpha": 0.2,
+      "mean_cost": 0.4052191900626287,
+      "cvar95": 0.9692730220195749,
+      "pnl_mean": 0.1877779482917204,
+      "selection": "min cost among cvar<=baseline else min cvar"
+    },
+    {
+      "label": "deep_ensemble_selected",
+      "kind": "ensemble",
+      "torch_seeds": [
+        0,
+        1,
+        2
+      ],
+      "mean_cost": 0.4003834553737418,
+      "cvar95": 1.007134490466979,
+      "pnl_mean": 0.19258275818525833
+    }
+  ],
+  "acceptance": {
+    "improves": false,
+    "nested": false,
+    "flat": true,
+    "classical_best": {
+      "mean_cost": 0.37759414955577697,
+      "cvar95": 1.0660590298345474
+    }
+  },
+  "wall_time_s": 618.8621599674225
+}
