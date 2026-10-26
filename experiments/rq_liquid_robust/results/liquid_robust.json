@@ -1,0 +1,482 @@
+{
+  "timestamp": "20261031T110220Z",
+  "verdict": "fails",
+  "soft_interesting": false,
+  "research_question": "rq_i_liquid_10bp_robustness_fixed_h_recipes",
+  "bench": {
+    "name": "heston_atm_1m",
+    "model": "heston",
+    "cost": 0.001,
+    "cost_bp": 10,
+    "n_steps": 21,
+    "val_seeds": [
+      2001,
+      2002,
+      2003,
+      2004,
+      2005,
+      2006,
+      2007,
+      2008
+    ],
+    "n_val_paths": 40000,
+    "quick": false
+  },
+  "hyper": {
+    "epochs": 200,
+    "batch_size": 1024,
+    "lr": 0.001,
+    "hidden": 128,
+    "depth": 3,
+    "alpha": 0.65,
+    "torch_seeds": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5
+    ]
+  },
+  "seed_design": {
+    "rq_h_torch_seeds": [
+      0,
+      1,
+      2
+    ],
+    "rq_i_torch_seeds": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5
+    ],
+    "expansion_note": "RQ-H default (0,1,2) plus seeds 3\u20135; no holdout seeds",
+    "rm_fixed_alpha": 0.05,
+    "lag_fixed_alpha": 0.65
+  },
+  "classical": [
+    {
+      "label": "time_f1",
+      "kind": "classical",
+      "spec": {
+        "strategy": "time",
+        "frequency": 1,
+        "delta_band": null,
+        "price_band": null
+      },
+      "mean_sharpe": 0.6993676579108439,
+      "mean_cost": 0.23007973712579305,
+      "cvar95": 0.7231592732791102,
+      "pnl_mean": 0.3628707709089585
+    },
+    {
+      "label": "time_f3",
+      "kind": "classical",
+      "spec": {
+        "strategy": "time",
+        "frequency": 3,
+        "delta_band": null,
+        "price_band": null
+      },
+      "mean_sharpe": 0.538702820380882,
+      "mean_cost": 0.17089049834053177,
+      "cvar95": 1.312956727211647,
+      "pnl_mean": 0.42209951752926644
+    },
+    {
+      "label": "time_f7",
+      "kind": "classical",
+      "spec": {
+        "strategy": "time",
+        "frequency": 7,
+        "delta_band": null,
+        "price_band": null
+      },
+      "mean_sharpe": 0.4117455879794291,
+      "mean_cost": 0.13811445112779774,
+      "cvar95": 2.126019651816674,
+      "pnl_mean": 0.45561008132010883
+    },
+    {
+      "label": "time_f21",
+      "kind": "classical",
+      "spec": {
+        "strategy": "time",
+        "frequency": 21,
+        "delta_band": null,
+        "price_band": null
+      },
+      "mean_sharpe": 0.2826996297466845,
+      "mean_cost": 0.1028774298410221,
+      "cvar95": 4.018550075063601,
+      "pnl_mean": 0.49113864326628665
+    },
+    {
+      "label": "band_delta_0.05",
+      "kind": "classical",
+      "spec": {
+        "strategy": "band",
+        "frequency": 1,
+        "delta_band": 0.05,
+        "price_band": null
+      },
+      "mean_sharpe": 0.7080351103143256,
+      "mean_cost": 0.21273773953203517,
+      "cvar95": 0.7366892472242326,
+      "pnl_mean": 0.3801833135083736
+    },
+    {
+      "label": "band_delta_0.10",
+      "kind": "classical",
+      "spec": {
+        "strategy": "band",
+        "frequency": 1,
+        "delta_band": 0.1,
+        "price_band": null
+      },
+      "mean_sharpe": 0.6693453966544713,
+      "mean_cost": 0.18879707477788849,
+      "cvar95": 0.8440692070230812,
+      "pnl_mean": 0.40496134782050947
+    },
+    {
+      "label": "band_delta_0.20",
+      "kind": "classical",
+      "spec": {
+        "strategy": "band",
+        "frequency": 1,
+        "delta_band": 0.2,
+        "price_band": null
+      },
+      "mean_sharpe": 0.5388263607337282,
+      "mean_cost": 0.16077213984094987,
+      "cvar95": 1.2055571405959955,
+      "pnl_mean": 0.4331281011458448
+    },
+    {
+      "label": "band_price_0.01",
+      "kind": "classical",
+      "spec": {
+        "strategy": "band",
+        "frequency": 1,
+        "delta_band": null,
+        "price_band": 0.01
+      },
+      "mean_sharpe": 0.665732297090631,
+      "mean_cost": 0.20131273903148725,
+      "cvar95": 0.7454074910454624,
+      "pnl_mean": 0.391814921922086
+    },
+    {
+      "label": "band_price_0.02",
+      "kind": "classical",
+      "spec": {
+        "strategy": "band",
+        "frequency": 1,
+        "delta_band": null,
+        "price_band": 0.02
+      },
+      "mean_sharpe": 0.5790680090572279,
+      "mean_cost": 0.16955311766359973,
+      "cvar95": 0.914783038565364,
+      "pnl_mean": 0.4245036620764902
+    },
+    {
+      "label": "band_price_0.05",
+      "kind": "classical",
+      "spec": {
+        "strategy": "band",
+        "frequency": 1,
+        "delta_band": null,
+        "price_band": 0.05
+      },
+      "mean_sharpe": 0.39361662198687053,
+      "mean_cost": 0.13104981978348731,
+      "cvar95": 1.5904698120747993,
+      "pnl_mean": 0.4626830370056668
+    }
+  ],
+  "champion": {
+    "label": "band_delta_0.05",
+    "spec": {
+      "strategy": "band",
+      "frequency": 1,
+      "delta_band": 0.05,
+      "price_band": null
+    },
+    "mean_sharpe": 0.7080351103143256,
+    "mean_cost": 0.21273773953203517,
+    "cvar95": 0.7366892472242326
+  },
+  "arms": {
+    "risk_matched_fixed_alpha": {
+      "arm": "risk_matched_fixed_alpha",
+      "fixed_alpha": 0.05,
+      "verdict": "fails",
+      "deep": [
+        {
+          "label": "rm_fixed_seed_0_alpha_0.05",
+          "kind": "seed",
+          "arm": "risk_matched_fixed_alpha",
+          "torch_seed": 0,
+          "alpha": 0.05,
+          "rq_h_recipe": "rm_seed_1_selected used alpha=0.05",
+          "mean_cost": 0.2229023572623217,
+          "cvar95": 0.7148436428014652,
+          "pnl_mean": 0.37003792867285995
+        },
+        {
+          "label": "rm_fixed_seed_1_alpha_0.05",
+          "kind": "seed",
+          "arm": "risk_matched_fixed_alpha",
+          "torch_seed": 1,
+          "alpha": 0.05,
+          "rq_h_recipe": "rm_seed_1_selected used alpha=0.05",
+          "mean_cost": 0.2117869402081109,
+          "cvar95": 0.7059277766418529,
+          "pnl_mean": 0.38128839511303714
+        },
+        {
+          "label": "rm_fixed_seed_2_alpha_0.05",
+          "kind": "seed",
+          "arm": "risk_matched_fixed_alpha",
+          "torch_seed": 2,
+          "alpha": 0.05,
+          "rq_h_recipe": "rm_seed_1_selected used alpha=0.05",
+          "mean_cost": 0.22064996382795762,
+          "cvar95": 0.7120245608066463,
+          "pnl_mean": 0.3722987250623825
+        },
+        {
+          "label": "rm_fixed_seed_3_alpha_0.05",
+          "kind": "seed",
+          "arm": "risk_matched_fixed_alpha",
+          "torch_seed": 3,
+          "alpha": 0.05,
+          "rq_h_recipe": "rm_seed_1_selected used alpha=0.05",
+          "mean_cost": 0.21170267947406055,
+          "cvar95": 0.7039816459051917,
+          "pnl_mean": 0.3813510481123524
+        },
+        {
+          "label": "rm_fixed_seed_4_alpha_0.05",
+          "kind": "seed",
+          "arm": "risk_matched_fixed_alpha",
+          "torch_seed": 4,
+          "alpha": 0.05,
+          "rq_h_recipe": "rm_seed_1_selected used alpha=0.05",
+          "mean_cost": 0.2148302083662502,
+          "cvar95": 0.6976825114941544,
+          "pnl_mean": 0.3781756520304439
+        },
+        {
+          "label": "rm_fixed_seed_5_alpha_0.05",
+          "kind": "seed",
+          "arm": "risk_matched_fixed_alpha",
+          "torch_seed": 5,
+          "alpha": 0.05,
+          "rq_h_recipe": "rm_seed_1_selected used alpha=0.05",
+          "mean_cost": 0.21423600645096857,
+          "cvar95": 0.7095077678066473,
+          "pnl_mean": 0.37879379546219
+        },
+        {
+          "label": "rm_fixed_ensemble",
+          "kind": "ensemble",
+          "arm": "risk_matched_fixed_alpha",
+          "torch_seeds": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5
+          ],
+          "alpha": 0.05,
+          "mean_cost": 0.21601802593161157,
+          "cvar95": 0.6954647334927094,
+          "pnl_mean": 0.3769909240755443
+        }
+      ]
+    },
+    "lagrange_excess_cvar_fixed_alpha": {
+      "arm": "lagrange_excess_cvar_fixed_alpha",
+      "fixed_alpha": 0.65,
+      "verdict": "robust",
+      "train_constraint": {
+        "mechanism": "lagrange_excess_batch_cvar95",
+        "target_cvar95_oos_champion": 0.7366892472242326,
+        "training_alpha_fixed": 0.65
+      },
+      "deep": [
+        {
+          "label": "lag_fixed_seed_0_cvar_capped",
+          "kind": "seed",
+          "arm": "lagrange_excess_cvar_fixed_alpha",
+          "torch_seed": 0,
+          "training_alpha": 0.65,
+          "train_constraint": {
+            "target_cvar": 0.7366892472242326,
+            "final_lam": 6.768125955102732,
+            "mean_epoch_excess": 0.04512083970068488,
+            "constraint": "lagrange_excess_cvar95",
+            "dual_lr": 0.75,
+            "note": "NOT rq_d_alpha_dial; alpha is Hyper default only"
+          },
+          "final_train_loss": 0.04253478099902471,
+          "mean_cost": 0.21739080972590927,
+          "cvar95": 0.7687902275716546,
+          "pnl_mean": 0.3755648526834896
+        },
+        {
+          "label": "lag_fixed_seed_1_cvar_capped",
+          "kind": "seed",
+          "arm": "lagrange_excess_cvar_fixed_alpha",
+          "torch_seed": 1,
+          "training_alpha": 0.65,
+          "train_constraint": {
+            "target_cvar": 0.7366892472242326,
+            "final_lam": 6.22280942753423,
+            "mean_epoch_excess": 0.041485396183561535,
+            "constraint": "lagrange_excess_cvar95",
+            "dual_lr": 0.75,
+            "note": "NOT rq_d_alpha_dial; alpha is Hyper default only"
+          },
+          "final_train_loss": -0.024608949820200603,
+          "mean_cost": 0.21186084981746361,
+          "cvar95": 0.7210246115397213,
+          "pnl_mean": 0.3811547812153514
+        },
+        {
+          "label": "lag_fixed_seed_2_cvar_capped",
+          "kind": "seed",
+          "arm": "lagrange_excess_cvar_fixed_alpha",
+          "torch_seed": 2,
+          "training_alpha": 0.65,
+          "train_constraint": {
+            "target_cvar": 0.7366892472242326,
+            "final_lam": 6.768045384756988,
+            "mean_epoch_excess": 0.04512030256504659,
+            "constraint": "lagrange_excess_cvar95",
+            "dual_lr": 0.75,
+            "note": "NOT rq_d_alpha_dial; alpha is Hyper default only"
+          },
+          "final_train_loss": -0.008496027439832687,
+          "mean_cost": 0.21087958657282488,
+          "cvar95": 0.7562627698039273,
+          "pnl_mean": 0.3821305076311662
+        },
+        {
+          "label": "lag_fixed_seed_3_cvar_capped",
+          "kind": "seed",
+          "arm": "lagrange_excess_cvar_fixed_alpha",
+          "torch_seed": 3,
+          "training_alpha": 0.65,
+          "train_constraint": {
+            "target_cvar": 0.7366892472242326,
+            "final_lam": 6.6665553926141,
+            "mean_epoch_excess": 0.04444370261742733,
+            "constraint": "lagrange_excess_cvar95",
+            "dual_lr": 0.75,
+            "note": "NOT rq_d_alpha_dial; alpha is Hyper default only"
+          },
+          "final_train_loss": 0.03431218986709913,
+          "mean_cost": 0.2186965746874007,
+          "cvar95": 0.7678978845070321,
+          "pnl_mean": 0.3742404964506888
+        },
+        {
+          "label": "lag_fixed_seed_4_cvar_capped",
+          "kind": "seed",
+          "arm": "lagrange_excess_cvar_fixed_alpha",
+          "torch_seed": 4,
+          "training_alpha": 0.65,
+          "train_constraint": {
+            "target_cvar": 0.7366892472242326,
+            "final_lam": 5.9577940987364855,
+            "mean_epoch_excess": 0.039718627324909904,
+            "constraint": "lagrange_excess_cvar95",
+            "dual_lr": 0.75,
+            "note": "NOT rq_d_alpha_dial; alpha is Hyper default only"
+          },
+          "final_train_loss": 0.019625730191667873,
+          "mean_cost": 0.21005254541593385,
+          "cvar95": 0.7167674904731248,
+          "pnl_mean": 0.38295987267602943
+        },
+        {
+          "label": "lag_fixed_seed_5_cvar_capped",
+          "kind": "seed",
+          "arm": "lagrange_excess_cvar_fixed_alpha",
+          "torch_seed": 5,
+          "training_alpha": 0.65,
+          "train_constraint": {
+            "target_cvar": 0.7366892472242326,
+            "final_lam": 6.006832792329078,
+            "mean_epoch_excess": 0.040045551948860524,
+            "constraint": "lagrange_excess_cvar95",
+            "dual_lr": 0.75,
+            "note": "NOT rq_d_alpha_dial; alpha is Hyper default only"
+          },
+          "final_train_loss": -0.009520374859372774,
+          "mean_cost": 0.21015279727027236,
+          "cvar95": 0.7101407345103208,
+          "pnl_mean": 0.3828901649779675
+        },
+        {
+          "label": "lag_fixed_ensemble",
+          "kind": "ensemble",
+          "arm": "lagrange_excess_cvar_fixed_alpha",
+          "torch_seeds": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5
+          ],
+          "training_alpha": 0.65,
+          "mean_cost": 0.21317219391496747,
+          "cvar95": 0.7141033764382918,
+          "pnl_mean": 0.3798234459391155
+        }
+      ]
+    }
+  },
+  "acceptance": {
+    "robust": false,
+    "brittle": false,
+    "fails": true,
+    "rule_pooled": "Across all arm\u00d7seed OOS rows: robust if \u2265 half clear (mean_cost < 10bp champion AND cvar95 <= champion); brittle if exactly one row clears; else fails",
+    "pool_stats": {
+      "n_seed_rows_pooled": 12,
+      "n_clearing_rows": 5,
+      "fraction_clearing": 0.4166666666666667,
+      "half_threshold_rows": 6.0,
+      "clearing_torch_seeds": [
+        1,
+        3,
+        4,
+        5
+      ]
+    },
+    "champion": {
+      "mean_cost": 0.21273773953203517,
+      "cvar95": 0.7366892472242326
+    }
+  },
+  "audit": {
+    "loaded_classical_best_json": false,
+    "champion_from_val_sharpe_sweep": true,
+    "champion_matches_frozen_cb_spec": false,
+    "frozen_cb_spec_for_audit_only": {
+      "strategy": "band",
+      "frequency": 1,
+      "delta_band": 0.1,
+      "price_band": null
+    }
+  },
+  "wall_time_s": 375.48725724220276
+}
