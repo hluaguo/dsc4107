@@ -1,0 +1,265 @@
+{
+  "timestamp": "20261030T193533Z",
+  "verdict": "fails",
+  "research_question": "rq_f_hard_cvar_train_constraint",
+  "bench": {
+    "name": "heston_atm_1m",
+    "model": "heston",
+    "cost": 0.002,
+    "n_steps": 21,
+    "val_seeds": [
+      2001,
+      2002,
+      2003,
+      2004,
+      2005,
+      2006,
+      2007,
+      2008
+    ],
+    "n_val_paths": 40000,
+    "quick": false
+  },
+  "hyper": {
+    "epochs": 200,
+    "batch_size": 1024,
+    "lr": 0.001,
+    "hidden": 128,
+    "depth": 3,
+    "alpha": 0.65,
+    "torch_seeds": [
+      0,
+      1,
+      2
+    ]
+  },
+  "train_constraint": {
+    "mechanism": "lagrange_excess_batch_cvar95",
+    "target_cvar95_oos_classical_best": 1.0660590298345474,
+    "not_rq_d_alpha_sweep": true,
+    "training_alpha_fixed": 0.65
+  },
+  "classical": [
+    {
+      "label": "time_f1",
+      "kind": "classical",
+      "spec": {
+        "strategy": "time",
+        "frequency": 1,
+        "delta_band": null,
+        "price_band": null
+      },
+      "mean_cost": 0.4601594742515861,
+      "cvar95": 0.9988756096518908,
+      "pnl_mean": 0.13279103378316437
+    },
+    {
+      "label": "time_f3",
+      "kind": "classical",
+      "spec": {
+        "strategy": "time",
+        "frequency": 3,
+        "delta_band": null,
+        "price_band": null
+      },
+      "mean_cost": 0.34178099668106354,
+      "cvar95": 1.5048962070468062,
+      "pnl_mean": 0.2512090191887337
+    },
+    {
+      "label": "time_f7",
+      "kind": "classical",
+      "spec": {
+        "strategy": "time",
+        "frequency": 7,
+        "delta_band": null,
+        "price_band": null
+      },
+      "mean_cost": 0.2762289022555955,
+      "cvar95": 2.27060101390969,
+      "pnl_mean": 0.31749563019231003
+    },
+    {
+      "label": "time_f21",
+      "kind": "classical",
+      "spec": {
+        "strategy": "time",
+        "frequency": 21,
+        "delta_band": null,
+        "price_band": null
+      },
+      "mean_cost": 0.2057548596820442,
+      "cvar95": 4.118758785271026,
+      "pnl_mean": 0.3882612134252636
+    },
+    {
+      "label": "band_delta_0.05",
+      "kind": "classical",
+      "spec": {
+        "strategy": "band",
+        "frequency": 1,
+        "delta_band": 0.05,
+        "price_band": null
+      },
+      "mean_cost": 0.42547547906407035,
+      "cvar95": 0.9936219721314209,
+      "pnl_mean": 0.16744557397633736
+    },
+    {
+      "label": "band_delta_0.10",
+      "kind": "classical",
+      "spec": {
+        "strategy": "band",
+        "frequency": 1,
+        "delta_band": 0.1,
+        "price_band": null
+      },
+      "mean_cost": 0.37759414955577697,
+      "cvar95": 1.0660590298345474,
+      "pnl_mean": 0.21616427304261987
+    },
+    {
+      "label": "band_delta_0.20",
+      "kind": "classical",
+      "spec": {
+        "strategy": "band",
+        "frequency": 1,
+        "delta_band": 0.2,
+        "price_band": null
+      },
+      "mean_cost": 0.32154427968189975,
+      "cvar95": 1.3866634181977593,
+      "pnl_mean": 0.2723559613048939
+    },
+    {
+      "label": "band_price_0.01",
+      "kind": "classical",
+      "spec": {
+        "strategy": "band",
+        "frequency": 1,
+        "delta_band": null,
+        "price_band": 0.01
+      },
+      "mean_cost": 0.4026254780629745,
+      "cvar95": 0.9928389512320192,
+      "pnl_mean": 0.19050218289059767
+    },
+    {
+      "label": "band_price_0.02",
+      "kind": "classical",
+      "spec": {
+        "strategy": "band",
+        "frequency": 1,
+        "delta_band": null,
+        "price_band": 0.02
+      },
+      "mean_cost": 0.33910623532719947,
+      "cvar95": 1.1282158087673546,
+      "pnl_mean": 0.2549505444128895
+    },
+    {
+      "label": "band_price_0.05",
+      "kind": "classical",
+      "spec": {
+        "strategy": "band",
+        "frequency": 1,
+        "delta_band": null,
+        "price_band": 0.05
+      },
+      "mean_cost": 0.26209963956697463,
+      "cvar95": 1.7514177467920466,
+      "pnl_mean": 0.3316332172221785
+    },
+    {
+      "label": "classical_best",
+      "kind": "classical",
+      "spec": {
+        "strategy": "band",
+        "frequency": 1,
+        "delta_band": 0.1,
+        "price_band": null
+      },
+      "mean_cost": 0.37759414955577697,
+      "cvar95": 1.0660590298345474,
+      "pnl_mean": 0.21616427304261987
+    }
+  ],
+  "deep": [
+    {
+      "label": "deep_seed_0_cvar_capped",
+      "kind": "seed",
+      "torch_seed": 0,
+      "training_alpha": 0.65,
+      "train_constraint": {
+        "target_cvar": 1.0660590298345474,
+        "final_lam": 4.460739555324835,
+        "mean_epoch_excess": 0.02973826370216557,
+        "constraint": "lagrange_excess_cvar95",
+        "dual_lr": 0.75,
+        "note": "NOT rq_d_alpha_dial; alpha is Hyper default only"
+      },
+      "final_train_loss": 0.19311022013425827,
+      "mean_cost": 0.408954932599017,
+      "cvar95": 1.1496218237452558,
+      "pnl_mean": 0.18384145206547242
+    },
+    {
+      "label": "deep_seed_1_cvar_capped",
+      "kind": "seed",
+      "torch_seed": 1,
+      "training_alpha": 0.65,
+      "train_constraint": {
+        "target_cvar": 1.0660590298345474,
+        "final_lam": 4.531971653632354,
+        "mean_epoch_excess": 0.030213144357549026,
+        "constraint": "lagrange_excess_cvar95",
+        "dual_lr": 0.75,
+        "note": "NOT rq_d_alpha_dial; alpha is Hyper default only"
+      },
+      "final_train_loss": 0.17750773206353188,
+      "mean_cost": 0.38206005268264065,
+      "cvar95": 1.045185754811143,
+      "pnl_mean": 0.21097540365848141
+    },
+    {
+      "label": "deep_seed_2_cvar_capped",
+      "kind": "seed",
+      "torch_seed": 2,
+      "training_alpha": 0.65,
+      "train_constraint": {
+        "target_cvar": 1.0660590298345474,
+        "final_lam": 5.000282578243059,
+        "mean_epoch_excess": 0.03333521718828706,
+        "constraint": "lagrange_excess_cvar95",
+        "dual_lr": 0.75,
+        "note": "NOT rq_d_alpha_dial; alpha is Hyper default only"
+      },
+      "final_train_loss": 0.19698106373349825,
+      "mean_cost": 0.38874614500906934,
+      "cvar95": 1.0312164982569163,
+      "pnl_mean": 0.20427141161676166
+    },
+    {
+      "label": "deep_ensemble_cvar_capped",
+      "kind": "ensemble",
+      "torch_seeds": [
+        0,
+        1,
+        2
+      ],
+      "mean_cost": 0.393253710096909,
+      "cvar95": 1.0523907139487603,
+      "pnl_mean": 0.1996960891135718
+    }
+  ],
+  "acceptance": {
+    "clears": false,
+    "fails": true,
+    "rule": "any seed: OOS mean_cost < classical_best AND OOS cvar95 <= classical_best",
+    "classical_best": {
+      "mean_cost": 0.37759414955577697,
+      "cvar95": 1.0660590298345474
+    }
+  },
+  "wall_time_s": 93.43508291244507
+}
