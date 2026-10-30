@@ -5,7 +5,8 @@ whether Buehler-style deep hedging clears a Sepp-style classical hull once band
 and calendar policies are both on the table. We therefore fix ``BenchConfig()``
 and score every policy on the same validation paths (``val_seeds`` ×
 ``n_val_paths``) with two tail-aware objectives: mean proportional transaction
-cost along each path and CVaR95 of terminal P&L. Hyperparameters stay at
+cost along each path and CVaR95 of terminal P&L, both from ``hedge.rollout``.
+Hyperparameters stay at
 ``Hyper()`` defaults so the learned side is the unconstrained recipe from the
 Deep Hedging replication, not a tuned competitor.
 """
@@ -128,41 +129,44 @@ class _ArrayPositionFn:
         return self.targets[:, j]
 
 
-def _deep_mean_cost(cfg: B.BenchConfig, net, device: str) -> float:
-    """Pathwise mean cost for one net, using the same rollout engine as classical policies."""
+def pooled_deep_rollout_metrics(cfg: B.BenchConfig, nets, device: str) -> dict:
+    """Same rollout ledger as classical: positions then ``hedge.rollout`` for cost and P&L."""
     from hedging import deep
 
     cost_chunks: list[np.ndarray] = []
-    for seed in cfg.val_seeds:
-        paths = cfg.simulate(cfg.model, seed, cfg.n_val_paths)
-        tensor = torch.as_tensor(paths, dtype=torch.float32, device=device)
-        targets = deep.hedge_positions(tensor, net, cfg.K, cfg.dt, cfg.T)
-        fn = _ArrayPositionFn(targets)
-        result = hedge.rollout(
-            paths,
-            fn,
-            cfg.K,
-            cfg.kind,
-            cfg.premium,
-            cfg.cost,
-            cfg.dt,
-        )
-        cost_chunks.append(result.costs)
-    return float(np.concatenate(cost_chunks).mean())
-
-
-def pooled_network_metrics(
-    cfg: B.BenchConfig, nets, device: str
-) -> dict:
-    strategy = B.NetworkStrategy(cfg, nets, device=device)
     pnl_chunks: list[np.ndarray] = []
     for seed in cfg.val_seeds:
         paths = cfg.simulate(cfg.model, seed, cfg.n_val_paths)
-        pnl_chunks.append(strategy.pnl(paths))
+        member_pnls: list[np.ndarray] = []
+        member_costs: list[np.ndarray] = []
+        for net in nets:
+            tensor = torch.as_tensor(paths, dtype=torch.float32, device=device)
+            targets = deep.hedge_positions(tensor, net, cfg.K, cfg.dt, cfg.T)
+            result = hedge.rollout(
+                paths,
+                _ArrayPositionFn(targets),
+                cfg.K,
+                cfg.kind,
+                cfg.premium,
+                cfg.cost,
+                cfg.dt,
+            )
+            member_pnls.append(result.pnl)
+            member_costs.append(result.costs)
+        if len(nets) == 1:
+            pnl = member_pnls[0]
+            costs = member_costs[0]
+        else:
+            # Pathwise average matches ``NetworkStrategy`` cash-flow mixing, but both
+            # axes stay on the shared rollout books rather than ``evaluate_network``.
+            pnl = np.mean(member_pnls, axis=0)
+            costs = np.mean(member_costs, axis=0)
+        pnl_chunks.append(pnl)
+        cost_chunks.append(costs)
+    costs = np.concatenate(cost_chunks)
     pnl = np.concatenate(pnl_chunks)
-    member_costs = [_deep_mean_cost(cfg, net, device) for net in nets]
     return {
-        "mean_cost": float(np.mean(member_costs)),
+        "mean_cost": float(costs.mean()),
         "cvar95": metrics.cvar95(pnl),
         "pnl_mean": float(pnl.mean()),
     }
@@ -270,7 +274,7 @@ def main() -> None:
     nets, _ = B.train_ensemble(cfg, hyper, device=device)
     deep_rows: list[dict] = []
     for seed, net in zip(hyper.torch_seeds, nets):
-        stats = pooled_network_metrics(cfg, [net], device)
+        stats = pooled_deep_rollout_metrics(cfg, [net], device)
         deep_rows.append(
             {
                 "label": f"deep_seed_{seed}",
@@ -279,7 +283,7 @@ def main() -> None:
                 **stats,
             }
         )
-    ensemble_stats = pooled_network_metrics(cfg, nets, device)
+    ensemble_stats = pooled_deep_rollout_metrics(cfg, nets, device)
     deep_rows.append(
         {
             "label": "deep_ensemble",

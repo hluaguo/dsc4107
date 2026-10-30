@@ -30,7 +30,7 @@ Prior work differs in what it optimises. Sepp (2013), DOI [10.21314/jois.2013.02
 
 **Learned policy.** Unconstrained deep hedger with default `Hyper()` (all `torch_seeds`), scored per seed and as the usual ensemble average.
 
-**Accounting.** Mean cost from `RolloutResult.costs`; CVaR95 from pooled terminal P&L. Use `hedge.rollout`, `ClassicalStrategy`, and `bench.train_ensemble` / `NetworkStrategy` — no parallel P&L definitions.
+**Accounting.** Mean cost and CVaR95 both come from `hedge.rollout` on the shared paths (classical position functions; deep positions from `deep.hedge_positions` replayed through the same engine). Training still uses `bench.train_ensemble`; scoring does not call a separate torch P&L ledger.
 
 **Runner.** `uv run python scripts/rq_a_pareto.py` writes JSON under `results/rq_a/`. Use `--quick` for a cheap smoke (mirrors `bench._quick_setup`).
 
