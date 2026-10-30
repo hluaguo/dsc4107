@@ -1,0 +1,9 @@
+trained on    gbm: gbm=+0.347  jd=-0.081  heston=+0.346  svj=-0.076
+trained on     jd: gbm=+0.349  jd=-0.081  heston=+0.347  svj=-0.077
+trained on heston: gbm=+0.345  jd=-0.072  heston=+0.366  svj=-0.067
+trained on    svj: gbm=+0.330  jd=-0.067  heston=+0.364  svj=-0.062
+
+plain BS delta reference:
+  gbm=+0.247  jd=-0.121  heston=+0.254  svj=-0.116
+
+wrote results/exploration/transfer_matrix.png and transfer_matrix.json

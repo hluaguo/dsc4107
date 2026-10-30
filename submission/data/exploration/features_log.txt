@@ -1,0 +1,10 @@
+heston 0.002          full sharpe=+0.362 turnover=181.674
+heston 0.002        no_pos sharpe=+0.306 turnover=199.415
+heston 0.002       no_time sharpe=+0.348 turnover=174.017
+heston 0.002  no_moneyness sharpe=+0.246 turnover=72.619
+heston 0.01           full sharpe=+0.182 turnover=2.262
+heston 0.01         no_pos sharpe=+0.182 turnover=0.963
+heston 0.01        no_time sharpe=+0.181 turnover=2.901
+heston 0.01   no_moneyness sharpe=+0.182 turnover=1.236
+
+wrote results/exploration/feature_ablation.png and feature_ablation.json

@@ -1,0 +1,58 @@
+[
+  {
+    "model": "heston",
+    "cost": 0.002,
+    "features": "full",
+    "deep_sharpe": 0.3619901346701342,
+    "turnover": 181.67413583122993
+  },
+  {
+    "model": "heston",
+    "cost": 0.002,
+    "features": "no_pos",
+    "deep_sharpe": 0.3057169646082092,
+    "turnover": 199.41513340365023
+  },
+  {
+    "model": "heston",
+    "cost": 0.002,
+    "features": "no_time",
+    "deep_sharpe": 0.3475804524390327,
+    "turnover": 174.0174321745445
+  },
+  {
+    "model": "heston",
+    "cost": 0.002,
+    "features": "no_moneyness",
+    "deep_sharpe": 0.24618010119278744,
+    "turnover": 72.61931907031999
+  },
+  {
+    "model": "heston",
+    "cost": 0.01,
+    "features": "full",
+    "deep_sharpe": 0.18156109328978026,
+    "turnover": 2.2623999809556734
+  },
+  {
+    "model": "heston",
+    "cost": 0.01,
+    "features": "no_pos",
+    "deep_sharpe": 0.18240246408083494,
+    "turnover": 0.9633556771936661
+  },
+  {
+    "model": "heston",
+    "cost": 0.01,
+    "features": "no_time",
+    "deep_sharpe": 0.18059232969115996,
+    "turnover": 2.9007892619473155
+  },
+  {
+    "model": "heston",
+    "cost": 0.01,
+    "features": "no_moneyness",
+    "deep_sharpe": 0.1820226167889888,
+    "turnover": 1.2364675284168198
+  }
+]

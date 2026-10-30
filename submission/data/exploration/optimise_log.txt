@@ -1,0 +1,4 @@
+heston 0.002  trials=30 search=+0.0313 val_edge=+0.0271 win=1.00 deep=+0.379 class=+0.352 deep_std=0.597 hyper={'lr': 0.00239791948596878, 'hidden': 128, 'depth': 3, 'alpha': 0.6148854670656987}
+    jd 0.002  trials=30 search=+0.0424 val_edge=+0.0444 win=1.00 deep=+0.053 class=+0.008 deep_std=4.284 hyper={'lr': 0.0002599568222613846, 'hidden': 128, 'depth': 3, 'alpha': 0.8955845244490906}
+
+wrote results/exploration/optimise_large.json

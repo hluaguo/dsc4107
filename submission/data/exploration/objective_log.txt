@@ -1,0 +1,30 @@
+heston 0.002  alpha=0.05  sharpe=+0.290 mean=+0.1784 std=0.615 turn=207.237
+heston 0.002  alpha=0.2   sharpe=+0.307 mean=+0.1712 std=0.558 turn=210.749
+heston 0.002  alpha=0.35  sharpe=+0.320 mean=+0.1752 std=0.548 turn=208.646
+heston 0.002  alpha=0.5   sharpe=+0.343 mean=+0.1936 std=0.564 turn=199.463
+heston 0.002  alpha=0.65  sharpe=+0.362 mean=+0.2291 std=0.633 turn=181.674
+heston 0.002  alpha=0.8   sharpe=+0.259 mean=+0.3917 std=1.510 turn=100.773
+heston 0.002  alpha=1.0   sharpe=+0.187 mean=+0.5907 std=3.160 turn=2.086
+heston 0.01   alpha=0.05  sharpe=-1.541 mean=-1.1705 std=0.760 turn=176.327
+heston 0.01   alpha=0.2   sharpe=-1.282 mean=-0.9973 std=0.778 turn=158.807
+heston 0.01   alpha=0.35  sharpe=-0.578 mean=-0.6296 std=1.089 turn=121.989
+heston 0.01   alpha=0.5   sharpe=-0.096 mean=-0.1673 std=1.744 turn=75.960
+heston 0.01   alpha=0.65  sharpe=+0.182 mean=+0.5702 std=3.140 turn=2.262
+heston 0.01   alpha=0.8   sharpe=+0.182 mean=+0.5808 std=3.196 turn=0.460
+heston 0.01   alpha=1.0   sharpe=+0.182 mean=+0.5775 std=3.171 turn=1.060
+    jd 0.002  alpha=0.05  sharpe=-0.038 mean=-0.0773 std=2.040 turn=153.787
+    jd 0.002  alpha=0.2   sharpe=-0.104 mean=-0.1977 std=1.907 turn=213.504
+    jd 0.002  alpha=0.35  sharpe=-0.100 mean=-0.1918 std=1.914 turn=210.497
+    jd 0.002  alpha=0.5   sharpe=-0.096 mean=-0.1868 std=1.936 turn=207.935
+    jd 0.002  alpha=0.65  sharpe=-0.081 mean=-0.1557 std=1.925 turn=192.194
+    jd 0.002  alpha=0.8   sharpe=-0.038 mean=-0.0740 std=1.970 turn=150.891
+    jd 0.002  alpha=1.0   sharpe=+0.052 mean=+0.2271 std=4.353 turn=0.953
+    jd 0.01   alpha=0.05  sharpe=-0.536 mean=-1.1371 std=2.124 turn=136.543
+    jd 0.01   alpha=0.2   sharpe=-0.749 mean=-1.4376 std=1.920 turn=166.554
+    jd 0.01   alpha=0.35  sharpe=-0.611 mean=-1.1925 std=1.953 turn=141.868
+    jd 0.01   alpha=0.5   sharpe=-0.267 mean=-0.6553 std=2.451 turn=88.221
+    jd 0.01   alpha=0.65  sharpe=+0.049 mean=+0.2083 std=4.285 turn=1.918
+    jd 0.01   alpha=0.8   sharpe=+0.048 mean=+0.2110 std=4.369 turn=1.375
+    jd 0.01   alpha=1.0   sharpe=+0.050 mean=+0.2190 std=4.361 turn=1.024
+
+wrote results/exploration/objective_sweep.png and objective_sweep.json
