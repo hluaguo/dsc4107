@@ -34,7 +34,7 @@ From repo root (GPU used when available; this full run used CPU):
 
 ```bash
 uv run python scripts/rq_a_pareto.py              # full cell → experiments/rq_a/results/pareto.json
-uv run python scripts/rq_a/pareto.py --quick      # smoke only (do not cite as headline)
+uv run python scripts/rq_a_pareto.py --quick        # smoke only (do not cite as headline)
 ```
 
 Implementation: `experiments/rq_a/run_pareto.py` (CLI shim: `scripts/rq_a_pareto.py`).
