@@ -23,7 +23,8 @@ testbed and ask which gives the better risk-adjusted profit and loss.
 | `scripts/benchmark_loop.py` | One benchmark iteration, machine-readable output |
 | `scripts/sepp_replication.py` | Sepp Section 5 tables and figures (optional Monte Carlo check) |
 | `scripts/deep_hedging_replication.py` | Frictionless delta check and the Heston deep-hedging experiment |
-| `scripts/comparison_study.py` | The head-to-head map and the Optuna hyperparameter add-on |
+| `scripts/comparison_study.py` | Historical 4×5 comparison / Optuna map (see `REPORT.md`) |
+| `scripts/rq_a_pareto.py` | RQ-A cost–CVaR frontier vs unconstrained deep hedger on the frozen cell |
 | `scripts/build_notebooks.py` | Regenerates the two replication notebooks |
 | `scripts/holdout_eval.py` | The final run on the locked holdout pool |
 | `notebooks/` | The two replication notebooks (built from `build_notebooks.py`) |
@@ -56,7 +57,19 @@ uv run python scripts/holdout_eval.py              # final, locked evaluation
 `scripts/benchmark_loop.py` prints `METRIC name=value` lines and appends the
 per-seed rows and a summary to `results/`.
 
-## Replications and the comparison
+## RQ-A (main original question)
+
+On the frozen Heston ATM 1M / 20 bp benchmark, `scripts/rq_a_pareto.py` asks
+whether unconstrained deep hedging clears the classical cost–CVaR scatter
+(calendar and band policies plus `classical_best.json`). See `PLAN.md` for
+acceptance criteria; full narrative results stay in `REPORT.md`.
+
+```bash
+uv run python scripts/rq_a_pareto.py --quick   # smoke → results/rq_a/pareto_quick.json
+uv run python scripts/rq_a_pareto.py           # full weekend run
+```
+
+## Replications and the historical comparison
 
 ```bash
 uv run python scripts/sepp_replication.py            # Sepp tables + figures
