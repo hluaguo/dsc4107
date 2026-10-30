@@ -1,11 +1,10 @@
-"""RQ-D: risk-matched deep hedging vs the classical cost–CVaR hull on the frozen cell.
+"""RQ-D: deep hedging vs the classical hull with a training-α risk dial proxy.
 
 RQ-A showed the default deep recipe sits inside the hull on cost but above the
-pinned baseline on tail risk. This run asks whether an explicit risk-matching
-knob — a CVaR-tail ``alpha`` sweep per torch seed — can land at or below
-``classical_best`` CVaR95 without paying more mean proportional cost than the
-band champion. Scoring still uses the shared validation pool and the same
-``hedge.rollout`` ledger as RQ-A; only the training objective grid differs.
+pinned baseline on tail risk. Here we sweep training-``alpha`` in ``deep.cvar_loss``
+(per torch seed) as a dial — not as a hard OOS CVaR95 constraint in the loss.
+Each candidate is scored on the shared validation pool through ``hedge.rollout``;
+selection and ``improves`` / clears use only those OOS rollout metrics.
 """
 
 from __future__ import annotations
@@ -76,11 +75,11 @@ def train_single_net(
 def select_risk_matched(
     sweep_rows: list[dict], target_cvar: float, target_cost: float
 ) -> dict:
-    """Pick the validation point that best answers the RQ at matched-or-better tail.
+    """Pick one OOS rollout point per seed for headline reporting.
 
-    Prefer any point with CVaR95 at or below the classical baseline, breaking ties
-    on lower mean cost; if the sweep never reaches the tail target, take the
-    lowest CVaR95 so the JSON still records how far risk matching fell short.
+    Uses validation ``cvar95`` / ``mean_cost`` only (not training loss). Prefer
+    lowest mean cost among OOS points with CVaR95 at or below the classical
+    baseline; if none qualify, take the lowest OOS CVaR95.
     """
     feasible = [r for r in sweep_rows if r["cvar95"] <= target_cvar]
     if feasible:

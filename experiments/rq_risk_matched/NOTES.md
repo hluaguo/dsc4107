@@ -2,15 +2,17 @@
 
 ## Research question
 
-Can deep hedging hit **CVaR95 ≤ `classical_best`** at weakly lower mean proportional
-cost, or is every multi-λ / risk-matched point nested in the RQ-A classical cost–CVaR
+Can deep hedging hit **OOS CVaR95 ≤ `classical_best`** at strictly lower mean proportional
+cost, or is every training-α / post-selection point nested in the RQ-A classical cost–CVaR
 hull?
 
 RQ-A trained the default `Hyper()` recipe (α = 0.65) and found cheaper mean cost but
 **worse** tail risk than the pinned band baseline (~CVaR95 1.066 on the shared OOS).
-This experiment keeps the same validation ledger and classical frontier, but sweeps the
-CVaR-tail fraction **α** in `deep.cvar_loss` per torch seed and **selects** the trained
-policy that best matches the classical tail target before scoring the headline seeds.
+RQ-D repeats the same validation ledger and classical frontier, but trains a grid of
+networks while varying **training-α** in `deep.cvar_loss` — a **risk dial proxy**, not a
+hard constraint that OOS CVaR95 must stay at or below the baseline during optimisation.
+After each net is fit, every candidate is scored on the shared OOS paths via
+`hedge.rollout`; **selection** and **clears** / `improves` use only those rollout numbers.
 
 ## Cell and design
 
@@ -19,21 +21,25 @@ policy that best matches the classical tail target before scoring the headline s
 | Benchmark | `BenchConfig()` — Heston ATM call, `cost=0.002`, `n_steps=21` |
 | Validation | Same as RQ-A: all `val_seeds` × `n_val_paths` on identical paths |
 | Classical | Reuses RQ-A grid + `classical_best` via `hedge.rollout` (imported helpers) |
-| Learned | Default `Hyper()` architecture/training budget; **α ∈ {0.05, 0.12, …, 0.65}** full cell (smoke: two α values) |
-| Per seed | Train one net per α; score each on pooled validation rollout; **select** min mean cost among points with CVaR95 ≤ baseline, else lowest CVaR95 |
+| Training | Default `Hyper()` architecture/budget; **training-α ∈ {0.05, 0.12, …, 0.65}** full cell (smoke: two values) — dial only, no CVaR95 cap in the loss |
+| OOS selection (per torch seed) | One net per training-α; score each on pooled validation rollout; **select** min mean cost among OOS points with CVaR95 ≤ `classical_best`, else lowest OOS CVaR95 |
 | Ensemble | Pathwise average of the three selected nets (same mixing as RQ-A) |
 | Axes | **mean_cost** and **cvar95** only from `hedge.rollout` (deep positions via `deep.hedge_positions`) |
 
-Soft target: `classical_best.cvar95` from the frozen cell / RQ-A full run (~1.066).
-The α sweep is the codebase-native risk knob (see `scripts/explore_objective.py`);
-we do not introduce a parallel trainer or a second torch cost ledger.
+Reference tail level: `classical_best.cvar95` from the frozen cell / RQ-A full run (~1.066).
+That number guides **post-hoc selection** on OOS rollout metrics; the trainer never
+enforces CVaR95 ≤ baseline (and this experiment does not add such a constraint). See
+`scripts/explore_objective.py` for the same training-α knob elsewhere in the repo.
 
 ## Acceptance / verdict
 
+All criteria are evaluated on **OOS rollout** mean cost and CVaR95 **after** the α grid
+and per-seed selection — not on training loss or in-sample paths.
+
 | Verdict | Criterion |
 | --- | --- |
-| `improves` (“clears”) | **Any** selected seed has CVaR95 ≤ `classical_best` **and** mean_cost **<** `classical_best` (strictly cheaper at matched-or-better tail) |
-| `nested` | Every sweep, selected, and ensemble point is weakly dominated by at least one classical grid point (lower is better on both axes) |
+| `improves` (“clears”) | **Any** selected seed has OOS CVaR95 ≤ `classical_best` **and** OOS mean_cost **<** `classical_best` |
+| `nested` | Every sweep, selected, and ensemble OOS point is weakly dominated by at least one classical grid point (lower is better on both axes) |
 | `flat` | Otherwise |
 
 ## Cite-or-die (why this question)
@@ -44,10 +50,10 @@ we do not introduce a parallel trainer or a second torch cost ledger.
 - **Leland (1985)** — cost-adjusted discrete delta hedging; motivates why the baseline
   is a **band** rule at 20 bp, not a frictionless continuous hedge.
 - **Ahn & Wilmott (2009)** — risk-matched / cost-aware discrete hedging framing; RQ-D
-  asks whether a learned policy can meet the same **tail budget** as the hand-built
-  champion without paying more turnover.
-- **Buehler et al. (2019)** — deep hedging with convex risk objectives; the α sweep
-  stays inside their CVaR-loss family instead of unconstrained mean-cost chasing.
+  asks whether a learned policy can **clear** the same **OOS tail budget** as the
+  hand-built champion without paying more turnover — tested only after rollout scoring.
+- **Buehler et al. (2019)** — deep hedging with convex risk objectives; the training-α
+  sweep stays inside their CVaR-loss family as a dial, not as a guaranteed tail match.
 
 (Li 2025 classical frequency sweeps are adjacent literature only; no deep comparator.)
 
@@ -72,7 +78,7 @@ Implementation: `experiments/rq_risk_matched/run_risk_matched.py` (CLI shim:
 Wall time **618.9 s** (~10.3 min) on CPU (no CUDA). Artifacts: `results/risk_matched.json`,
 `results/risk_matched.png`.
 
-| Policy | mean_cost | cvar95 | selected α |
+| Policy | mean_cost (OOS) | cvar95 (OOS) | training-α chosen |
 | --- | ---: | ---: | ---: |
 | **classical_best** | 0.3776 | 1.0661 | — |
 | deep_seed_0_selected | 0.4020 | 1.0131 | 0.30 |
@@ -80,11 +86,10 @@ Wall time **618.9 s** (~10.3 min) on CPU (no CUDA). Artifacts: `results/risk_mat
 | deep_seed_2_selected | 0.4052 | 0.9693 | 0.20 |
 | deep_ensemble_selected | 0.4004 | 1.0071 | (0.30, 0.40, 0.20) |
 
-**Clears baseline (`improves`)?** No — every selected seed reaches CVaR95 ≤ `classical_best`
-on at least one α in the sweep, but the risk-matched pick trades **higher** mean cost for
-that tail (none have mean_cost **<** 0.3776). Several low-α sweep points sit **below** the
-baseline on CVaR yet above it on cost (northwest of the pinned point), so the hull is not
-`nested`; the run is **`flat`**.
+**Clears baseline (`improves`)?** No — three OOS-selected nets meet CVaR95 ≤ `classical_best`,
+but none have mean_cost **<** 0.3776, so the Lead **clears** rule fails. Several low training-α
+**sweep** points beat the baseline on OOS CVaR yet sit at **higher** OOS cost, so the scatter is
+not fully `nested`; verdict **`flat`**.
 
 ### Smoke run (`--quick`) — not headline evidence
 
