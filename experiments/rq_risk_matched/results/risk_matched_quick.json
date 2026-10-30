@@ -1,5 +1,5 @@
 {
-  "timestamp": "20261030T172704Z",
+  "timestamp": "20261030T172823Z",
   "verdict": "nested",
   "research_question": "rq_d_risk_matched",
   "bench": {
@@ -223,5 +223,5 @@
       "cvar95": 1.100986178501657
     }
   },
-  "wall_time_s": 1.7520875930786133
+  "wall_time_s": 1.3623478412628174
 }

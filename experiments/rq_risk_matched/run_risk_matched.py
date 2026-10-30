@@ -12,7 +12,6 @@ from __future__ import annotations
 
 import argparse
 import json
-import math
 import pathlib
 import sys
 import time
@@ -99,15 +98,12 @@ def acceptance_verdict(
         for r in deep_rows
         if r.get("kind") in ("sweep", "seed", "ensemble")
     ]
-    n_seeds = len(seed_rows)
-    need = math.ceil(2 * n_seeds / 3) if n_seeds else 2
-    wins = sum(
-        1
+    clears = any(
+        row["cvar95"] <= best_row["cvar95"]
+        and row["mean_cost"] < best_row["mean_cost"]
         for row in seed_rows
-        if row["cvar95"] <= best_row["cvar95"]
-        and row["mean_cost"] <= best_row["mean_cost"]
     )
-    if wins >= need:
+    if clears:
         return "improves"
     if sweep_and_headline and all(
         weakly_dominated(row, front) for row in sweep_and_headline

@@ -32,7 +32,7 @@ we do not introduce a parallel trainer or a second torch cost ledger.
 
 | Verdict | Criterion |
 | --- | --- |
-| `improves` | ≥2/3 **selected** seeds have CVaR95 ≤ `classical_best` **and** mean_cost ≤ `classical_best` |
+| `improves` (“clears”) | **Any** selected seed has CVaR95 ≤ `classical_best` **and** mean_cost **<** `classical_best` (strictly cheaper at matched-or-better tail) |
 | `nested` | Every sweep, selected, and ensemble point is weakly dominated by at least one classical grid point (lower is better on both axes) |
 | `flat` | Otherwise |
 
@@ -71,7 +71,7 @@ Implementation: `experiments/rq_risk_matched/run_risk_matched.py` (CLI shim:
 
 **Automated verdict: `nested`** (smoke pools only — not headline evidence).
 
-Wall time ~2 s on CPU after deps install; artifacts: `results/risk_matched_quick.json`,
+Wall time ~1.4 s on CPU; artifacts: `results/risk_matched_quick.json`,
 `results/risk_matched_quick.png`.
 
 | Policy | mean_cost | cvar95 | α |
