@@ -65,20 +65,27 @@ Implementation: `experiments/rq_risk_matched/run_risk_matched.py` (CLI shim:
 
 ## Results
 
-<!-- Full-run table goes here after `uv run python scripts/rq_risk_matched.py` (no --quick). -->
+### Full run (2026-10-30)
 
-### Smoke run (`--quick`, 2026-10-30)
+**Automated verdict: `flat`**
 
-**Automated verdict: `nested`** (smoke pools only — not headline evidence).
+Wall time **618.9 s** (~10.3 min) on CPU (no CUDA). Artifacts: `results/risk_matched.json`,
+`results/risk_matched.png`.
 
-Wall time ~1.4 s on CPU; artifacts: `results/risk_matched_quick.json`,
-`results/risk_matched_quick.png`.
-
-| Policy | mean_cost | cvar95 | α |
+| Policy | mean_cost | cvar95 | selected α |
 | --- | ---: | ---: | ---: |
-| **classical_best** | 0.3764 | 1.1010 | — |
-| deep_seed_0_selected | 0.5531 | 1.5227 | 0.05 |
-| deep_ensemble_selected | 0.5531 | 1.5227 | — |
+| **classical_best** | 0.3776 | 1.0661 | — |
+| deep_seed_0_selected | 0.4020 | 1.0131 | 0.30 |
+| deep_seed_1_selected | 0.3939 | 1.0553 | 0.40 |
+| deep_seed_2_selected | 0.4052 | 0.9693 | 0.20 |
+| deep_ensemble_selected | 0.4004 | 1.0071 | (0.30, 0.40, 0.20) |
 
-Both α sweep points (0.05, 0.35) sit above the classical hull on CVaR at higher cost in
-this under-trained smoke; full cell run required before drawing conclusions.
+**Clears baseline (`improves`)?** No — every selected seed reaches CVaR95 ≤ `classical_best`
+on at least one α in the sweep, but the risk-matched pick trades **higher** mean cost for
+that tail (none have mean_cost **<** 0.3776). Several low-α sweep points sit **below** the
+baseline on CVaR yet above it on cost (northwest of the pinned point), so the hull is not
+`nested`; the run is **`flat`**.
+
+### Smoke run (`--quick`) — not headline evidence
+
+Verdict **`nested`** on shrunk pools (5 epochs, one seed). See `results/risk_matched_quick.json`.
