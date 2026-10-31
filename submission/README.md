@@ -70,9 +70,15 @@ are mirrored under `data/`.
 
 ## Notes
 
-- `code/` and the GitHub repository contain the frozen modules, the learned
-  hedger, every experiment script and the test suite. [`REPORT.md`](../REPORT.md),
-  [`docs/exploration.md`](../docs/exploration.md) and
-  [`docs/sidequest.md`](../docs/sidequest.md) are the working notes behind the report.
-- The holdout seed pool was simulated once, after all choices were frozen, by
+- Source of truth for code and committed experiment outputs: the public GitHub repo
+  (root [`README.md`](../README.md), [`REPORT.md`](../REPORT.md),
+  [`experiments/`](../experiments/)). This folder adds PDFs and a `data/` mirror.
+- Holdout paths were simulated once, after choices were frozen, in
   `scripts/holdout_eval.py` only.
+
+## 研究脈絡（简报）
+
+与仓库根目录 [`README.md`](../README.md) 中文段一致：Sepp (2013) 与 Buehler et al. (2019)
+复现 → 冻结 Heston ATM 1M / 20 bp cell 上 classic vs deep → 主结论 **Classic hedging is all you need**
+（见 `report/report.pdf` 与 [`REPORT.md`](../REPORT.md)）。Liquid 10 bp 实验链仅作 brittle 脚注，
+详见 [`experiments/README.md`](../experiments/README.md)。

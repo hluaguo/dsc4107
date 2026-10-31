@@ -1,4 +1,4 @@
-# Agent notes
+# Contributor conventions (internal)
 
 ## Documentation and comments: explain WH Y, not WHAT
 

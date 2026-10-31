@@ -1,8 +1,8 @@
 # Archive
 
-Historical material kept for provenance, not needed to grade or reproduce the headline
-20 bp benchmark.
+Optional provenance only — not needed to run tests or read the headline result.
 
 | Path | Contents |
 | --- | --- |
-| [`autoresearch/`](autoresearch/) | Paused autonomous tuning session (`measure.sh`, `checks.sh`, backlog) |
+| [`contributor-agents.md`](contributor-agents.md) | Internal coding conventions (why-style comments, frozen paths) |
+| [`autoresearch/`](autoresearch/) | Old automated tuning session scripts and notes |

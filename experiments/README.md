@@ -1,28 +1,39 @@
-# Research experiments (frozen cells)
+# Research experiments
 
-Each folder is one research question on the shared Heston ATM one-month benchmark
-(unless noted). Full runs write JSON and figures under `results/` inside the folder.
-Re-run from the repo root via the matching `scripts/rq_*.py` shim (see each
-`NOTES.md`).
+One folder per question on the shared Heston ATM one-month simulator unless noted.
+Committed full runs: `results/*.json` and `*.png` inside each folder. Re-run via
+`scripts/rq_*.py` (see each `NOTES.md`).
 
-| ID | Folder | Verdict (full run) | One-line read |
+## Main line (20 bp frozen cell, `cost = 0.002`)
+
+| ID | Folder | Verdict | One-line read |
 | --- | --- | --- | --- |
-| RQ-A | [`rq_a/`](rq_a/) | `dominated` | Unconstrained deep hedger sits above the classical cost–CVaR hull at **20 bp**. |
-| RQ-B | [`rq_mandate/`](rq_mandate/) | `fail` | Activity floors do not produce a seed that clears CB on cost **and** tail. |
-| RQ-D | [`rq_risk_matched/`](rq_risk_matched/) | `flat` | Training-α selection can match CB tail but not at lower mean cost. |
-| RQ-E | [`rq_policy_anatomy/`](rq_policy_anatomy/) | `band_like` | Risk-matched nets that beat CB on tail look like band-style no-trade rules. |
+| RQ-A | [`rq_a/`](rq_a/) | `dominated` | Deep is cheaper on mean cost but **above** the classical cost–CVaR hull on tail. |
+| RQ-B | [`rq_mandate/`](rq_mandate/) | `fail` | Activity floors do not yield a seed that beats CB on **both** cost and CVaR95. |
+| RQ-D | [`rq_risk_matched/`](rq_risk_matched/) | `flat` | Post-hoc α selection can match CB tail, not at lower mean cost. |
+| RQ-E | [`rq_policy_anatomy/`](rq_policy_anatomy/) | `band_like` | Risk-matched nets that beat CB on tail look like band / no-trade rules. |
 | RQ-F | [`rq_hard_cvar/`](rq_hard_cvar/) | `fails` | Train-time Lagrange CVaR cap does not clear CB on both axes. |
-| RQ-G | [`rq_cost_stress/`](rq_cost_stress/) | `mixed` | Domination at 10 & 20 bp; **50 bp** is `flat` (not hull-dominated). |
-| RQ-H | [`rq_liquid_10bp/`](rq_liquid_10bp/) | `clears` | Soft footnote: at Sepp **k** under our full-rate ledger, RM/Lagrange can clear re-swept hull. |
-| RQ-I | [`rq_liquid_robust/`](rq_liquid_robust/) | `fails` | Expanded seeds do not robustly reproduce RQ-H clears. |
-| RQ-J | [`rq_liquid_anatomy/`](rq_liquid_anatomy/) | `band_like` | Liquid-cell anatomy among CVaR-better seeds. |
-| RQ-K | [`rq_liquid_baseline/`](rq_liquid_baseline/) | `dominated` | Unconstrained `Hyper()` at 10 bp does not clear the champion. |
+| RQ-G | [`rq_cost_stress/`](rq_cost_stress/) | `mixed` | Hull domination at 10 & 20 bp; at **50 bp** the cell is `flat` (not a deep win story). |
 
-**Headline (20 bp benchmark):** classical band rules remain the honest cost–risk
-reference; see [`REPORT.md`](../REPORT.md) and RQ-A. Liquid RQs (H–K) use
-`cost = 0.001` with a re-swept classical hull — a softer, ledger-specific
-footnote, not a reversal of the main story.
+Headline: [`REPORT.md`](../REPORT.md) + RQ-A. Do not oversell 50 bp or high-cost Sharpe edges
+from premium harvesting (see report §3).
 
-Artifacts cited in the report for replications and the historical 4×5 comparison
-are mirrored under [`submission/data/`](../submission/data/). Regenerating those
-runs writes to gitignored [`results/`](../results/) at the repo root.
+## Liquid 10 bp footnote only (`cost = 0.001`)
+
+Sepp Case I uses **k/2** on |Δδ|·S; our ledger is **full-rate** `cost · |trade| · S`.
+Setting `cost = 0.001` aligns with Sepp liquid-index **k**, not exact Case I friction.
+Classical hull is **re-swept** at 10 bp — never `classical_best.json`.
+
+**Brittle soft path (footnote, not main title):**
+
+| Step | ID | Verdict | Read |
+| --- | --- | --- | --- |
+| 1 | **RQ-H** [`rq_liquid_10bp/`](rq_liquid_10bp/) | `clears` | Narrow RM/Lagrange clear vs re-swept champion. |
+| 2 | **RQ-K** [`rq_liquid_baseline/`](rq_liquid_baseline/) | `dominated` | Default `Hyper()` does **not** clear. |
+| 3 | **RQ-L** [`rq_liquid_alpha/`](rq_liquid_alpha/) | `a05_only` | Only selected α=0.05 seeds clear; not a multi-α triumph. |
+| 4 | **RQ-I** [`rq_liquid_robust/`](rq_liquid_robust/) | `fails` | Expanded seeds do **not** robustly reproduce H. |
+| 5 | **RQ-J** [`rq_liquid_anatomy/`](rq_liquid_anatomy/) | `band_like` | Clearing recipes look band-like, not a new mandate. |
+
+Replication artifacts for the written report are also under
+[`submission/data/`](../submission/data/). Regenerating Sepp/comparison runs writes to
+gitignored [`results/`](../results/) at repo root.
