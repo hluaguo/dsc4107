@@ -1,0 +1,534 @@
+{
+  "timestamp": "20261031T110852Z",
+  "verdict": "a05_only",
+  "research_question": "rq_l_liquid_alpha_grid_robustness",
+  "bench": {
+    "name": "heston_atm_1m",
+    "model": "heston",
+    "cost": 0.001,
+    "cost_bp": 10,
+    "n_steps": 21,
+    "val_seeds": [
+      2001,
+      2002,
+      2003,
+      2004,
+      2005,
+      2006,
+      2007,
+      2008
+    ],
+    "n_val_paths": 40000,
+    "quick": false
+  },
+  "hyper": {
+    "epochs": 200,
+    "batch_size": 1024,
+    "lr": 0.001,
+    "hidden": 128,
+    "depth": 3,
+    "alpha": 0.65,
+    "torch_seeds": [
+      0,
+      1,
+      2,
+      3,
+      4
+    ]
+  },
+  "classical": [
+    {
+      "label": "time_f1",
+      "kind": "classical",
+      "spec": {
+        "strategy": "time",
+        "frequency": 1,
+        "delta_band": null,
+        "price_band": null
+      },
+      "mean_sharpe": 0.6993676579108439,
+      "mean_cost": 0.23007973712579305,
+      "cvar95": 0.7231592732791102,
+      "pnl_mean": 0.3628707709089585
+    },
+    {
+      "label": "time_f3",
+      "kind": "classical",
+      "spec": {
+        "strategy": "time",
+        "frequency": 3,
+        "delta_band": null,
+        "price_band": null
+      },
+      "mean_sharpe": 0.538702820380882,
+      "mean_cost": 0.17089049834053177,
+      "cvar95": 1.312956727211647,
+      "pnl_mean": 0.42209951752926644
+    },
+    {
+      "label": "time_f7",
+      "kind": "classical",
+      "spec": {
+        "strategy": "time",
+        "frequency": 7,
+        "delta_band": null,
+        "price_band": null
+      },
+      "mean_sharpe": 0.4117455879794291,
+      "mean_cost": 0.13811445112779774,
+      "cvar95": 2.126019651816674,
+      "pnl_mean": 0.45561008132010883
+    },
+    {
+      "label": "time_f21",
+      "kind": "classical",
+      "spec": {
+        "strategy": "time",
+        "frequency": 21,
+        "delta_band": null,
+        "price_band": null
+      },
+      "mean_sharpe": 0.2826996297466845,
+      "mean_cost": 0.1028774298410221,
+      "cvar95": 4.018550075063601,
+      "pnl_mean": 0.49113864326628665
+    },
+    {
+      "label": "band_delta_0.05",
+      "kind": "classical",
+      "spec": {
+        "strategy": "band",
+        "frequency": 1,
+        "delta_band": 0.05,
+        "price_band": null
+      },
+      "mean_sharpe": 0.7080351103143256,
+      "mean_cost": 0.21273773953203517,
+      "cvar95": 0.7366892472242326,
+      "pnl_mean": 0.3801833135083736
+    },
+    {
+      "label": "band_delta_0.10",
+      "kind": "classical",
+      "spec": {
+        "strategy": "band",
+        "frequency": 1,
+        "delta_band": 0.1,
+        "price_band": null
+      },
+      "mean_sharpe": 0.6693453966544713,
+      "mean_cost": 0.18879707477788849,
+      "cvar95": 0.8440692070230812,
+      "pnl_mean": 0.40496134782050947
+    },
+    {
+      "label": "band_delta_0.20",
+      "kind": "classical",
+      "spec": {
+        "strategy": "band",
+        "frequency": 1,
+        "delta_band": 0.2,
+        "price_band": null
+      },
+      "mean_sharpe": 0.5388263607337282,
+      "mean_cost": 0.16077213984094987,
+      "cvar95": 1.2055571405959955,
+      "pnl_mean": 0.4331281011458448
+    },
+    {
+      "label": "band_price_0.01",
+      "kind": "classical",
+      "spec": {
+        "strategy": "band",
+        "frequency": 1,
+        "delta_band": null,
+        "price_band": 0.01
+      },
+      "mean_sharpe": 0.665732297090631,
+      "mean_cost": 0.20131273903148725,
+      "cvar95": 0.7454074910454624,
+      "pnl_mean": 0.391814921922086
+    },
+    {
+      "label": "band_price_0.02",
+      "kind": "classical",
+      "spec": {
+        "strategy": "band",
+        "frequency": 1,
+        "delta_band": null,
+        "price_band": 0.02
+      },
+      "mean_sharpe": 0.5790680090572279,
+      "mean_cost": 0.16955311766359973,
+      "cvar95": 0.914783038565364,
+      "pnl_mean": 0.4245036620764902
+    },
+    {
+      "label": "band_price_0.05",
+      "kind": "classical",
+      "spec": {
+        "strategy": "band",
+        "frequency": 1,
+        "delta_band": null,
+        "price_band": 0.05
+      },
+      "mean_sharpe": 0.39361662198687053,
+      "mean_cost": 0.13104981978348731,
+      "cvar95": 1.5904698120747993,
+      "pnl_mean": 0.4626830370056668
+    }
+  ],
+  "champion": {
+    "label": "band_delta_0.05",
+    "spec": {
+      "strategy": "band",
+      "frequency": 1,
+      "delta_band": 0.05,
+      "price_band": null
+    },
+    "mean_sharpe": 0.7080351103143256,
+    "mean_cost": 0.21273773953203517,
+    "cvar95": 0.7366892472242326
+  },
+  "alpha_grid": [
+    0.05,
+    0.12,
+    0.2,
+    0.3,
+    0.4
+  ],
+  "deep": [
+    {
+      "label": "seed_0_alpha_0.05",
+      "kind": "sweep",
+      "torch_seed": 0,
+      "alpha": 0.05,
+      "mean_cost": 0.2229023572623217,
+      "cvar95": 0.7148436428014652,
+      "pnl_mean": 0.37003792867285995
+    },
+    {
+      "label": "seed_0_alpha_0.12",
+      "kind": "sweep",
+      "torch_seed": 0,
+      "alpha": 0.12,
+      "mean_cost": 0.22110198971632444,
+      "cvar95": 0.7122288499192017,
+      "pnl_mean": 0.3718155422704904
+    },
+    {
+      "label": "seed_0_alpha_0.2",
+      "kind": "sweep",
+      "torch_seed": 0,
+      "alpha": 0.2,
+      "mean_cost": 0.21630115834744992,
+      "cvar95": 0.7214029485270763,
+      "pnl_mean": 0.3766621396100797
+    },
+    {
+      "label": "seed_0_alpha_0.3",
+      "kind": "sweep",
+      "torch_seed": 0,
+      "alpha": 0.3,
+      "mean_cost": 0.2185394988864088,
+      "cvar95": 0.7797499250208377,
+      "pnl_mean": 0.37433338639961394
+    },
+    {
+      "label": "seed_0_alpha_0.4",
+      "kind": "sweep",
+      "torch_seed": 0,
+      "alpha": 0.4,
+      "mean_cost": 0.21600120032402528,
+      "cvar95": 0.8265093590967497,
+      "pnl_mean": 0.37681000359659644
+    },
+    {
+      "label": "seed_0_selected",
+      "kind": "seed",
+      "torch_seed": 0,
+      "alpha": 0.2,
+      "mean_cost": 0.21630115834744992,
+      "cvar95": 0.7214029485270763,
+      "pnl_mean": 0.3766621396100797,
+      "clears_champion": false,
+      "selection": "min cost among cvar<=champion else min cvar"
+    },
+    {
+      "label": "seed_1_alpha_0.05",
+      "kind": "sweep",
+      "torch_seed": 1,
+      "alpha": 0.05,
+      "mean_cost": 0.2117869402081109,
+      "cvar95": 0.7059277766418529,
+      "pnl_mean": 0.38128839511303714
+    },
+    {
+      "label": "seed_1_alpha_0.12",
+      "kind": "sweep",
+      "torch_seed": 1,
+      "alpha": 0.12,
+      "mean_cost": 0.22322097621449483,
+      "cvar95": 0.7213668347576059,
+      "pnl_mean": 0.3696822815470321
+    },
+    {
+      "label": "seed_1_alpha_0.2",
+      "kind": "sweep",
+      "torch_seed": 1,
+      "alpha": 0.2,
+      "mean_cost": 0.2241922510337743,
+      "cvar95": 0.7424670160430362,
+      "pnl_mean": 0.3686903849068521
+    },
+    {
+      "label": "seed_1_alpha_0.3",
+      "kind": "sweep",
+      "torch_seed": 1,
+      "alpha": 0.3,
+      "mean_cost": 0.2180687272660458,
+      "cvar95": 0.7648826287021062,
+      "pnl_mean": 0.3747840592508556
+    },
+    {
+      "label": "seed_1_alpha_0.4",
+      "kind": "sweep",
+      "torch_seed": 1,
+      "alpha": 0.4,
+      "mean_cost": 0.2175339155166609,
+      "cvar95": 0.8210495780515444,
+      "pnl_mean": 0.3752676522189886
+    },
+    {
+      "label": "seed_1_selected",
+      "kind": "seed",
+      "torch_seed": 1,
+      "alpha": 0.05,
+      "mean_cost": 0.2117869402081109,
+      "cvar95": 0.7059277766418529,
+      "pnl_mean": 0.38128839511303714,
+      "clears_champion": true,
+      "selection": "min cost among cvar<=champion else min cvar"
+    },
+    {
+      "label": "seed_2_alpha_0.05",
+      "kind": "sweep",
+      "torch_seed": 2,
+      "alpha": 0.05,
+      "mean_cost": 0.22064996382795762,
+      "cvar95": 0.7120245608066463,
+      "pnl_mean": 0.3722987250623825
+    },
+    {
+      "label": "seed_2_alpha_0.12",
+      "kind": "sweep",
+      "torch_seed": 2,
+      "alpha": 0.12,
+      "mean_cost": 0.21687699631384721,
+      "cvar95": 0.7051788449790072,
+      "pnl_mean": 0.37606634754085255
+    },
+    {
+      "label": "seed_2_alpha_0.2",
+      "kind": "sweep",
+      "torch_seed": 2,
+      "alpha": 0.2,
+      "mean_cost": 0.22940428955002898,
+      "cvar95": 0.8057733929076407,
+      "pnl_mean": 0.36340304711427623
+    },
+    {
+      "label": "seed_2_alpha_0.3",
+      "kind": "sweep",
+      "torch_seed": 2,
+      "alpha": 0.3,
+      "mean_cost": 0.22188458084607046,
+      "cvar95": 0.7978013418499745,
+      "pnl_mean": 0.3709060163675063
+    },
+    {
+      "label": "seed_2_alpha_0.4",
+      "kind": "sweep",
+      "torch_seed": 2,
+      "alpha": 0.4,
+      "mean_cost": 0.21818839094885084,
+      "cvar95": 0.8419044456069239,
+      "pnl_mean": 0.3745475860832588
+    },
+    {
+      "label": "seed_2_selected",
+      "kind": "seed",
+      "torch_seed": 2,
+      "alpha": 0.12,
+      "mean_cost": 0.21687699631384721,
+      "cvar95": 0.7051788449790072,
+      "pnl_mean": 0.37606634754085255,
+      "clears_champion": false,
+      "selection": "min cost among cvar<=champion else min cvar"
+    },
+    {
+      "label": "seed_3_alpha_0.05",
+      "kind": "sweep",
+      "torch_seed": 3,
+      "alpha": 0.05,
+      "mean_cost": 0.21170267947406055,
+      "cvar95": 0.7039816459051917,
+      "pnl_mean": 0.3813510481123524
+    },
+    {
+      "label": "seed_3_alpha_0.12",
+      "kind": "sweep",
+      "torch_seed": 3,
+      "alpha": 0.12,
+      "mean_cost": 0.21860556681545182,
+      "cvar95": 0.705545959773493,
+      "pnl_mean": 0.374391683521599
+    },
+    {
+      "label": "seed_3_alpha_0.2",
+      "kind": "sweep",
+      "torch_seed": 3,
+      "alpha": 0.2,
+      "mean_cost": 0.214162121553207,
+      "cvar95": 0.7195452346069612,
+      "pnl_mean": 0.37882873084830965
+    },
+    {
+      "label": "seed_3_alpha_0.3",
+      "kind": "sweep",
+      "torch_seed": 3,
+      "alpha": 0.3,
+      "mean_cost": 0.21748521043054617,
+      "cvar95": 0.7577965061308088,
+      "pnl_mean": 0.3753936029878747
+    },
+    {
+      "label": "seed_3_alpha_0.4",
+      "kind": "sweep",
+      "torch_seed": 3,
+      "alpha": 0.4,
+      "mean_cost": 0.21586769881079207,
+      "cvar95": 0.824046964735312,
+      "pnl_mean": 0.3769691753619075
+    },
+    {
+      "label": "seed_3_selected",
+      "kind": "seed",
+      "torch_seed": 3,
+      "alpha": 0.05,
+      "mean_cost": 0.21170267947406055,
+      "cvar95": 0.7039816459051917,
+      "pnl_mean": 0.3813510481123524,
+      "clears_champion": true,
+      "selection": "min cost among cvar<=champion else min cvar"
+    },
+    {
+      "label": "seed_4_alpha_0.05",
+      "kind": "sweep",
+      "torch_seed": 4,
+      "alpha": 0.05,
+      "mean_cost": 0.2148302083662502,
+      "cvar95": 0.6976825114941544,
+      "pnl_mean": 0.3781756520304439
+    },
+    {
+      "label": "seed_4_alpha_0.12",
+      "kind": "sweep",
+      "torch_seed": 4,
+      "alpha": 0.12,
+      "mean_cost": 0.22211795184246394,
+      "cvar95": 0.7211511258185648,
+      "pnl_mean": 0.3707877208624694
+    },
+    {
+      "label": "seed_4_alpha_0.2",
+      "kind": "sweep",
+      "torch_seed": 4,
+      "alpha": 0.2,
+      "mean_cost": 0.22125550989847464,
+      "cvar95": 0.7359492632159617,
+      "pnl_mean": 0.3716662087055311
+    },
+    {
+      "label": "seed_4_alpha_0.3",
+      "kind": "sweep",
+      "torch_seed": 4,
+      "alpha": 0.3,
+      "mean_cost": 0.21924943320577395,
+      "cvar95": 0.7667515795424978,
+      "pnl_mean": 0.37362469491076483
+    },
+    {
+      "label": "seed_4_alpha_0.4",
+      "kind": "sweep",
+      "torch_seed": 4,
+      "alpha": 0.4,
+      "mean_cost": 0.21977297815291744,
+      "cvar95": 0.8422002555893768,
+      "pnl_mean": 0.3729853521005244
+    },
+    {
+      "label": "seed_4_selected",
+      "kind": "seed",
+      "torch_seed": 4,
+      "alpha": 0.05,
+      "mean_cost": 0.2148302083662502,
+      "cvar95": 0.6976825114941544,
+      "pnl_mean": 0.3781756520304439,
+      "clears_champion": false,
+      "selection": "min cost among cvar<=champion else min cvar"
+    },
+    {
+      "label": "ensemble_selected",
+      "kind": "ensemble",
+      "torch_seeds": [
+        0,
+        1,
+        2,
+        3,
+        4
+      ],
+      "mean_cost": 0.21429959654194372,
+      "cvar95": 0.6948518233550894,
+      "pnl_mean": 0.3787087164813531
+    }
+  ],
+  "acceptance": {
+    "verdict_values": [
+      "a05_only",
+      "several_clear",
+      "none"
+    ],
+    "clear_rule": "per torch seed, selected OOS point: mean_cost < champion.mean_cost AND cvar95 <= champion.cvar95",
+    "selection_rule": "min mean_cost among sweep points with cvar95 <= champion.cvar95; else min cvar95",
+    "a05_only_rule": "at least one selected seed clears AND every clearing selected seed has training alpha == 0.05 (equivalently: distinct clearing alphas subset is exactly {0.05})",
+    "several_clear_rule": "at least one selected seed clears AND two or more distinct training alphas appear among clearing selected seeds, OR clearing alphas include any value other than 0.05",
+    "none_rule": "no selected seed clears the champion",
+    "champion": {
+      "mean_cost": 0.21273773953203517,
+      "cvar95": 0.7366892472242326
+    },
+    "sweep_alphas_that_clear": [
+      0.05
+    ]
+  },
+  "audit": {
+    "loaded_classical_best_json": false,
+    "champion_from_val_sharpe_sweep": true,
+    "champion_matches_frozen_cb_spec": false,
+    "frozen_cb_spec_for_audit_only": {
+      "strategy": "band",
+      "frequency": 1,
+      "delta_band": 0.1,
+      "price_band": null
+    },
+    "expanded_torch_seeds_same_as_rq_i": [
+      0,
+      1,
+      2,
+      3,
+      4
+    ]
+  },
+  "wall_time_s": 667.792183637619
+}
