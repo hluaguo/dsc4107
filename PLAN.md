@@ -42,7 +42,9 @@ Prior work differs in what it optimises. Sepp (2013), DOI [10.21314/jois.2013.02
 | `improves` | At least two of three training seeds beat `classical_best` on CVaR95 while mean cost is ≤ the baseline's mean cost (CVaR is primary). |
 | `flat` | Otherwise. |
 
-Full numerical results for the course report remain in `REPORT.md`; this plan only fixes the forward-looking question and how to re-run the cell.
+Full numerical results for the course report remain in `REPORT.md` (**Section 8**
+for the locked RQ-A–H arc); this plan only fixes the forward-looking question and
+how to re-run the cell.
 
 ## Replications (unchanged intent)
 

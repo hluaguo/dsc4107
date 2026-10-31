@@ -4,7 +4,10 @@ This report covers three things the plan asks for: the replication of Sepp
 (2013), the replication of the Heston experiment of Buehler, Gonon, Teichmann
 and Wood (2019), and the head-to-head comparison that neither paper runs. All
 numbers are produced by the scripts in `scripts/` and written under `results/`;
-nothing here is hand-computed.
+nothing here is hand-computed. **Section 8** frames the follow-on RQ-A–H
+experiments on the frozen benchmark; every number there is copied from
+`experiments/rq_*/NOTES.md` and the matching `results/*.json` (see also
+`EXPLORATION.md` for the older 4×5 probes in Section 3).
 
 The economic problem is the same in both papers. A desk sells one at-the-money
 one-month call, hedges it with the underlying, and pays a proportional cost on
@@ -248,6 +251,12 @@ search cannot repair the jump-diffusion gap at 20 bp.
   meant to measure; it shows up as a premium-harvesting edge rather than as a
   lower-variance hedge.
 
+Section 8 asks the same question on the **frozen 20 bp cell** with rollout
+**mean cost** and **CVaR95** instead of Sharpe alone, and extends cost and
+classical re-tuning where noted. The headline is not “deep always wins”; it is
+**when** (if ever) extra policy freedom beats a fairly dialled classical hull
+under the **same** `hedge.rollout` ledger.
+
 ### 3.4 The locked holdout
 
 `scripts/holdout_eval.py` was run once, after every choice was frozen, on the
@@ -358,3 +367,93 @@ All scripts pick CUDA automatically. Outputs land in `results/sepp/`,
 | `scripts/deep_hedging_replication.py` | Frictionless check and Heston experiment |
 | `scripts/comparison_study.py` | The head-to-head map and the Optuna add-on |
 | `scripts/holdout_eval.py` | The single locked holdout run |
+| `experiments/rq_*/` | Locked RQ-A–H cells (`NOTES.md`, `results/*.json`) |
+| `scripts/rq_*.py` | CLI shims for the RQ experiment runners |
+
+## 8. Exploration arc (RQ-A–H)
+
+After Sections 1–3 freeze the replications and the Sharpe-based comparison, the
+weekend RQ cells reuse **`BenchConfig()`** — Heston ATM one-month call,
+`n_steps=21`, shared validation (`val_seeds` 2001–2008 × 40_000 paths) — and
+score every policy through **`hedge.rollout`** (mean path proportional cost,
+CVaR95 on terminal P&L). Classical candidates are the same calendar/band grid
+as RQ-A unless a question explicitly re-sweeps the hull at another cost (RQ-G,
+RQ-H). Locked verdicts and headline numbers live in each folder's `NOTES.md` and
+JSON under `experiments/rq_*/results/`.
+
+### 8.1 Transaction-cost convention (Sepp vs this repo)
+
+Sepp (2013) equation (2.5) charges proportional costs with factor **k/2** on
+|Δδ|·S (half the quoted bid–ask). Case I (liquid index) sets **k = 0.001**.
+Our `BenchConfig` and `hedge.rollout` use the **full** rate `cost · |trade| · S`
+with no ½ — the same full-rate convention as Buehler et al. (2019) equation
+(5.7). RQ-H sets `cost = 0.001` (10 bp **full-rate**): numerically equal to
+Sepp's liquid-index **k**, but **not** “exact Sepp Case I friction” (Sepp's
+effective one-way charge at that k is about half our per-trade rate). Wording
+below follows RQ-H: **Sepp liquid-index k level under our full-rate ledger**.
+
+### 8.2 Story in one pass
+
+At **frozen 20 bp**, the unconstrained deep hedger is **weakly dominated** by
+the re-tuned classical cost–CVaR hull (RQ-A): it trades more cheaply than the
+pinned band champion but with **worse** tail risk. Sweeping the **training-α**
+dial (RQ-D) can match or beat the champion on OOS CVaR only by **spending**
+turnover — verdict **flat**, not a nested “clears” win. Among those
+CVaR-better nets, rebalance anatomy is **band-like** versus `BandDelta(0.02)`
+(RQ-E), without claiming literal Leland no-trade at ε=0 micro-moves. **Hard**
+train-time tail pressure (RQ-F Lagrange on batch CVaR) and **mandate** activity
+floors (RQ-B) both **fail** to deliver a free lunch: no seed clears on both
+cost and CVaR; seed 0 under Lagrange can still **overshoot** OOS CVaR despite
+positive in-training excess (Lagrange is not the RQ-D α dial). **Cost stress**
+(RQ-G) keeps hull **domination** at 10 and 20 bp but only **flattens** at 50 bp
+(cheaper deep points that are not weakly dominated — not an `improves` win).
+At **liquid 10 bp full-rate** with a **re-swept** Sharpe champion (not
+`classical_best.json`), risk-matched α and Lagrange each **clear** on **one**
+torch seed (RQ-H) — **interesting** only in the soft sense, by a **tiny** cost
+margin (~0.4%), not a crushing liquid-cost victory.
+
+That arc ties back to Section 3: the honest gap is not “deep always wins,” but
+**whether** extra freedom beats a fairly dialled classical competitor under the
+**same** ledger — and **when** that happens (moderate 20 bp: dominated; 10 bp
+with explicit tail matching: a hair's-breadth clear).
+
+### 8.3 Locked summary (verdicts and cite-able rows)
+
+Pinned **20 bp** champion (`classical_best`, band δ=0.10): mean cost **0.3776**,
+CVaR95 **1.0661** (`experiments/rq_a/results/pareto.json`). All RQ-A/D/E/F/B
+cells use this baseline unless noted.
+
+| RQ | Folder | Verdict | Headline evidence (OOS rollout) |
+| --- | --- | --- | --- |
+| **A** | `experiments/rq_a/` | **dominated** | Deep ensemble cost **0.3595** vs CB **0.3776**, but CVaR **1.2912** vs **1.0661**; every torch seed weakly dominated by a classical grid point. |
+| **D** | `experiments/rq_risk_matched/` | **flat** | Selected seeds meet CVaR ≤ CB (e.g. seed 2: cost **0.4052**, CVaR **0.9693**, training-α **0.20**) but **none** have mean cost **< 0.3776** — better tail only at higher cost, not Lead “clears.” |
+| **E** | `experiments/rq_policy_anatomy/` | **band_like** | All three CVaR-better RQ-D seeds pass Lit bars vs `BandDelta(0.02)` (no-trade mass ≥ 0.8× Band, mean \|Δδ\| ≤ 1.25×); near-unity trade rate at ε=0, more no-trade mass at ε=0.02. |
+| **F** | `experiments/rq_hard_cvar/` | **fails** | No seed clears both axes; seed **0** OOS CVaR **1.1496** above CB despite λ≈4.46; seeds 1–2 tail ≤ CB but cost still ≥ CB. |
+| **B** | `experiments/rq_mandate/` | **fail** | Activity floors met (opening \|δ\| ≥ **0.5144**, turnover ≥ **1.8692**); all seeds CVaR **1.19–1.32** above CB — floors do not recover tail. |
+| **G** | `experiments/rq_cost_stress/` | **mixed** | Per-k: **10 bp** & **20 bp** `dominated`; **50 bp** `flat` (e.g. `deep_seed_1` cost **0.4154**, CVaR **4.6717** not weakly dominated; 50 bp champion `time_f21` cost **0.5144**, CVaR **4.4195**). Overall **`mixed`**, not all-k domination and not 50 bp `improves`. |
+| **H** | `experiments/rq_liquid_10bp/` | **clears** | 10 bp champion `band_delta_0.05`: cost **0.2127**, CVaR **0.7367**. Clearing seeds: **`rm_seed_1`** (α=**0.05**) cost **0.2118**, CVaR **0.7059**; **`lag_seed_1`** cost **0.2119**, CVaR **0.7210** — ~**0.4%** cost edge vs champion; both arms clear on one seed each (`soft_interesting`: true). |
+
+Re-run entry points: `scripts/rq_a_pareto.py`, `scripts/rq_risk_matched.py`,
+`scripts/rq_policy_anatomy.py`, `scripts/rq_hard_cvar.py`, `scripts/rq_mandate.py`,
+`scripts/rq_cost_stress.py`, `scripts/rq_liquid_10bp.py` (full cells write the
+JSON paths above; `--quick` smokes are not headline evidence).
+
+### 8.4 Soft readouts (do not overclaim)
+
+- **RQ-A / RQ-D:** Dominated and flat are **not** “deep is useless” — they record
+  that cheaper schedules sit **inside** or **beside** the classical hull on tail
+  unless you pay for CVaR (D). Beating CB on CVaR alone at **higher** cost is not
+  the Lead **clears** rule and is not a nested Pareto win.
+- **RQ-E:** Band-like compares turnover statistics to **`BandDelta(0.02)`** among
+  RQ-D seeds with OOS CVaR ≤ CB; it does not assert step-wise Leland no-trade at
+  ε=0.
+- **RQ-F:** Batch Lagrange targets the classical OOS CVaR level during training;
+  **OOS rollout** still governs verdicts, and dual ascent is not interchangeable
+  with sweeping training-α (RQ-D).
+- **RQ-B:** **fail** means mandate floors were met but **CVaR did not recover**;
+  slightly cheaper cost with worse tail (e.g. mandate seed 1) still counts as fail.
+- **RQ-G:** At **50 bp**, undominated deep points are **flat** — lower cost and
+  **worse** CVaR than the Sharpe champion, not an overall win for deep.
+- **RQ-H:** **clears** is mandate-style against the **10 bp re-swept** champion,
+  with **tiny** cost margins; do not read it as broad dominance at liquid friction
+  or as matching Sepp's half-spread ledger.
