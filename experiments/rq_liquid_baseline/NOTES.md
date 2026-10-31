@@ -56,6 +56,33 @@ uv run python scripts/rq_liquid_baseline.py           # full cell → results/li
 Implementation: `experiments/rq_liquid_baseline/run_liquid_baseline.py` (CLI:
 `scripts/rq_liquid_baseline.py`).
 
-## Full-run result
+## Full-run result (2026-10-31)
 
-*(Filled after full run — must match `results/liquid_baseline.json`.)*
+**Automated verdict: `dominated`** (`soft_interesting`: false)
+
+Wall time **310.6 s** (~5.2 min) on cloud CPU (no CUDA). Artifacts:
+`results/liquid_baseline.json`, `results/liquid_baseline.png`.
+
+**10 bp champion (val Sharpe):** `band_delta_0.05` | mean_cost **0.2127** | cvar95 **0.7367**
+(`loaded_classical_best_json: false`; champion spec ≠ frozen 20 bp δ=0.10).
+
+| Policy | mean_cost | cvar95 | Clears champion? |
+| --- | ---: | ---: | --- |
+| deep_seed_0 | 0.2070 | 1.0084 | no (tail above champion) |
+| deep_seed_1 | 0.2108 | 1.0158 | no |
+| deep_seed_2 | 0.2062 | 0.9754 | no |
+| deep_seed_3 | 0.2047 | 0.9720 | no |
+| deep_seed_4 | 0.2054 | 0.9840 | no |
+| deep_seed_5 | 0.1988 | 0.8861 | no (cost below champion; tail still above) |
+| deep_ensemble | 0.2055 | 0.9678 | no |
+
+**Clearing seeds:** 0 / 6. Every deep row (seeds + ensemble) is weakly dominated by at least
+one classical grid point on OOS rollout — same cost–tail pattern as RQ-G at 10 bp.
+
+### Interpretation
+
+Unconstrained `Hyper()` at liquid **k** under full-rate **does not** clear the re-swept 10 bp
+Sharpe champion without risk-match or Lagrange (contrast RQ-H `clears`). Expanded RQ-I/K
+train paths (1001–1006) and six torch inits do not change that headline: cheaper schedules
+still sit **above** the champion on CVaR95. This supports the K framing — H's clears trace
+to the mandate knobs, not to default CVaR training alone.
