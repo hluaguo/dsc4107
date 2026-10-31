@@ -358,3 +358,51 @@ All scripts pick CUDA automatically. Outputs land in `results/sepp/`,
 | `scripts/deep_hedging_replication.py` | Frictionless check and Heston experiment |
 | `scripts/comparison_study.py` | The head-to-head map and the Optuna add-on |
 | `scripts/holdout_eval.py` | The single locked holdout run |
+
+## 8. Lead-locked liquid path (10 bp full-rate)
+
+Sections 1–3 and the frozen 20 bp benchmark (`bench/classical_best.json`, holdout
+in §3.4) remain the **backdrop**: they answer whether a default learned hedger beats
+a well-tuned classical band at the course’s nominal friction. The **Lead-locked**
+follow-on asks a narrower question at **Sepp liquid-index k** under **our** ledger:
+can a deep policy **clear** the **re-swept** 10 bp val-Sharpe champion on shared
+OOS rollout (`mean_cost` strictly below champion **and** `cvar95` ≤ champion), and
+does that clear survive without mandate knobs? The headline answer is **not** a broad
+liquid win — it is **recipe-specific, tiny on cost, and brittle across seeds**.
+
+**Friction convention (must not be blurred).** Sepp (2013) eq (2.5) charges proportional
+cost with factor **k/2** on |Δδ|·S; Case I sets **k = 0.001**. Our `hedge.rollout` and
+`BenchConfig` charge the **full** proportional rate (Buehler et al. 2019 eq 5.7). Every
+liquid cell sets `cost = 0.001` — numerically Sepp’s **k**, but **not** exact Case I
+economics (~5 bp one-way under Sepp’s half-spread). The 10 bp classical **hull is
+re-swept** on the RQ-A grid at that cost; **`classical_best.json` is never the comparison
+baseline** (audit `loaded_classical_best_json: false` in each JSON). Do not read the 20 bp
+frozen band row as the 10 bp champion.
+
+**Shared 10 bp champion (all RQ-H–L).** Highest mean validation Sharpe on the re-swept
+grid: **`band_delta_0.05`** with OOS `mean_cost` **0.2127** and `cvar95` **0.7367**
+(source: `experiments/rq_liquid_10bp/results/liquid_10bp.json` and matching NOTES).
+
+| RQ | Folder | Locked verdict | What it adds |
+| --- | --- | --- | --- |
+| **H** | `experiments/rq_liquid_10bp/` | **`clears`** | Risk-matched α sweep **or** Lagrange excess-CVaR at training α=0.65 can each produce **one** torch seed that beats the champion on cost **and** tail: `rm_seed_1` at selected α=**0.05** (cost **0.2118**, CVaR **0.7059**); `lag_seed_1` (cost **0.2119**, CVaR **0.7210**). Margins on cost are **~0.4%** — real but not economic dominance. |
+| **K** | `experiments/rq_liquid_baseline/` | **`dominated`** | Default `Hyper()` (α=0.65, no RM sweep, no Lagrange): **0 / 6** torch seeds clear; every deep row is weakly dominated by some hull point. Expanded train paths **1001–1006** (vs default bench train elsewhere) do not rescue the headline. |
+| **L** | `experiments/rq_liquid_alpha/` | **`a05_only`** | Full risk-matched α grid on torch **0–4**: only training **α = 0.05** yields any raw sweep point that clears; among **selected** points, clears appear only at α=0.05 on seeds **1** and **3** (seed 4 selects α=0.05 but cost stays above champion). This is **grid-specific**, not a cited α theorem. |
+| **I** | `experiments/rq_liquid_robust/` | pooled **`fails`** | Fixed H recipes (RM α=0.05, Lag α=0.65), torch **0–5**: **5 / 12** arm×seed rows clear — above one-seed luck, below the half-bar for **`robust`**. Per-arm footnote: Lag alone hits **`robust`** (3/6 seeds); RM fixed clears **2/6** (seeds 1, 3). |
+| **J** | `experiments/rq_liquid_anatomy/` | **`band_like`** | Among seeds with OOS `cvar95` ≤ champion, fixed RM (α=0.05) and Lag (α=0.65) recipes meet RQ-E-style Lit bars vs the champion band using **ε = champion δ-band 0.05** — not literal Leland ε→0 no-trade. Applies to these **mandate recipes**, not unconstrained Hyper (see K). |
+
+**Seed pools (do not treat cells as exact twins).** RQ-H uses default `Hyper().torch_seeds`
+(0–2). RQ-I and RQ-J expand torch inits to **0–5** with default bench train paths
+(1001–1003). RQ-K uses torch **0–5** and train **1001–1006**. RQ-L uses torch **0–4**.
+Cross-cell comparisons are on the **same OOS val seeds** and champion, not identical
+training draws.
+
+**How to read this against §3.** At **20 bp** the fixed-hyper comparison is essentially
+flat (§3.1). The liquid arc says that at **10 bp full-rate k-level**, an **unconstrained**
+learner still **does not** clear the re-swept Sharpe champion (K), while **explicit tail
+budgets** (H, and partially I/L) can — on **some** inits only — shave cost a fraction of a
+percent without worsening CVaR95. That is a **mandate engineering** result, not evidence
+that deep hedging uniformly dominates classical bands in liquid markets.
+
+Reproduce from `experiments/rq_liquid_*/NOTES.md` and `scripts/rq_liquid_*.py`; primary
+artifacts under `experiments/rq_liquid_*/results/*.json`.
