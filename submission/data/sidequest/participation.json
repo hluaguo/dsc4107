@@ -1,0 +1,222 @@
+[
+  {
+    "model": "gbm",
+    "cost": 0.0,
+    "best_lam": 1.0,
+    "best_freq": 1,
+    "participation_sharpe": 1.2279992196143534,
+    "deep_sharpe": 1.2576462004407907,
+    "classical_sharpe": 1.2279992196143534,
+    "no_hedge_sharpe": 0.1651233166953106,
+    "deep_minus_participation": 0.02964698082643724
+  },
+  {
+    "model": "gbm",
+    "cost": 0.002,
+    "best_lam": 1.0,
+    "best_freq": 3,
+    "participation_sharpe": 0.3078078847920581,
+    "deep_sharpe": 0.347153571138458,
+    "classical_sharpe": 0.34816445872528107,
+    "no_hedge_sharpe": 0.1651233166953106,
+    "deep_minus_participation": 0.0393456863463999
+  },
+  {
+    "model": "gbm",
+    "cost": 0.005,
+    "best_lam": 0.0,
+    "best_freq": 1,
+    "participation_sharpe": 0.1651233166953106,
+    "deep_sharpe": 0.07277958364534134,
+    "classical_sharpe": 0.03491583575797598,
+    "no_hedge_sharpe": 0.1651233166953106,
+    "deep_minus_participation": -0.09234373304996926
+  },
+  {
+    "model": "gbm",
+    "cost": 0.01,
+    "best_lam": 0.0,
+    "best_freq": 1,
+    "participation_sharpe": 0.1651233166953106,
+    "deep_sharpe": 0.16090076742872966,
+    "classical_sharpe": -0.2606904882805995,
+    "no_hedge_sharpe": 0.1651233166953106,
+    "deep_minus_participation": -0.004222549266580944
+  },
+  {
+    "model": "gbm",
+    "cost": 0.02,
+    "best_lam": 0.0,
+    "best_freq": 1,
+    "participation_sharpe": 0.1651233166953106,
+    "deep_sharpe": 0.15755295756134716,
+    "classical_sharpe": -0.8510498057202833,
+    "no_hedge_sharpe": 0.1651233166953106,
+    "deep_minus_participation": -0.00757035913396345
+  },
+  {
+    "model": "jd",
+    "cost": 0.0,
+    "best_lam": 1.0,
+    "best_freq": 1,
+    "participation_sharpe": 0.12124198065207471,
+    "deep_sharpe": 0.11582318307785644,
+    "classical_sharpe": 0.12127731567948627,
+    "no_hedge_sharpe": 0.05322015943287665,
+    "deep_minus_participation": -0.005418797574218273
+  },
+  {
+    "model": "jd",
+    "cost": 0.002,
+    "best_lam": 0.0,
+    "best_freq": 1,
+    "participation_sharpe": 0.05322015943287665,
+    "deep_sharpe": -0.08143368106853854,
+    "classical_sharpe": 0.008390163011220697,
+    "no_hedge_sharpe": 0.05322015943287665,
+    "deep_minus_participation": -0.13465384050141518
+  },
+  {
+    "model": "jd",
+    "cost": 0.005,
+    "best_lam": 0.0,
+    "best_freq": 1,
+    "participation_sharpe": 0.05322015943287665,
+    "deep_sharpe": -0.14905779988911777,
+    "classical_sharpe": -0.1167183632447981,
+    "no_hedge_sharpe": 0.05322015943287665,
+    "deep_minus_participation": -0.2022779593219944
+  },
+  {
+    "model": "jd",
+    "cost": 0.01,
+    "best_lam": 0.0,
+    "best_freq": 1,
+    "participation_sharpe": 0.05322015943287665,
+    "deep_sharpe": 0.04381008727531976,
+    "classical_sharpe": -0.32536503552372287,
+    "no_hedge_sharpe": 0.05322015943287665,
+    "deep_minus_participation": -0.00941007215755689
+  },
+  {
+    "model": "jd",
+    "cost": 0.02,
+    "best_lam": 0.0,
+    "best_freq": 1,
+    "participation_sharpe": 0.05322015943287665,
+    "deep_sharpe": 0.0419346039709403,
+    "classical_sharpe": -0.743027567112161,
+    "no_hedge_sharpe": 0.05322015943287665,
+    "deep_minus_participation": -0.011285555461936346
+  },
+  {
+    "model": "heston",
+    "cost": 0.0,
+    "best_lam": 1.0,
+    "best_freq": 1,
+    "participation_sharpe": 1.1385693404721398,
+    "deep_sharpe": 1.1588428024646042,
+    "classical_sharpe": 1.13856934047214,
+    "no_hedge_sharpe": 0.18659561612511671,
+    "deep_minus_participation": 0.020273461992464492
+  },
+  {
+    "model": "heston",
+    "cost": 0.002,
+    "best_lam": 1.0,
+    "best_freq": 3,
+    "participation_sharpe": 0.3173139826614415,
+    "deep_sharpe": 0.36622706911075664,
+    "classical_sharpe": 0.3523637009018662,
+    "no_hedge_sharpe": 0.18659561612511671,
+    "deep_minus_participation": 0.048913086449315135
+  },
+  {
+    "model": "heston",
+    "cost": 0.005,
+    "best_lam": 0.0,
+    "best_freq": 1,
+    "participation_sharpe": 0.18659561612511671,
+    "deep_sharpe": 0.09960804965593169,
+    "classical_sharpe": 0.045889788760706575,
+    "no_hedge_sharpe": 0.18659561612511671,
+    "deep_minus_participation": -0.08698756646918503
+  },
+  {
+    "model": "heston",
+    "cost": 0.01,
+    "best_lam": 0.0,
+    "best_freq": 1,
+    "participation_sharpe": 0.18659561612511671,
+    "deep_sharpe": 0.17932182956484372,
+    "classical_sharpe": -0.25076059083484975,
+    "no_hedge_sharpe": 0.18659561612511671,
+    "deep_minus_participation": -0.007273786560272999
+  },
+  {
+    "model": "heston",
+    "cost": 0.02,
+    "best_lam": 0.0,
+    "best_freq": 1,
+    "participation_sharpe": 0.18659561612511671,
+    "deep_sharpe": 0.17417350559717504,
+    "classical_sharpe": -0.8459569936954281,
+    "no_hedge_sharpe": 0.18659561612511671,
+    "deep_minus_participation": -0.012422110527941677
+  },
+  {
+    "model": "svj",
+    "cost": 0.0,
+    "best_lam": 0.75,
+    "best_freq": 1,
+    "participation_sharpe": 0.12424827953537379,
+    "deep_sharpe": 0.11272214336201249,
+    "classical_sharpe": 0.1246544956793978,
+    "no_hedge_sharpe": 0.05995483959986721,
+    "deep_minus_participation": -0.011526136173361304
+  },
+  {
+    "model": "svj",
+    "cost": 0.002,
+    "best_lam": 0.0,
+    "best_freq": 1,
+    "participation_sharpe": 0.05995483959986721,
+    "deep_sharpe": -0.061876829283401685,
+    "classical_sharpe": 0.014245124851627877,
+    "no_hedge_sharpe": 0.05995483959986721,
+    "deep_minus_participation": -0.12183166888326889
+  },
+  {
+    "model": "svj",
+    "cost": 0.005,
+    "best_lam": 0.0,
+    "best_freq": 1,
+    "participation_sharpe": 0.05995483959986721,
+    "deep_sharpe": -0.09171008074280751,
+    "classical_sharpe": -0.11173626886710115,
+    "no_hedge_sharpe": 0.05995483959986721,
+    "deep_minus_participation": -0.1516649203426747
+  },
+  {
+    "model": "svj",
+    "cost": 0.01,
+    "best_lam": 0.0,
+    "best_freq": 1,
+    "participation_sharpe": 0.05995483959986721,
+    "deep_sharpe": 0.050248550977618045,
+    "classical_sharpe": -0.3220961831121974,
+    "no_hedge_sharpe": 0.05995483959986721,
+    "deep_minus_participation": -0.009706288622249162
+  },
+  {
+    "model": "svj",
+    "cost": 0.02,
+    "best_lam": 0.0,
+    "best_freq": 1,
+    "participation_sharpe": 0.05995483959986721,
+    "deep_sharpe": 0.05417562588906723,
+    "classical_sharpe": -0.7441609447239924,
+    "no_hedge_sharpe": 0.05995483959986721,
+    "deep_minus_participation": -0.00577921371079998
+  }
+]

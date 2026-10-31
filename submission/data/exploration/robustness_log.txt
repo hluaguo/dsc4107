@@ -1,0 +1,10 @@
+training-seed bootstrap (n=8 edges):
+  mean=+0.0319  95% CI [+0.0288, +0.0350]
+paired path bootstrap (320k paths):
+  mean=+0.0319  95% CI [+0.0290, +0.0347]
+  n_paths=  5000: edge=+0.0364 +/- 0.0098
+  n_paths= 20000: edge=+0.0328 +/- 0.0023
+  n_paths= 40000: edge=+0.0319 +/- 0.0048
+  n_paths= 80000: edge=+0.0340 +/- 0.0033
+
+wrote results/exploration/robustness.json
