@@ -1,6 +1,6 @@
 # Ideas backlog
 
-> **Session paused for handoff.** See `.auto/handoff.md` for the full state of the
+> **Session paused for handoff.** See `archive/autoresearch/handoff.md` for the full state of the
 > paper replications and the comparison addon. The items below are the frozen
 > deep-hedger optimisation backlog from the original autoresearch loop; they are
 > not the current workstream.

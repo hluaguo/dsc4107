@@ -13,3 +13,7 @@ dependencies = [
     "scipy>=1.18.1",
     "torch>=2.14.1",
 ]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+norecursedirs = ["submission", "archive", ".venv"]

@@ -71,8 +71,8 @@ are mirrored under `data/`.
 ## Notes
 
 - `code/` and the GitHub repository contain the frozen modules, the learned
-  hedger, every experiment script and the test suite. `REPORT.md`,
-  `EXPLORATION.md` and `SIDEQUEST.md` at the repository root are the working
-  notes behind the report.
+  hedger, every experiment script and the test suite. [`REPORT.md`](../REPORT.md),
+  [`docs/exploration.md`](../docs/exploration.md) and
+  [`docs/sidequest.md`](../docs/sidequest.md) are the working notes behind the report.
 - The holdout seed pool was simulated once, after all choices were frozen, by
   `scripts/holdout_eval.py` only.

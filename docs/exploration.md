@@ -1,6 +1,6 @@
 # Broader exploration
 
-> Companion to `REPORT.md` and `SIDEQUEST.md`. These probes reuse the frozen
+> Companion to `REPORT.md` and `docs/sidequest.md`. These probes reuse the frozen
 > modules read-only, train with `train`/`val`/`search` seeds only, and write
 > under `results/exploration/`. The holdout pool is never read and no earlier
 > result is changed. The only source change is an additive, default-preserving
