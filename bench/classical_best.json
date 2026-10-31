@@ -1,0 +1,6 @@
+{
+  "strategy": "band",
+  "frequency": 1,
+  "delta_band": 0.1,
+  "price_band": null
+}
