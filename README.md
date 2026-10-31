@@ -1,123 +1,102 @@
-# Classical versus learned option hedging
+# Classic hedging is all you need
 
-Working material for a replication-and-comparison study. The economics are
-simple to state: sell one call option, hedge it with the underlying, and pay a
-proportional cost on every trade. Sepp (2013) optimises that hedge inside a
-small hand-built strategy family; Buehler et al. (2019) replaces the family with
-a neural network. The repository reproduces enough of both to put them on one
-testbed and ask which gives the better risk-adjusted profit and loss.
+CityU **DSC4107** — [hluaguo/dsc4107](https://github.com/hluaguo/dsc4107)
 
-## Where things live
+We replicate two papers on the same simulated desk (sell one ATM call, hedge with
+the underlying, pay proportional transaction costs), then ask whether a neural
+hedger beats a strong classical policy on a **fixed** benchmark cell.
+
+**Title (locked):** **Classic hedging is all you need** at the course cell (Heston,
+one-month ATM call, **20 bp** full-rate cost). Details and numbers: [`REPORT.md`](REPORT.md).
+PDF for grading: [`submission/report/report.pdf`](submission/report/report.pdf).
+
+## Quick start
+
+```bash
+uv sync
+uv run pytest -q
+```
+
+Python version is pinned in `.python-version`. Scripts use GPU when available.
+
+## Story spine (English)
+
+1. **Papers.** Sepp (2013) — analytic discrete-hedging Sharpe, optimal frequency and
+   bands. Buehler et al. (2019) — deep hedging with a CVaR-style objective under costs.
+2. **Replications.** Sepp Section 5 tables/figures (`scripts/sepp_replication.py`);
+   Buehler Heston experiment plus frictionless delta check
+   (`scripts/deep_hedging_replication.py`). Reference PDFs: [`docs/papers/`](docs/papers/).
+3. **Frozen cell.** `BenchConfig` in `hedging/bench.py`: Heston, ATM 1M call,
+   `cost = 0.002` (20 bp **full-rate** ledger), 21 steps. Classical champion pinned in
+   `bench/classical_best.json` (delta band 0.1).
+4. **Classical vs deep on that cell.** Historical 4×5 comparison and holdout in
+   [`REPORT.md`](REPORT.md) §2–3: at 20 bp the learned hedger does **not** beat the
+   tuned band on Sharpe; RQ-A (`experiments/rq_a/`) shows the deep policy is **cheaper
+   on mean cost but worse on CVaR95** versus the classical cost–tail hull → verdict
+   `dominated`.
+5. **Follow-up RQs (same cell, then liquid footnote).** Mandate, risk-matched α, train-time
+   CVaR cap, cost stress, policy anatomy — indexed in
+   [`experiments/README.md`](experiments/README.md). These sharpen *why* the headline
+   holds; they do not replace it.
+6. **Liquid 10 bp (footnote only).** Sepp Case I uses **k/2** in eq. (2.5); our simulator
+   charges **full-rate** `cost`. Runs at `cost = 0.001` match Sepp’s **k** numerically but
+   not Case I economics. A brittle soft path (do **not** promote to main claim):
+   **H** `clears` (narrow) → **K** `dominated` → **L** `a05_only` → **I** `fails` → **J**
+   `band_like`. See liquid rows in [`experiments/README.md`](experiments/README.md).
+
+## 研究脈絡（给助教）
+
+1. **基于哪两篇 paper。** Sepp (2013) 在比例成本下用解析式求离散对冲的 Sharpe、最优频率与
+   band。Buehler et al. (2019) 用神经网络最小化终端 P&L 的 CVaR 类目标，在 Heston 等模型里
+   与经典 delta 对冲比较。
+2. **我们做了什么。** 在同一套模拟器里复现 Sepp §5 与 Buehler 的 Heston 实验（含零成本
+   frictionless delta 自检），再在**冻结**的 `BenchConfig` 上比较经典规则与 deep hedger：
+   Heston、ATM、一个月到期、`cost = 0.002`（账本为**全费率** 20 bp，不是 Sepp 的 k/2）。
+3. **冻结 cell 上的结果。** 20 bp 下 tuned delta band（见 `bench/classical_best.json`）与
+   deep 在 Sharpe 上接近或略优，但 deep 往往用更差的尾部换更低的平均成本；RQ-A 在
+   （mean cost, CVaR95）平面上给出 `dominated`。完整表格与 holdout 见 [`REPORT.md`](REPORT.md)。
+4. **由此推出的下一层问题（已跑完，见 `experiments/`）。** 在**不改动**主结论的前提下，
+   我们追问：强制交易活跃度、训练 α 选择、训练期 CVaR 约束、多档成本、策略形态等能否让
+   deep **同时**打败 baseline 的成本与尾部——索引见 [`experiments/README.md`](experiments/README.md)。
+5. **标题结论（锁定）。** **Classic hedging is all you need** —— 主故事是 20 bp 冻结 cell
+   上的经典 band，不是 liquid 上的 deep edge。
+6. **Liquid 10 bp 仅作 brittle 脚注。** 账本仍是全费率；`cost=0.001` 只对齐 Sepp liquid **k**
+   的数值，不是 Case I 的 k/2 经济学。脚注链：**H** 极窄 `clears` → **K** `dominated` → **L**
+   `a05_only` → **I** `fails` → **J** `band_like`；勿写成「deep 全面优于经典」。
+
+**代码与数据附录：** 本公开仓库即源码与结果路径；复现命令见 [`REPORT.md`](REPORT.md) §6，
+已提交 JSON/图在 `experiments/*/results/` 与 [`submission/data/`](submission/data/)。
+
+## Where to read
 
 | Path | Role |
 | --- | --- |
-| `hedging/bs.py` | Black-Scholes price and greeks, implied volatility |
-| `hedging/market.py` | Four simulators: GBM, jump-diffusion, Heston, Heston plus jumps |
-| `hedging/hedge.py` | The shared rollout engine and the classical strategies |
-| `hedging/deep.py` | The learned hedger: features, network, objective, training |
-| `hedging/hyper.py` | Training hyperparameters, the dials the search may turn |
-| `hedging/bench.py` | The frozen benchmark: config, seed pools, scoring |
-| `hedging/metrics.py` | Sharpe, CVaR and the other reported statistics |
-| `hedging/sepp.py` | Sepp (2013) closed forms, optimal frequency, band conversion |
-| `scripts/tune_classical.py` | Freezes the classical baseline once |
-| `scripts/benchmark_loop.py` | One benchmark iteration, machine-readable output |
-| `scripts/sepp_replication.py` | Sepp Section 5 tables and figures (optional Monte Carlo check) |
-| `scripts/deep_hedging_replication.py` | Frictionless delta check and the Heston deep-hedging experiment |
-| `scripts/comparison_study.py` | Historical 4×5 comparison / Optuna map (see `REPORT.md`) |
-| `scripts/rq_a_pareto.py` | RQ-A cost–CVaR frontier vs unconstrained deep hedger on the frozen cell |
-| `scripts/build_notebooks.py` | Regenerates the two replication notebooks |
-| `scripts/holdout_eval.py` | The final run on the locked holdout pool |
-| `notebooks/` | The two replication notebooks (built from `build_notebooks.py`) |
-| `tests/` | Analytic and accounting checks |
-| `REPORT.md` | The written report: both replications and the comparison |
-| `AGENTS.md` | Repository conventions: why-style docs, `uv add`, frozen files |
+| [`REPORT.md`](REPORT.md) | Full report (replications, comparison, holdout) |
+| [`experiments/README.md`](experiments/README.md) | RQ-A … RQ-L index and verdicts |
+| [`submission/`](submission/) | PDF report, slides, mirrored artifacts |
+| [`docs/papers/`](docs/papers/) | Sepp & Buehler PDFs |
 
-## The benchmark
+Optional background notes (plan, extra probes) live under [`docs/`](docs/) and are not
+required for grading.
 
-One contract, one market, one cost level, all fixed in `hedging/bench.BenchConfig`:
-an at-the-money one-month call, a Heston market, and a 20 bp proportional cost.
-Both strategies receive the same premium and are scored on the same paths, so
-the difference between them is the difference between their hedges.
+## Layout
 
-The classical baseline is chosen once by `scripts/tune_classical.py` and written
-to `bench/classical_best.json`. At this cost level the winner is a delta band
-(`delta_band = 0.1`): rebalance only when the Black-Scholes delta has drifted
-past the band, which trades less than a fixed calendar schedule and is a
-genuinely strong bar rather than a straw one.
-
-## Running
-
-```bash
-uv run pytest -q                                   # checks
-uv run python scripts/tune_classical.py            # freeze the baseline (once)
-uv run python scripts/benchmark_loop.py            # one benchmark iteration
-uv run python scripts/holdout_eval.py              # final, locked evaluation
+```
+hedging/       simulators, Sepp formulas, classical + deep hedgers, bench config
+bench/         pinned classical baseline (classical_best.json)
+scripts/       replication and experiment entry points
+experiments/   one folder per RQ + committed full-run results/
+tests/         checks (frozen)
+submission/    course PDFs and data mirror
 ```
 
-`scripts/benchmark_loop.py` prints `METRIC name=value` lines and appends the
-per-seed rows and a summary to `results/`.
+Holdout seeds are used **only** in `scripts/holdout_eval.py`.
 
-## RQ-A (main original question)
-
-On the frozen Heston ATM 1M / 20 bp benchmark, `scripts/rq_a_pareto.py` asks
-whether unconstrained deep hedging clears the classical cost–CVaR scatter
-(calendar and band policies plus `classical_best.json`). See `PLAN.md` for
-acceptance criteria; full narrative results stay in `REPORT.md`.
+## Reproduce the headline cell
 
 ```bash
-uv run python scripts/rq_a_pareto.py --quick   # smoke → results/rq_a/pareto_quick.json
-uv run python scripts/rq_a_pareto.py           # full weekend run
+uv run python scripts/rq_a_pareto.py    # → experiments/rq_a/results/
+uv run python scripts/benchmark_loop.py # → results/ (gitignored; see submission/data/)
 ```
 
-## Replications and the historical comparison
-
-```bash
-uv run python scripts/sepp_replication.py            # Sepp tables + figures
-uv run python scripts/sepp_replication.py --mc --mc-paths 60000
-uv run python scripts/deep_hedging_replication.py --epochs 100 --hidden 64 --depth 3
-uv run python scripts/comparison_study.py --fixed-hyper \
-    --costs 0.0 0.002 0.005 0.01 0.02
-uv run python scripts/comparison_study.py --models heston jd \
-    --costs 0.002 0.005 0.01 --trials 8
-```
-
-All training scripts select CUDA when it is present (`--device auto` by
-default) and fall back to the CPU otherwise. The Optuna search requires the
-`optuna` dependency, added with `uv add optuna`. `scripts/comparison_study.py`
-ranks trials on a seed pool (`SEARCH_SEEDS`) disjoint from training, validation
-and holdout, and it prints the deep and classical P&L standard deviations next
-to the Sharpe edge so a Sharpe gain from under-hedging is visible. The full
-findings are in `REPORT.md`.
-
-## Exploration
-
-Beyond the plan, `scripts/explore_*.py` probe the objective (hedging versus
-premium harvesting), the input features, cross-model transfer, bootstrap
-confidence intervals, and a larger search. They are read-only with respect to
-the frozen benchmark and the holdout pool; the findings are in
-`EXPLORATION.md` and `SIDEQUEST.md`, and the raw tables and plots under
-`results/exploration/` and `results/sidequest/`.
-
-## Guarding against overfitting
-
-The obvious way to fool this setup is to tune against the paths you score on.
-Four things make that hard:
-
-1. Three disjoint seed pools. The network trains on `train` seeds, the running
-   experiments score on `val` seeds, and a `holdout` pool is never read until
-   the end.
-2. Averaging over training seeds. Every number averages several independent
-   initialisations, so a lucky run cannot pass as an improvement.
-3. The generation gap. The benchmark reports the in-sample edge next to the
-   validation edge; a widening gap means the hedger memorised its training
-   paths.
-4. Per-seed reporting. The mean edge is published with its spread, its minimum
-   and its win rate, so a mean that hides disagreement between seeds is visible.
-
-## Autoresearch
-
-The autonomous optimisation session lives in `.auto/`. `prompt.md` states the
-objective, the metric, the files in scope and the guard rails. `measure.sh`
-runs one iteration, `checks.sh` runs the tests, and `ideas.md` holds the
-backlog. The session optimises the learned hedger only; the benchmark and the
-baseline stay frozen.
+Sepp / Buehler / 4×5 comparison commands: [`REPORT.md`](REPORT.md) §6.

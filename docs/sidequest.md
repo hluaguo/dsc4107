@@ -1,7 +1,7 @@
 # Sidequest: is the learned edge just a leverage choice?
 
 > This is an exploratory probe, kept separate from `REPORT.md` and from the
-> plan's results. It imports the frozen modules read-only and writes only under
+> plan in `docs/plan.md`. It imports the frozen modules read-only and writes only under
 > `results/sidequest/`. Nothing in the original plan was changed.
 
 ## The question

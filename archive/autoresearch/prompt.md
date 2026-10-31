@@ -40,7 +40,7 @@ Read the guard rails before claiming a win:
 
 ## How to run
 
-`./.auto/measure.sh` prints `METRIC name=value` lines.
+`./archive/autoresearch/measure.sh` prints `METRIC name=value` lines.
 
 ## Files in scope
 
@@ -58,12 +58,12 @@ Read the guard rails before claiming a win:
 - the holdout seed pool: never simulate it, never read it
 - pool sizes, cost level, contract, premium and seeds are fixed
 
-`.auto/measure.sh` may be extended with extra instrumentation, but the metrics
+`archive/autoresearch/measure.sh` may be extended with extra instrumentation, but the metrics
 it reports and the benchmark it calls must not change.
 
 ## Constraints
 
-- `./.auto/checks.sh` must pass.
+- `./archive/autoresearch/checks.sh` must pass.
 - Every reported number averages over the training seeds in
   `Hyper.torch_seeds`. Do not shrink that list to chase a lucky run.
 - An improvement must hold across the validation seeds, not only on their mean.

@@ -1,7 +1,16 @@
 .venv/
 __pycache__/
 *.pyc
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+*.egg-info/
+
+# Regenerated replication outputs (see REPORT.md §6); frozen RQ artifacts live under experiments/
 results/
-.auto/log.jsonl
-.auto/state.json
+
+# Autoresearch session state (scripts stay in archive/autoresearch/)
+archive/autoresearch/log.jsonl
+archive/autoresearch/state.json
+
 .DS_Store
