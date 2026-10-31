@@ -74,8 +74,8 @@ Wall time **686.3 s** (~11.4 min) on cloud CPU (no CUDA). Artifacts:
 
 | Arm | Arm verdict | Clearing seed(s) |
 | --- | --- | --- |
-| Risk-matched α sweep | `clears` | `rm_seed_1` (α=0.05 selected): cost **0.2118** &lt; champion, CVaR **0.7059** ≤ champion |
-| Lagrange excess-CVaR | `clears` | `lag_seed_1`: cost **0.2119** &lt; champion, CVaR **0.7210** ≤ champion |
+| Risk-matched α sweep | `clears` | `rm_seed_1` (α=0.05 selected): cost **0.2118** < champion, CVaR **0.7059** ≤ champion |
+| Lagrange excess-CVaR | `clears` | `lag_seed_1`: cost **0.2119** < champion, CVaR **0.7210** ≤ champion |
 
 ### Classical grid @ 10 bp (hull points only)
 
