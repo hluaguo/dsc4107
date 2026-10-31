@@ -1,4 +1,4 @@
-# Classical versus learned option hedging
+# Classic hedging is all you need
 
 CityU **DSC4107** — [hluaguo/dsc4107](https://github.com/hluaguo/dsc4107)
 
