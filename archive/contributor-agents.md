@@ -43,7 +43,7 @@ resolved versions stay in step. The only exceptions are non-dependency fields
   checked against Monte Carlo in `tests/test_sepp.py`.
 - `hedging/deep.py`, `hedging/hyper.py` — the learned hedger and its dials.
 - `hedging/bench.py` — the frozen deep-vs-classical benchmark.
-- `scripts/` — entry points; `notebooks/` — the two paper replications.
+- `scripts/` — holdout, benchmark loop, RQ shims; `notebooks/` — four grader notebooks.
 
 ## Guard rails
 
