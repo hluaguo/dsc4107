@@ -25,7 +25,8 @@ Eval: band_like / distinct / inconclusive per those bars.
 | Scoring | Dual `hedge.rollout` for classical and deep |
 | Classical hull | RQ-A / RQ-G grid at 10 bp — re-sweep only; **`audit.loaded_classical_best_json: false`** |
 | Champion | Highest mean validation Sharpe on that grid (RQ-H: `band_delta_0.05`) |
-| Train seeds | **Expanded fixed set** `(0, 1, 2, 3, 4, 5)` — documented for RQ-I alignment; no holdout |
+| **Torch init seeds** (`Hyper.torch_seeds`) | Expanded fixed set **`(0, 1, 2, 3, 4, 5)`** — documented for RQ-I alignment; no holdout |
+| **Path train seeds** (`BenchConfig.train_seeds`) | Frozen bench default **`(1001, 1002, 1003)`** — `train_single_net` / Lagrange call `B.training_paths(cfg)`; not the torch-init list |
 
 ### Fixed recipes (no OOS α sweep)
 
@@ -72,4 +73,40 @@ Implementation: `experiments/rq_liquid_anatomy/run_liquid_anatomy.py` (CLI:
 
 ## Results
 
-_(Full run populates this section from `results/liquid_anatomy.json`.)_
+### Full run (2026-10-31)
+
+**Automated verdict: `band_like`**
+
+Wall time **385.2 s** on cloud CPU. Artifacts: `results/liquid_anatomy.json`,
+`results/liquid_anatomy.png`. **10 bp champion (val Sharpe):** `band_delta_0.05` |
+mean_cost **0.2127** | cvar95 **0.7367** (anatomy ε = **0.05** champion δ-band).
+`audit.loaded_classical_best_json: false`.
+
+| Policy | mean_cost | cvar95 | no-trade mass | mean \|Δδ\| | seed_verdict |
+| --- | ---: | ---: | ---: | ---: | --- |
+| **band_delta_0.05** (champion / comparator) | 0.2127 | 0.7367 | 0.476 | 0.0759 | comparator |
+| rm α=0.05 seed 0 | 0.2229 | 0.7148 | 0.509 | 0.0797 | `band_like` |
+| rm α=0.05 seed 1 | 0.2118 | 0.7059 | 0.541 | 0.0749 | `band_like` |
+| rm α=0.05 seed 2 | 0.2206 | 0.7120 | 0.516 | 0.0792 | `band_like` |
+| rm α=0.05 seed 3 | 0.2117 | 0.7040 | 0.540 | 0.0751 | `band_like` |
+| rm α=0.05 seed 4 | 0.2148 | 0.6977 | 0.532 | 0.0764 | `band_like` |
+| rm α=0.05 seed 5 | 0.2142 | 0.7095 | 0.526 | 0.0765 | `band_like` |
+| lag α=0.65 seed 0 | 0.2174 | 0.7688 | 0.517 | 0.0782 | `inconclusive` |
+| lag α=0.65 seed 1 | 0.2119 | 0.7210 | 0.536 | 0.0757 | `band_like` |
+| lag α=0.65 seed 2 | 0.2109 | 0.7563 | 0.551 | 0.0753 | `inconclusive` |
+| lag α=0.65 seed 3 | 0.2187 | 0.7679 | 0.529 | 0.0783 | `inconclusive` |
+| lag α=0.65 seed 4 | 0.2101 | 0.7168 | 0.549 | 0.0746 | `band_like` |
+| lag α=0.65 seed 5 | 0.2102 | 0.7101 | 0.546 | 0.0748 | `band_like` |
+
+**Headline verdict:** `band_like` — **9 of 12** recipe rows have OOS CVaR95 ≤ champion; all
+nine meet Lit bars vs the champion band (no-trade mass ≥ 0.8×, mean \|Δδ\| ≤ 1.25×). Lagrange
+torch seeds **0, 2, 3** are **`inconclusive`** per seed because CVaR95 **>** champion (0.7367).
+
+Deep policies still show **near-unity trade rate** at machine ε but **more no-trade mass at
+ε=0.05** than the band champion, with **comparable or smaller** mean \|Δδ\| on CVaR-qualifying
+rows — consistent with RQ-E-style **`band_like`** anatomy at 10 bp, not literal Leland ε→0
+no-trade.
+
+**Soft read (not headline):** `band_like` here applies only to these **fixed** risk-matched
+(α=0.05) and Lagrange (α=0.65) recipes among seeds that **clear the champion tail** — not a
+claim that default unconstrained `Hyper()` is band-like (see **RQ-K**).
