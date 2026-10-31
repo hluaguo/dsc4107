@@ -1,16 +1,25 @@
-# Classical versus learned option hedging
+# Classic hedging is all you need
 
-This report covers three things the plan asks for: the replication of Sepp
-(2013), the replication of the Heston experiment of Buehler, Gonon, Teichmann
-and Wood (2019), and the head-to-head comparison that neither paper runs. All
-numbers are produced by the scripts in `scripts/` and written under `results/`;
-nothing here is hand-computed.
+This report documents the Sepp (2013) replication, the Buehler et al. (2019)
+Heston experiment, and a head-to-head comparison neither paper runs. All numbers
+come from `scripts/` into `results/`; nothing here is hand-computed.
 
-The economic problem is the same in both papers. A desk sells one at-the-money
-one-month call, hedges it with the underlying, and pays a proportional cost on
-every trade. Sepp finds the best strategy inside a small analytic family;
-Buehler et al. replace the family with a network. The comparison asks what the
-extra freedom buys once the classical dials are set well.
+The headline is §3. At the course's nominal **20 bp** friction, a classical
+band re-tuned per cell does not lose to the learned hedger in any hedging sense
+that matters: Sharpe edges sit between about −0.09 and +0.01, holdout confirms
+only a tiny positive gap, and the loss distribution shows the network buying mean
+with a fatter left tail (§3.5). High-cost "wins" are premium harvesting, not
+better hedges (§3.1 regime 3). **Classic hedging is enough** at the benchmark
+friction; deep is not a uniform upgrade. Optional §8 records a separate liquid
+10 bp footnote — recipe-specific, mandate-dependent, and brittle — not the lead
+story.
+
+The economic setup is the usual short ATM one-month call hedged in the underlying
+with proportional cost on every trade. Sepp optimises inside an analytic family;
+Buehler et al. replace the family with a network. Sections 1–2 check both sides
+are implemented correctly; §3 measures what the extra freedom buys once classical
+dials are set well — and at 20 bp the answer is essentially a tie, with caveats
+below.
 
 ## 1. Replication of Sepp (2013)
 
@@ -359,16 +368,18 @@ All scripts pick CUDA automatically. Outputs land in `results/sepp/`,
 | `scripts/comparison_study.py` | The head-to-head map and the Optuna add-on |
 | `scripts/holdout_eval.py` | The single locked holdout run |
 
-## 8. Lead-locked liquid path (10 bp full-rate)
+## 8. Footnote: liquid 10 bp full-rate
 
-Sections 1–3 and the frozen 20 bp benchmark (`bench/classical_best.json`, holdout
-in §3.4) remain the **backdrop**: they answer whether a default learned hedger beats
-a well-tuned classical band at the course’s nominal friction. The **Lead-locked**
-follow-on asks a narrower question at **Sepp liquid-index k** under **our** ledger:
-can a deep policy **clear** the **re-swept** 10 bp val-Sharpe champion on shared
-OOS rollout (`mean_cost` strictly below champion **and** `cvar95` ≤ champion), and
-does that clear survive without mandate knobs? The headline answer is **not** a broad
-liquid win — it is **recipe-specific, tiny on cost, and brittle across seeds**.
+**Read after §3.** The frozen **20 bp** benchmark (`bench/classical_best.json`,
+holdout in §3.4) is the report's economic backdrop: classical bands already suffice
+there. What follows is a **Lead-locked** side study at **Sepp liquid-index k** under
+**our** full-rate ledger — whether any deep policy **clears** the **re-swept** 10 bp
+val-Sharpe champion on shared OOS rollout (`mean_cost` strictly below champion
+**and** `cvar95` ≤ champion). It is **not** a broad liquid deep win: unconstrained
+`Hyper()` is **dominated** (RQ-K); the only clears need **risk-matched α** or
+**Lagrange** tail budgets (RQ-H), cost margins are **~0.4%**, and expanded torch
+seeds break most of them (RQ-I). Mandate engineering, not a default learned hedger
+beating classical bands.
 
 **Friction convention (must not be blurred).** Sepp (2013) eq (2.5) charges proportional
 cost with factor **k/2** on |Δδ|·S; Case I sets **k = 0.001**. Our `hedge.rollout` and
@@ -397,12 +408,11 @@ grid: **`band_delta_0.05`** with OOS `mean_cost` **0.2127** and `cvar95` **0.736
 Cross-cell comparisons are on the **same OOS val seeds** and champion, not identical
 training draws.
 
-**How to read this against §3.** At **20 bp** the fixed-hyper comparison is essentially
-flat (§3.1). The liquid arc says that at **10 bp full-rate k-level**, an **unconstrained**
-learner still **does not** clear the re-swept Sharpe champion (K), while **explicit tail
-budgets** (H, and partially I/L) can — on **some** inits only — shave cost a fraction of a
-percent without worsening CVaR95. That is a **mandate engineering** result, not evidence
-that deep hedging uniformly dominates classical bands in liquid markets.
+**How this sits under §3.** §3 already shows **20 bp** is flat. This footnote adds
+that at **10 bp full-rate k-level** the same classical lesson holds for the default
+learner (K), while H/I/L show **some** mandate recipes can clear on **some** seeds with
+negligible cost improvement — too small and too seed-sensitive to reopen the §3 headline.
+Do not promote liquid H–L as competing with "classic hedging is all you need."
 
 Reproduce from `experiments/rq_liquid_*/NOTES.md` and `scripts/rq_liquid_*.py`; primary
 artifacts under `experiments/rq_liquid_*/results/*.json`.
