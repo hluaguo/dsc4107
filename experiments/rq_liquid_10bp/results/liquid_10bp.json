@@ -1,0 +1,568 @@
+{
+  "timestamp": "20261031T074326Z",
+  "verdict": "clears",
+  "soft_interesting": true,
+  "research_question": "rq_h_liquid_10bp_risk_matched_and_lagrange",
+  "bench": {
+    "name": "heston_atm_1m",
+    "model": "heston",
+    "cost": 0.001,
+    "cost_bp": 10,
+    "n_steps": 21,
+    "val_seeds": [
+      2001,
+      2002,
+      2003,
+      2004,
+      2005,
+      2006,
+      2007,
+      2008
+    ],
+    "n_val_paths": 40000,
+    "quick": false
+  },
+  "hyper": {
+    "epochs": 200,
+    "batch_size": 1024,
+    "lr": 0.001,
+    "hidden": 128,
+    "depth": 3,
+    "alpha": 0.65,
+    "torch_seeds": [
+      0,
+      1,
+      2
+    ]
+  },
+  "classical": [
+    {
+      "label": "time_f1",
+      "kind": "classical",
+      "spec": {
+        "strategy": "time",
+        "frequency": 1,
+        "delta_band": null,
+        "price_band": null
+      },
+      "mean_sharpe": 0.6993676579108439,
+      "mean_cost": 0.23007973712579305,
+      "cvar95": 0.7231592732791102,
+      "pnl_mean": 0.3628707709089585
+    },
+    {
+      "label": "time_f3",
+      "kind": "classical",
+      "spec": {
+        "strategy": "time",
+        "frequency": 3,
+        "delta_band": null,
+        "price_band": null
+      },
+      "mean_sharpe": 0.538702820380882,
+      "mean_cost": 0.17089049834053177,
+      "cvar95": 1.312956727211647,
+      "pnl_mean": 0.42209951752926644
+    },
+    {
+      "label": "time_f7",
+      "kind": "classical",
+      "spec": {
+        "strategy": "time",
+        "frequency": 7,
+        "delta_band": null,
+        "price_band": null
+      },
+      "mean_sharpe": 0.4117455879794291,
+      "mean_cost": 0.13811445112779774,
+      "cvar95": 2.126019651816674,
+      "pnl_mean": 0.45561008132010883
+    },
+    {
+      "label": "time_f21",
+      "kind": "classical",
+      "spec": {
+        "strategy": "time",
+        "frequency": 21,
+        "delta_band": null,
+        "price_band": null
+      },
+      "mean_sharpe": 0.2826996297466845,
+      "mean_cost": 0.1028774298410221,
+      "cvar95": 4.018550075063601,
+      "pnl_mean": 0.49113864326628665
+    },
+    {
+      "label": "band_delta_0.05",
+      "kind": "classical",
+      "spec": {
+        "strategy": "band",
+        "frequency": 1,
+        "delta_band": 0.05,
+        "price_band": null
+      },
+      "mean_sharpe": 0.7080351103143256,
+      "mean_cost": 0.21273773953203517,
+      "cvar95": 0.7366892472242326,
+      "pnl_mean": 0.3801833135083736
+    },
+    {
+      "label": "band_delta_0.10",
+      "kind": "classical",
+      "spec": {
+        "strategy": "band",
+        "frequency": 1,
+        "delta_band": 0.1,
+        "price_band": null
+      },
+      "mean_sharpe": 0.6693453966544713,
+      "mean_cost": 0.18879707477788849,
+      "cvar95": 0.8440692070230812,
+      "pnl_mean": 0.40496134782050947
+    },
+    {
+      "label": "band_delta_0.20",
+      "kind": "classical",
+      "spec": {
+        "strategy": "band",
+        "frequency": 1,
+        "delta_band": 0.2,
+        "price_band": null
+      },
+      "mean_sharpe": 0.5388263607337282,
+      "mean_cost": 0.16077213984094987,
+      "cvar95": 1.2055571405959955,
+      "pnl_mean": 0.4331281011458448
+    },
+    {
+      "label": "band_price_0.01",
+      "kind": "classical",
+      "spec": {
+        "strategy": "band",
+        "frequency": 1,
+        "delta_band": null,
+        "price_band": 0.01
+      },
+      "mean_sharpe": 0.665732297090631,
+      "mean_cost": 0.20131273903148725,
+      "cvar95": 0.7454074910454624,
+      "pnl_mean": 0.391814921922086
+    },
+    {
+      "label": "band_price_0.02",
+      "kind": "classical",
+      "spec": {
+        "strategy": "band",
+        "frequency": 1,
+        "delta_band": null,
+        "price_band": 0.02
+      },
+      "mean_sharpe": 0.5790680090572279,
+      "mean_cost": 0.16955311766359973,
+      "cvar95": 0.914783038565364,
+      "pnl_mean": 0.4245036620764902
+    },
+    {
+      "label": "band_price_0.05",
+      "kind": "classical",
+      "spec": {
+        "strategy": "band",
+        "frequency": 1,
+        "delta_band": null,
+        "price_band": 0.05
+      },
+      "mean_sharpe": 0.39361662198687053,
+      "mean_cost": 0.13104981978348731,
+      "cvar95": 1.5904698120747993,
+      "pnl_mean": 0.4626830370056668
+    }
+  ],
+  "champion": {
+    "label": "band_delta_0.05",
+    "spec": {
+      "strategy": "band",
+      "frequency": 1,
+      "delta_band": 0.05,
+      "price_band": null
+    },
+    "mean_sharpe": 0.7080351103143256,
+    "mean_cost": 0.21273773953203517,
+    "cvar95": 0.7366892472242326
+  },
+  "arms": {
+    "risk_matched": {
+      "arm": "risk_matched",
+      "verdict": "clears",
+      "alpha_grid": [
+        0.05,
+        0.12,
+        0.2,
+        0.3,
+        0.4,
+        0.5,
+        0.65
+      ],
+      "deep": [
+        {
+          "label": "rm_seed_0_alpha_0.05",
+          "kind": "sweep",
+          "arm": "risk_matched",
+          "torch_seed": 0,
+          "alpha": 0.05,
+          "mean_cost": 0.2229023572623217,
+          "cvar95": 0.7148436428014652,
+          "pnl_mean": 0.37003792867285995
+        },
+        {
+          "label": "rm_seed_0_alpha_0.12",
+          "kind": "sweep",
+          "arm": "risk_matched",
+          "torch_seed": 0,
+          "alpha": 0.12,
+          "mean_cost": 0.22110198971632444,
+          "cvar95": 0.7122288499192017,
+          "pnl_mean": 0.3718155422704904
+        },
+        {
+          "label": "rm_seed_0_alpha_0.2",
+          "kind": "sweep",
+          "arm": "risk_matched",
+          "torch_seed": 0,
+          "alpha": 0.2,
+          "mean_cost": 0.21630115834744992,
+          "cvar95": 0.7214029485270763,
+          "pnl_mean": 0.3766621396100797
+        },
+        {
+          "label": "rm_seed_0_alpha_0.3",
+          "kind": "sweep",
+          "arm": "risk_matched",
+          "torch_seed": 0,
+          "alpha": 0.3,
+          "mean_cost": 0.2185394988864088,
+          "cvar95": 0.7797499250208377,
+          "pnl_mean": 0.37433338639961394
+        },
+        {
+          "label": "rm_seed_0_alpha_0.4",
+          "kind": "sweep",
+          "arm": "risk_matched",
+          "torch_seed": 0,
+          "alpha": 0.4,
+          "mean_cost": 0.21600120032402528,
+          "cvar95": 0.8265093590967497,
+          "pnl_mean": 0.37681000359659644
+        },
+        {
+          "label": "rm_seed_0_alpha_0.5",
+          "kind": "sweep",
+          "arm": "risk_matched",
+          "torch_seed": 0,
+          "alpha": 0.5,
+          "mean_cost": 0.21396993680203213,
+          "cvar95": 0.881290548668462,
+          "pnl_mean": 0.37879644158218434
+        },
+        {
+          "label": "rm_seed_0_alpha_0.65",
+          "kind": "sweep",
+          "arm": "risk_matched",
+          "torch_seed": 0,
+          "alpha": 0.65,
+          "mean_cost": 0.20275070478669063,
+          "cvar95": 0.9366770469136789,
+          "pnl_mean": 0.39003391238272045
+        },
+        {
+          "label": "rm_seed_0_selected",
+          "kind": "seed",
+          "arm": "risk_matched",
+          "torch_seed": 0,
+          "alpha": 0.2,
+          "mean_cost": 0.21630115834744992,
+          "cvar95": 0.7214029485270763,
+          "pnl_mean": 0.3766621396100797,
+          "selection": "min cost among cvar<=champion else min cvar"
+        },
+        {
+          "label": "rm_seed_1_alpha_0.05",
+          "kind": "sweep",
+          "arm": "risk_matched",
+          "torch_seed": 1,
+          "alpha": 0.05,
+          "mean_cost": 0.2117869402081109,
+          "cvar95": 0.7059277766418529,
+          "pnl_mean": 0.38128839511303714
+        },
+        {
+          "label": "rm_seed_1_alpha_0.12",
+          "kind": "sweep",
+          "arm": "risk_matched",
+          "torch_seed": 1,
+          "alpha": 0.12,
+          "mean_cost": 0.22322097621449483,
+          "cvar95": 0.7213668347576059,
+          "pnl_mean": 0.3696822815470321
+        },
+        {
+          "label": "rm_seed_1_alpha_0.2",
+          "kind": "sweep",
+          "arm": "risk_matched",
+          "torch_seed": 1,
+          "alpha": 0.2,
+          "mean_cost": 0.2241922510337743,
+          "cvar95": 0.7424670160430362,
+          "pnl_mean": 0.3686903849068521
+        },
+        {
+          "label": "rm_seed_1_alpha_0.3",
+          "kind": "sweep",
+          "arm": "risk_matched",
+          "torch_seed": 1,
+          "alpha": 0.3,
+          "mean_cost": 0.2180687272660458,
+          "cvar95": 0.7648826287021062,
+          "pnl_mean": 0.3747840592508556
+        },
+        {
+          "label": "rm_seed_1_alpha_0.4",
+          "kind": "sweep",
+          "arm": "risk_matched",
+          "torch_seed": 1,
+          "alpha": 0.4,
+          "mean_cost": 0.2175339155166609,
+          "cvar95": 0.8210495780515444,
+          "pnl_mean": 0.3752676522189886
+        },
+        {
+          "label": "rm_seed_1_alpha_0.5",
+          "kind": "sweep",
+          "arm": "risk_matched",
+          "torch_seed": 1,
+          "alpha": 0.5,
+          "mean_cost": 0.21306841541192162,
+          "cvar95": 0.8745124069822495,
+          "pnl_mean": 0.37970529416060206
+        },
+        {
+          "label": "rm_seed_1_alpha_0.65",
+          "kind": "sweep",
+          "arm": "risk_matched",
+          "torch_seed": 1,
+          "alpha": 0.65,
+          "mean_cost": 0.20485992719886353,
+          "cvar95": 0.95004857774836,
+          "pnl_mean": 0.3878417995792417
+        },
+        {
+          "label": "rm_seed_1_selected",
+          "kind": "seed",
+          "arm": "risk_matched",
+          "torch_seed": 1,
+          "alpha": 0.05,
+          "mean_cost": 0.2117869402081109,
+          "cvar95": 0.7059277766418529,
+          "pnl_mean": 0.38128839511303714,
+          "selection": "min cost among cvar<=champion else min cvar"
+        },
+        {
+          "label": "rm_seed_2_alpha_0.05",
+          "kind": "sweep",
+          "arm": "risk_matched",
+          "torch_seed": 2,
+          "alpha": 0.05,
+          "mean_cost": 0.22064996382795762,
+          "cvar95": 0.7120245608066463,
+          "pnl_mean": 0.3722987250623825
+        },
+        {
+          "label": "rm_seed_2_alpha_0.12",
+          "kind": "sweep",
+          "arm": "risk_matched",
+          "torch_seed": 2,
+          "alpha": 0.12,
+          "mean_cost": 0.21687699631384721,
+          "cvar95": 0.7051788449790072,
+          "pnl_mean": 0.37606634754085255
+        },
+        {
+          "label": "rm_seed_2_alpha_0.2",
+          "kind": "sweep",
+          "arm": "risk_matched",
+          "torch_seed": 2,
+          "alpha": 0.2,
+          "mean_cost": 0.22940428955002898,
+          "cvar95": 0.8057733929076407,
+          "pnl_mean": 0.36340304711427623
+        },
+        {
+          "label": "rm_seed_2_alpha_0.3",
+          "kind": "sweep",
+          "arm": "risk_matched",
+          "torch_seed": 2,
+          "alpha": 0.3,
+          "mean_cost": 0.22188458084607046,
+          "cvar95": 0.7978013418499745,
+          "pnl_mean": 0.3709060163675063
+        },
+        {
+          "label": "rm_seed_2_alpha_0.4",
+          "kind": "sweep",
+          "arm": "risk_matched",
+          "torch_seed": 2,
+          "alpha": 0.4,
+          "mean_cost": 0.21818839094885084,
+          "cvar95": 0.8419044456069239,
+          "pnl_mean": 0.3745475860832588
+        },
+        {
+          "label": "rm_seed_2_alpha_0.5",
+          "kind": "sweep",
+          "arm": "risk_matched",
+          "torch_seed": 2,
+          "alpha": 0.5,
+          "mean_cost": 0.21529606402881846,
+          "cvar95": 0.8908629535861067,
+          "pnl_mean": 0.3774252031167316
+        },
+        {
+          "label": "rm_seed_2_alpha_0.65",
+          "kind": "sweep",
+          "arm": "risk_matched",
+          "torch_seed": 2,
+          "alpha": 0.65,
+          "mean_cost": 0.21076487967688645,
+          "cvar95": 1.05759254073406,
+          "pnl_mean": 0.38183561847963
+        },
+        {
+          "label": "rm_seed_2_selected",
+          "kind": "seed",
+          "arm": "risk_matched",
+          "torch_seed": 2,
+          "alpha": 0.12,
+          "mean_cost": 0.21687699631384721,
+          "cvar95": 0.7051788449790072,
+          "pnl_mean": 0.37606634754085255,
+          "selection": "min cost among cvar<=champion else min cvar"
+        },
+        {
+          "label": "rm_ensemble_selected",
+          "kind": "ensemble",
+          "arm": "risk_matched",
+          "torch_seeds": [
+            0,
+            1,
+            2
+          ],
+          "mean_cost": 0.21498836495646934,
+          "cvar95": 0.6966760426637781,
+          "pnl_mean": 0.3780056274213231
+        }
+      ]
+    },
+    "lagrange_excess_cvar": {
+      "arm": "lagrange_excess_cvar",
+      "verdict": "clears",
+      "train_constraint": {
+        "mechanism": "lagrange_excess_batch_cvar95",
+        "target_cvar95_oos_champion": 0.7366892472242326,
+        "training_alpha_fixed": 0.65
+      },
+      "deep": [
+        {
+          "label": "lag_seed_0_cvar_capped",
+          "kind": "seed",
+          "arm": "lagrange_excess_cvar",
+          "torch_seed": 0,
+          "training_alpha": 0.65,
+          "train_constraint": {
+            "target_cvar": 0.7366892472242326,
+            "final_lam": 6.768125955102732,
+            "mean_epoch_excess": 0.04512083970068488,
+            "constraint": "lagrange_excess_cvar95",
+            "dual_lr": 0.75,
+            "note": "NOT rq_d_alpha_dial; alpha is Hyper default only"
+          },
+          "final_train_loss": 0.04253478099902471,
+          "mean_cost": 0.21739080972590927,
+          "cvar95": 0.7687902275716546,
+          "pnl_mean": 0.3755648526834896
+        },
+        {
+          "label": "lag_seed_1_cvar_capped",
+          "kind": "seed",
+          "arm": "lagrange_excess_cvar",
+          "torch_seed": 1,
+          "training_alpha": 0.65,
+          "train_constraint": {
+            "target_cvar": 0.7366892472242326,
+            "final_lam": 6.22280942753423,
+            "mean_epoch_excess": 0.041485396183561535,
+            "constraint": "lagrange_excess_cvar95",
+            "dual_lr": 0.75,
+            "note": "NOT rq_d_alpha_dial; alpha is Hyper default only"
+          },
+          "final_train_loss": -0.024608949820200603,
+          "mean_cost": 0.21186084981746361,
+          "cvar95": 0.7210246115397213,
+          "pnl_mean": 0.3811547812153514
+        },
+        {
+          "label": "lag_seed_2_cvar_capped",
+          "kind": "seed",
+          "arm": "lagrange_excess_cvar",
+          "torch_seed": 2,
+          "training_alpha": 0.65,
+          "train_constraint": {
+            "target_cvar": 0.7366892472242326,
+            "final_lam": 6.768045384756988,
+            "mean_epoch_excess": 0.04512030256504659,
+            "constraint": "lagrange_excess_cvar95",
+            "dual_lr": 0.75,
+            "note": "NOT rq_d_alpha_dial; alpha is Hyper default only"
+          },
+          "final_train_loss": -0.008496027439832687,
+          "mean_cost": 0.21087958657282488,
+          "cvar95": 0.7562627698039273,
+          "pnl_mean": 0.3821305076311662
+        },
+        {
+          "label": "lag_ensemble_cvar_capped",
+          "kind": "ensemble",
+          "arm": "lagrange_excess_cvar",
+          "torch_seeds": [
+            0,
+            1,
+            2
+          ],
+          "mean_cost": 0.21337708203873257,
+          "cvar95": 0.7174444407708932,
+          "pnl_mean": 0.3796167138433357
+        }
+      ]
+    }
+  },
+  "acceptance": {
+    "clears": true,
+    "fails": false,
+    "rule": "any seed (either arm): OOS mean_cost < 10bp champion AND OOS cvar95 <= champion",
+    "soft_interesting_rule": "clears OR cvar<=champion with mean_cost within 1% of champion",
+    "champion": {
+      "mean_cost": 0.21273773953203517,
+      "cvar95": 0.7366892472242326
+    }
+  },
+  "audit": {
+    "loaded_classical_best_json": false,
+    "champion_from_val_sharpe_sweep": true,
+    "champion_matches_frozen_cb_spec": false,
+    "frozen_cb_spec_for_audit_only": {
+      "strategy": "band",
+      "frequency": 1,
+      "delta_band": 0.1,
+      "price_band": null
+    }
+  },
+  "wall_time_s": 686.2809224128723
+}
