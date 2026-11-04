@@ -15,7 +15,7 @@ submission/
 │   └── figures/           figures embedded in the report
 ├── slides/
 │   ├── slides.typ         Typst source of the presentation
-│   └── slides.pdf         10-slide deck (16:9)
+│   └── slides.pdf         8-slide deck (16:9)
 ├── code/                  source snapshot (the same tree is on GitHub)
 └── data/                  experimental data and figures
 ```
