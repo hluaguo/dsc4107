@@ -227,7 +227,7 @@ Two papers attack the same trade-off from opposite ends:
 // ---------------- 9. liquid footnote ----------------
 #heading[Liquid 10 bp (footnote only)]
 
-#bullet[Side study at Sepp liquid-index `k` under our *full-rate* ledger (`cost = 0.001` — not exact Case I economics)]
+#bullet[Sepp Case I charges *k/2* on $|Delta delta| dot S$ (eq.~2.5); side study at liquid-index *k* uses our *full-rate* ledger (`cost = 0.001` — numerically Sepp's *k*, not Case I economics)]
 #bullet[10 bp classical hull re-swept; not `classical_best.json`]
 #bullet[H `clears` (narrow) → K `dominated` → L `a05_only` → I `fails` → J `band_like`]
 #v(0.6em)

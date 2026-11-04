@@ -243,8 +243,9 @@ are in Appendix A figures; they do not overturn the 20 bp tie.
 
 #heading(outlined: true)[4.5 Footnote: liquid 10 bp full-rate]
 
-After Section 4.3: at Sepp liquid-index $k$ under our full-rate ledger (`cost =
-0.001`, not exact Case I economics), a re-swept 10 bp hull asks whether deep
+After Section 4.3: Sepp Case I charges $k/2$ on $|Delta delta| dot S$ per eq.~(2.5); at
+Sepp liquid-index $k$ our liquid cell uses full-rate `cost = 0.001` (numerically
+Sepp's $k$, not Case I economics), and a re-swept 10 bp hull asks whether deep
 clears the val-Sharpe champion on cost and tail. Verdicts H clears, K dominated,
 L `a05_only`, I `fails`, J `band_like` (REPORT §8)—recipe-specific and brittle.
 
