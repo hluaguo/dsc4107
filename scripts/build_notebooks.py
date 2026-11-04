@@ -1,4 +1,4 @@
-"""Build the four grader-facing notebooks from readable cell sources.
+"""Build the four public notebooks from readable cell sources.
 
 Hand-writing ``.ipynb`` JSON is brittle; this file is the reviewable source.
 Run ``uv run python scripts/build_notebooks.py`` after editing cells. Notebooks

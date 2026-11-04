@@ -1,4 +1,4 @@
-# Notebooks (grader entry)
+# Notebooks
 
 Four notebooks tell the course story top to bottom. By default they call
 `hedging/` and load committed artifacts under `submission/data/` and

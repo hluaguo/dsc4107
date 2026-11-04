@@ -1,5 +1,5 @@
 // Final presentation slides. 16:9, compiled with Typst.
-// Build: typst compile --root submission slides.typ slides.pdf
+// Build: typst compile --root . slides/slides.typ slides/slides.pdf
 
 #set page(
   width: 33.87cm,
@@ -37,12 +37,12 @@
 // ---------------- 1. title ----------------
 #align(center)[
   #v(3.0cm)
-  #text(size: 40pt, weight: "bold")[Hedging or Harvesting?]
+  #text(size: 40pt, weight: "bold")[Classic hedging is all you need]
   #v(0.6em)
-  #text(size: 24pt)[Classical versus Learned Option Hedging under Transaction Costs]
+  #text(size: 24pt)[Classical versus learned option hedging under transaction costs]
   #v(1.2em)
   #text(size: 18pt, style: "italic")[
-    Replications of Sepp (2013) and Buehler et al. (2019), with a head-to-head comparison
+    Sepp (2013) and Buehler et al. (2019) replications, plus a head-to-head comparison
   ]
   #v(2.4cm)
   #text(size: 17pt)[DSC4107 Final Project]
@@ -92,11 +92,11 @@ Two papers attack the same trade-off from opposite ends:
 #v(0.5em)
 #bullet[Can we reproduce the main claim of Deep Hedging, that a trained network beats Black-Scholes delta hedging under transaction costs in a Heston market?]
 #v(0.5em)
-#bullet[On one testbed, which approach gives the better risk-adjusted P&L, and does the ranking change with the market model and the size of the transaction cost?]
+#bullet[Once the classical side is re-tuned per cell, does the learned hedger beat the best band at 20 bp—and where does the ranking change with cost?]
 
 #v(1.2em)
 #block(fill: luma(96%), inset: 12pt, radius: 3pt)[
-  The answer to RQ3 turns out to depend on what "better" means: Sharpe or tail risk.
+  *Headline answer (RQ3):* at 20 bp, classic hedging is enough. High-cost Sharpe wins are premium harvesting, not better hedges.
 ]
 
 #pagebreak()
@@ -116,16 +116,16 @@ Two papers attack the same trade-off from opposite ends:
   ],
   [
     *Comparison design*
-    #bullet[Classical baseline re-tuned in every cell, so a stale setting cannot manufacture a win]
-    #bullet[Learned network: state is moneyness, time, current position; CVaR loss]
+    #bullet[Classical baseline re-tuned in every cell]
+    #bullet[Learned network: moneyness, time, current position; CVaR loss]
     #bullet[Disjoint train, validation, tuning, search and holdout seed pools]
-    #bullet[Every number averages three training seeds; per-seed minimum and win rate reported]
+    #bullet[Every number averages three training seeds]
   ],
 )
 
 #v(1.0em)
 #block(fill: luma(96%), inset: 12pt, radius: 3pt)[
-  *Correctness anchor.* With zero cost the learned policy must recover the Black-Scholes delta. If it does not, no learned result is trustworthy.
+  *Correctness anchor.* With zero cost the learned policy must recover the Black-Scholes delta (correlation 0.9907).
 ]
 
 #pagebreak()
@@ -137,13 +137,11 @@ Two papers attack the same trade-off from opposite ends:
   columns: (1fr, 1fr),
   gutter: 1.2em,
   [
-    #bullet[Closed forms for mean P&L `u`, cost `c`, local variance `p`, variance floor `f`]
     #bullet[Largest relative error in `u`: 3.9%]
     #bullet[GBM and SVJ case I match to 0.0001]
-    #bullet[Monte Carlo cross-check (60,000 paths) agrees on mean and volatility]
+    #bullet[60,000-path Monte Carlo agrees on mean and volatility]
     #v(0.5em)
-    *The jump-diffusion fix* \
-    The JD branch had dropped a factor `q = sqrt(pi^3)/4` that the other branches carry. Restoring it moves `p` from 24% below the paper to 5.6% above and brings the analytic JD Sharpe onto the simulated one.
+    *Jump-diffusion fix:* restore factor `q = sqrt(pi^3)/4`; analytic JD Sharpe matches simulation (0.65).
   ],
   [
     #figure(
@@ -162,10 +160,11 @@ Two papers attack the same trade-off from opposite ends:
   columns: (0.9fr, 1.1fr),
   gutter: 1.2em,
   [
-    #bullet[Frictionless check: correlation 0.9907, slope 1.148, RMSE 0.0581]
-    #bullet[The learned policy rediscovers the delta, which validates the implementation]
-    #bullet[In Heston, it matches the delta hedge at zero cost and pulls ahead as cost rises]
-    #bullet[This reproduces the paper's qualitative claim]
+    #bullet[Frictionless check validates the implementation]
+    #bullet[Heston: matches delta at zero cost; beats every-step delta as cost rises]
+    #bullet[Qualitative claim of the paper is reproduced]
+    #v(0.5em)
+    #small[This is not the headline: the frozen 20 bp benchmark is Section 7.]
   ],
   [
     #figure(
@@ -177,44 +176,43 @@ Two papers attack the same trade-off from opposite ends:
 
 #pagebreak()
 
-// ---------------- 7. edge map ----------------
-#heading[The head-to-head comparison]
+// ---------------- 7. 20 bp headline ----------------
+#heading[20 bp: classical vs deep]
 
 #grid(
   columns: (1fr, 1.05fr),
   gutter: 1.0em,
   [
-    #bullet[*Near zero cost:* the two approaches tie, as the frictionless check predicts]
-    #bullet[*At 20 bp:* flat, edges from -0.09 to +0.02; the jump models favour classical]
-    #bullet[*Above 50 bp:* a large Sharpe edge, but the P&L standard deviation triples]
+    #bullet[*Near zero cost:* tie (frictionless check)]
+    #bullet[*At 20 bp:* Sharpe edges −0.09 to +0.01 — essentially flat]
+    #bullet[Jump models: classical slightly ahead]
+    #bullet[Holdout: mean edge +0.0339 — real but tiny]
     #v(0.6em)
-    #text(fill: accent, weight: "bold")[The high-cost edge is the volatility risk premium being harvested, not better hedging.]
+    #text(fill: accent, weight: "bold")[Classic hedging is all you need at nominal friction.]
   ],
   [
     #figure(
       image("../report/figures/edge_map_fixed.png", width: 100%),
-      caption: [Learned minus classical Sharpe across four models and five costs.],
+      caption: [Learned minus classical Sharpe (fixed hyperparameters).],
     )
   ],
 )
 
 #pagebreak()
 
-// ---------------- 8. robustness ----------------
-#heading[Is the moderate-cost edge real?]
+// ---------------- 8. tail + high cost ----------------
+#heading[Same spread, worse tail — and high-cost “wins”]
 
 #grid(
   columns: (1fr, 1fr),
-  gutter: 1.2em,
+  gutter: 1.0em,
   [
-    #bullet[Locked holdout, five unseen seeds: mean edge +0.0339, minimum +0.0293, win rate 1.00]
-    #bullet[Bootstrap intervals on the validation pool exclude zero]
-    #bullet[So the small Heston 20 bp edge is not seed or path noise]
+    #bullet[Learned vs band: mean 0.240 vs 0.216, std 0.626 vs 0.613]
+    #bullet[Skew −0.70 vs −0.01; CVaR 95% 24% worse]
+    #bullet[Sharpe edge buys mean with a fatter left tail]
     #v(0.5em)
-    #text(fill: accent, weight: "bold")[But it is not free.]
-    #bullet[The learned P&L has the same spread as the band]
-    #bullet[Skew -0.70 against -0.01]
-    #bullet[CVaR at 95% is 24% worse]
+    #bullet[*Above ~50 bp:* large Sharpe edge but std rises to 3–4]
+    #bullet[P&L mean approaches the option premium → premium harvesting]
   ],
   [
     #figure(
@@ -226,26 +224,16 @@ Two papers attack the same trade-off from opposite ends:
 
 #pagebreak()
 
-// ---------------- 9. sidequest ----------------
-#heading[Hedging or harvesting: the mechanism]
+// ---------------- 9. liquid footnote ----------------
+#heading[Liquid 10 bp (footnote only)]
 
-#grid(
-  columns: (1.05fr, 1fr),
-  gutter: 1.0em,
-  [
-    #bullet[The CVaR tail fraction `alpha` is the dial. Large `alpha` collapses turnover and triples the P&L spread: the network stops hedging and collects the premium.]
-    #bullet[Removing the current position from the state costs Sharpe and raises turnover, so position feedback produces the band.]
-    #bullet[A participation dial `lambda` in the classical family tunes "how much delta" and "how often".]
-    #bullet[At 0-20 bp the tuned dial is near the textbook delta and the network stays 0.02 to 0.05 above it.]
-    #bullet[Above 20 bp the dial goes to zero, and the network is below do-nothing.]
-  ],
-  [
-    #figure(
-      image("../report/figures/participation_frontier.png", width: 100%),
-      caption: [Participation frontier.],
-    )
-  ],
-)
+#bullet[Side study at Sepp liquid-index `k` under our *full-rate* ledger (`cost = 0.001` — not exact Case I economics)]
+#bullet[10 bp classical hull re-swept; not `classical_best.json`]
+#bullet[H `clears` (narrow) → K `dominated` → L `a05_only` → I `fails` → J `band_like`]
+#v(0.6em)
+#block(fill: luma(96%), inset: 12pt, radius: 3pt)[
+  Recipe-specific, mandate-dependent, brittle. Does not reopen the 20 bp headline.
+]
 
 #pagebreak()
 
@@ -253,38 +241,13 @@ Two papers attack the same trade-off from opposite ends:
 #heading[Conclusion]
 
 #v(0.6em)
-#bullet[The extra freedom of a neural hedger does not buy a better hedge in the benchmark regime.]
+#bullet[Replications hold: Sepp Table 2, Monte Carlo cross-check, frictionless delta recovery.]
 #v(0.5em)
-#bullet[At 20 bp the network ties a well-tuned classical delta band, and the surviving holdout edge comes with a worse tail.]
+#bullet[At 20 bp a re-tuned classical band does not lose on Sharpe; deep is not a uniform upgrade.]
 #v(0.5em)
-#bullet[Where it posts large gains, above roughly 50 bp, it has stopped hedging, and a classical family with the same freedom does that better.]
-#v(0.5em)
-#bullet[The replications hold up: Sepp's coefficients match Table 2, the closed forms agree with Monte Carlo, and the frictionless network recovers Black-Scholes.]
+#bullet[High-cost Sharpe gains track under-hedging and premium collection — report them with P&L spread and tail risk.]
 
 #v(1.0em)
-#block(fill: luma(96%), inset: 12pt, radius: 3pt)[
-  Report any learned hedging edge next to its P&L spread. Sharpe alone hides the change of risk profile.
-]
-
-#pagebreak()
-
-// ---------------- 11. reproduce ----------------
-#heading[Reproduce it]
-
-#v(0.4em)
 #text(size: 22pt)[#link("https://github.com/hluaguo/dsc4107")[github.com/hluaguo/dsc4107]]
-
-#v(0.8em)
-```bash
-git clone https://github.com/hluaguo/dsc4107.git
-cd dsc4107
-uv sync
-uv run pytest -q                      # 24 checks
-uv run python scripts/sepp_replication.py
-uv run python scripts/deep_hedging_replication.py
-uv run python scripts/comparison_study.py --fixed-hyper
-uv run python scripts/holdout_eval.py
-```
-
-#v(0.6em)
-#small[Full tables, source code and raw results are in the written report appendices and the `submission/` package.]
+#v(0.4em)
+#small[Full tables: `submission/report/report.pdf` and root `REPORT.md`.]

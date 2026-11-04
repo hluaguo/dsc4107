@@ -64,7 +64,7 @@ Committed full-run JSON and figures: `experiments/*/results/` and
 
 | Path | Role |
 | --- | --- |
-| [`notebooks/`](notebooks/) | **Grader entry** — four notebooks (see [`notebooks/README.md`](notebooks/README.md)) |
+| [`notebooks/`](notebooks/) | **Public notebook path** — four notebooks (see [`notebooks/README.md`](notebooks/README.md)) |
 | [`REPORT.md`](REPORT.md) | Full report (replications, comparison, holdout) |
 | [`experiments/README.md`](experiments/README.md) | RQ-A … RQ-L index and verdicts |
 | [`submission/`](submission/) | PDF report, slides, mirrored artifacts |
@@ -79,7 +79,7 @@ required for grading.
 ```
 hedging/       simulators, Sepp formulas, classical + deep hedgers, bench config
 bench/         pinned classical baseline (classical_best.json)
-notebooks/     grader-facing story (four notebooks)
+notebooks/     course story (four notebooks)
 scripts/       holdout, benchmark loop, replication + RQ entry shims
 experiments/   one folder per RQ + committed full-run results/
 archive/       off-path scripts and old autoresearch notes
