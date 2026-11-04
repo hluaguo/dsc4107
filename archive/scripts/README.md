@@ -1,6 +1,6 @@
 # Archived scripts
 
-Exploratory and historical one-offs moved off the grader path. Notebooks load
+Exploratory and historical one-offs moved off the public notebook path. Notebooks load
 committed JSON under `submission/data/` and `experiments/*/results/` instead.
 
 | Script | Role |

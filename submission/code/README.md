@@ -24,9 +24,9 @@ testbed and ask which gives the better risk-adjusted profit and loss.
 | `scripts/sepp_replication.py` | Sepp Section 5 tables and figures (optional Monte Carlo check) |
 | `scripts/deep_hedging_replication.py` | Frictionless delta check and the Heston deep-hedging experiment |
 | `scripts/comparison_study.py` | The head-to-head map and the Optuna hyperparameter add-on |
-| `scripts/build_notebooks.py` | Regenerates the two replication notebooks |
+| `scripts/build_notebooks.py` | Regenerates the four public notebooks on the repo root |
 | `scripts/holdout_eval.py` | The final run on the locked holdout pool |
-| `notebooks/` | The two replication notebooks (built from `build_notebooks.py`) |
+| `notebooks/` | Snapshot of notebooks 01–02 only; full set (`01`–`04`) lives at repo root `notebooks/` |
 | `tests/` | Analytic and accounting checks |
 | `REPORT.md` | The written report: both replications and the comparison |
 | `AGENTS.md` | Repository conventions: why-style docs, `uv add`, frozen files |

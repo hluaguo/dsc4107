@@ -1,7 +1,8 @@
 # DSC4107 final submission
 
-Classical versus learned option hedging under transaction costs. Replications of
-Sepp (2013) and Buehler et al. (2019) with a head-to-head comparison.
+**Classic hedging is all you need** — classical versus learned option hedging under
+transaction costs. Replications of Sepp (2013) and Buehler et al. (2019) with a
+head-to-head comparison aligned to root [`REPORT.md`](../REPORT.md).
 
 ## Contents
 
@@ -14,7 +15,7 @@ submission/
 │   └── figures/           figures embedded in the report
 ├── slides/
 │   ├── slides.typ         Typst source of the presentation
-│   └── slides.pdf         11-slide deck (16:9)
+│   └── slides.pdf         10-slide deck (16:9)
 ├── code/                  source snapshot (the same tree is on GitHub)
 └── data/                  experimental data and figures
 ```
@@ -75,7 +76,7 @@ are mirrored under `data/`.
   [`experiments/`](../experiments/)). This folder adds PDFs and a `data/` mirror.
 - Holdout paths were simulated once, after choices were frozen, in
   `scripts/holdout_eval.py` only.
-- Narrative spine (papers → frozen 20 bp cell → classical vs deep → follow-up RQs → liquid
-  10 bp footnote with Sepp **k/2** vs our full-rate ledger): root [`README.md`](../README.md)
-  and [`experiments/README.md`](../experiments/README.md). Main claim in `report/report.pdf` /
-  [`REPORT.md`](../REPORT.md).
+- Narrative spine (papers → frozen 20 bp cell → classical vs deep at 20 bp → liquid
+  10 bp footnote only): root [`README.md`](../README.md), [`REPORT.md`](../REPORT.md)
+  §3 and §8, and [`experiments/README.md`](../experiments/README.md). PDF title matches
+  the locked headline in `report/report.pdf`.
