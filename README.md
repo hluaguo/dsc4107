@@ -15,9 +15,22 @@ PDF for grading: [`submission/report/report.pdf`](submission/report/report.pdf).
 ```bash
 uv sync
 uv run pytest -q
+jupyter lab notebooks/   # or open the four notebooks in your IDE
 ```
 
 Python version is pinned in `.python-version`. Scripts use GPU when available.
+
+## Notebooks (start here)
+
+| # | Notebook | Role |
+| --- | --- | --- |
+| 01 | [`notebooks/01_sepp_replication.ipynb`](notebooks/01_sepp_replication.ipynb) | Sepp Section 5 replication |
+| 02 | [`notebooks/02_deep_hedging.ipynb`](notebooks/02_deep_hedging.ipynb) | Buehler Heston + frictionless check (artifacts) |
+| 03 | [`notebooks/03_classical_vs_deep.ipynb`](notebooks/03_classical_vs_deep.ipynb) | Frozen bench, comparison map, holdout display |
+| 04 | [`notebooks/04_research_path.ipynb`](notebooks/04_research_path.ipynb) | RQ-A + liquid footnote chain (soft) |
+
+Index: [`notebooks/README.md`](notebooks/README.md). Regenerate from sources:
+`uv run python scripts/build_notebooks.py`.
 
 ## Story spine (English)
 
@@ -51,10 +64,12 @@ Committed full-run JSON and figures: `experiments/*/results/` and
 
 | Path | Role |
 | --- | --- |
+| [`notebooks/`](notebooks/) | **Grader entry** — four notebooks (see [`notebooks/README.md`](notebooks/README.md)) |
 | [`REPORT.md`](REPORT.md) | Full report (replications, comparison, holdout) |
 | [`experiments/README.md`](experiments/README.md) | RQ-A … RQ-L index and verdicts |
 | [`submission/`](submission/) | PDF report, slides, mirrored artifacts |
 | [`docs/papers/`](docs/papers/) | Sepp & Buehler PDFs |
+| [`archive/scripts/`](archive/scripts/) | Historical comparison + exploration scripts |
 
 Optional background notes (plan, extra probes) live under [`docs/`](docs/) and are not
 required for grading.
@@ -64,8 +79,10 @@ required for grading.
 ```
 hedging/       simulators, Sepp formulas, classical + deep hedgers, bench config
 bench/         pinned classical baseline (classical_best.json)
-scripts/       replication and experiment entry points
+notebooks/     grader-facing story (four notebooks)
+scripts/       holdout, benchmark loop, replication + RQ entry shims
 experiments/   one folder per RQ + committed full-run results/
+archive/       off-path scripts and old autoresearch notes
 tests/         checks (frozen)
 submission/    course PDFs and data mirror
 ```

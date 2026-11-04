@@ -1,10 +1,9 @@
-"""Build the two replication notebooks from readable sources.
+"""Build the four grader-facing notebooks from readable cell sources.
 
-The notebooks are deliverable artefacts, not source code, but hand-writing
-``.ipynb`` JSON is both unreadable and easy to corrupt. Keeping the cell
-sources here means the notebooks can be regenerated after an API change and the
-diff stays reviewable. Run ``uv run python scripts/build_notebooks.py`` and open
-the results with Jupyter.
+Hand-writing ``.ipynb`` JSON is brittle; this file is the reviewable source.
+Run ``uv run python scripts/build_notebooks.py`` after editing cells. Notebooks
+default to loading committed artifacts under ``submission/data/`` and
+``experiments/*/results/`` so demos do not re-run multi-hour training.
 """
 
 from __future__ import annotations
@@ -55,6 +54,12 @@ The implementation lives in `hedging/sepp.py` and is checked against the
 simulator in `tests/test_sepp.py`. Where the paper's printed constants could
 not be made to agree with a direct Monte Carlo estimate, the notebook says so
 rather than smoothing it over.
+
+Regenerate the full run (tables, figures, optional Monte Carlo):
+`uv run python scripts/sepp_replication.py`. The Monte Carlo cell below uses
+`hedge.rollout(..., sm.k / 2.0, ...)` because Sepp eq. (2.5) charges **half**
+the quoted spread on |Δδ|·S; the frozen `BenchConfig` ledger uses **full-rate**
+`cost` instead (see root README liquid footnote).
 """,
     ),
     (
@@ -268,18 +273,18 @@ DEEP_CELLS = [
         """# Replication of Buehler et al. (2019), *Deep Hedging* (Heston case)
 
 Buehler, Gonon, Teichmann and Wood replace the analytic hedging rule with a
-network trained to minimise a convex risk measure of the terminal P&L. This
-notebook runs the Heston experiment with proportional transaction costs and
-checks the paper's own correctness test.
+network trained to minimise a convex risk measure of the terminal P&L. The
+committed numbers live in `submission/data/deep_hedging/results.json`, produced
+by `scripts/deep_hedging_replication.py` (same entry point as `REPORT.md` §6).
 
-The test that matters most is the frictionless one: with **zero** costs, a
-correct hedger should rediscover something close to the Black-Scholes delta. If
-it does not, nothing else it reports can be trusted, so it comes first.
+Default below: **load artifacts** (fast). Set `RUN_TRAINING = True` only for a
+small smoke re-run; full reproduction uses the script with `--epochs 100`.
 """,
     ),
     (
         "code",
-        """import pathlib
+        """import json
+import pathlib
 import sys
 
 import matplotlib.pyplot as plt
@@ -289,124 +294,308 @@ import polars as pl
 ROOT = pathlib.Path.cwd().parent if pathlib.Path.cwd().name == "notebooks" else pathlib.Path.cwd()
 sys.path.insert(0, str(ROOT))
 
-import torch
+from hedging import bench as B
 
-from hedging import bench as B, bs, deep, metrics
-from hedging.hyper import Hyper
+RUN_TRAINING = False
+DATA = ROOT / "submission" / "data" / "deep_hedging" / "results.json"
+FIG = ROOT / "submission" / "data" / "deep_hedging" / "sharpe_vs_cost.png"
 
 BASE = B.BenchConfig()
-print("market:", BASE.model, "cost:", BASE.cost, "premium:", round(BASE.premium, 4))""",
+print("frozen bench (for context):", BASE.model, "cost=", BASE.cost)
+print("artifact:", DATA.relative_to(ROOT))""",
     ),
     (
         "markdown",
-        """## 1. The frictionless check
+        """## 1. Frictionless delta check (committed run)
 
-Train with `cost = 0` and compare the positions the network holds with the
-Black-Scholes delta at the same state. Correlation near one and a slope near
-one would mean the network recovered the analytic hedge. The `alpha` of the
-CVaR objective controls how much weight the tail gets; the mean objective
-(`alpha = 1`) is expected to fail this check because with a volatility premium
-it can simply refuse to hedge, which is exactly the failure mode the main
-benchmark was redesigned to avoid.
+With zero costs the network should track Black-Scholes delta. `REPORT.md` §4
+records correlation **0.9907** on the full script run; we display the committed
+JSON rather than re-train here.
 """,
     ),
     (
         "code",
-        """from dataclasses import replace
-
-cfg0 = replace(BASE, cost=0.0, n_val_paths=5_000)
-hyper = Hyper(epochs=60, hidden=64, depth=3, alpha=0.05, torch_seeds=(0,))
-paths = cfg0.simulate(cfg0.model, 2001, 5_000)
-tensor = torch.as_tensor(paths, dtype=torch.float32)
-
-nets, _ = B.train_ensemble(cfg0, hyper)
-learned = deep.hedge_positions(tensor, nets[0], cfg0.K, cfg0.dt, cfg0.T)
-
-n_steps = paths.shape[1] - 1
-target = np.stack([
-    bs.bs_delta(paths[:, j], cfg0.K, max(cfg0.T - j * cfg0.dt, 0.0), 0.0, cfg0.sigma_impl, "call")
-    for j in range(n_steps)
-], axis=1)
-x, y = learned.reshape(-1), target.reshape(-1)
-print("correlation:", round(float(np.corrcoef(x, y)[0, 1]), 4))
-print("slope:", round(float(np.polyfit(y, x, 1)[0]), 3))
-print("rmse:", round(float(np.sqrt(np.mean((x - y) ** 2))), 4))""",
-    ),
-    (
-        "code",
-        """fig, ax = plt.subplots(figsize=(5, 5))
-ax.scatter(y, x, s=3, alpha=0.15)
-lims = [0, 1]
-ax.plot(lims, lims, "r--", lw=1)
-ax.set_xlabel("Black-Scholes delta")
-ax.set_ylabel("learned position")
-ax.set_title("Frictionless hedger vs delta")
-plt.show()""",
+        """payload = json.loads(DATA.read_text())
+fr = payload["frictionless"]
+pl.DataFrame([{
+    "correlation": fr["correlation"],
+    "slope": fr["slope"],
+    "rmse": fr["rmse"],
+}])""",
     ),
     (
         "markdown",
-        """## 2. Heston with transaction costs
+        """## 2. Heston with proportional costs (committed run)
 
-With costs, the comparison is against the plain Black-Scholes delta at every
-step (Buehler's benchmark) and against the frozen cost-aware band baseline used
-in the rest of the project. The learned hedger is the objective from
-`hedging/deep.py`: CVaR of the terminal P&L, which is the tail objective the
-main benchmark settled on.
+Sharpe ratios vs cost for learned hedger, every-step BS delta (Buehler baseline),
+and the frozen band (`load_classical_best()`). Numbers match `REPORT.md` §2 table.
 """,
     ),
     (
         "code",
-        """costs = [0.0, 0.002, 0.005, 0.01]
-hyper = Hyper(epochs=60, hidden=64, depth=3, alpha=0.65, torch_seeds=(0, 1, 2))
-
-records = []
-for cost in costs:
-    cfg = replace(BASE, cost=cost)
-    nets, _ = B.train_ensemble(cfg, hyper)
-    learned = B.NetworkStrategy(cfg, nets)
-    delta = B.ClassicalStrategy(cfg, {"strategy": "time", "frequency": 1, "delta_band": None, "price_band": None})
-    band = B.ClassicalStrategy(cfg, B.load_classical_best())
-    deep_s, delta_s, band_s = [], [], []
-    for seed in cfg.val_seeds:
-        paths = cfg.simulate(cfg.model, seed, cfg.n_val_paths)
-        deep_s.append(metrics.sharpe(learned.pnl(paths)))
-        delta_s.append(metrics.sharpe(delta.pnl(paths)))
-        band_s.append(metrics.sharpe(band.pnl(paths)))
-    records.append({
-        "cost_bp": cost * 1e4,
-        "learned": np.mean(deep_s),
-        "bs_delta": np.mean(delta_s),
-        "frozen_band": np.mean(band_s),
+        """rows = []
+for block in payload["costs"]:
+    s = block["summary"]
+    rows.append({
+        "cost_bp": block["cost"] * 1e4,
+        "learned_sharpe": s["deep_sharpe"]["mean"],
+        "bs_delta_sharpe": s["bs_delta_sharpe"]["mean"],
+        "band_sharpe": s["band_sharpe"]["mean"],
+        "edge_vs_band": s["edge_vs_band"]["mean"],
     })
-table = pl.DataFrame(records)
+table = pl.DataFrame(rows)
 table""",
     ),
     (
         "code",
-        """fig, ax = plt.subplots(figsize=(7, 4))
-for key, label in (("learned", "learned"), ("bs_delta", "BS delta"), ("frozen_band", "frozen band")):
-    ax.plot(table["cost_bp"], table[key], marker="o", label=label)
-ax.set_xlabel("transaction cost (bp)")
-ax.set_ylabel("Sharpe ratio")
-ax.set_title("Heston: learned versus classical hedging")
-ax.legend()
-plt.show()""",
+        """if FIG.is_file():
+    img = plt.imread(FIG)
+    plt.figure(figsize=(7, 4))
+    plt.imshow(img)
+    plt.axis("off")
+    plt.title("Committed figure (deep_hedging_replication.py)")
+    plt.show()
+else:
+    fig, ax = plt.subplots(figsize=(7, 4))
+    for col, label in (
+        ("learned_sharpe", "learned"),
+        ("bs_delta_sharpe", "BS delta"),
+        ("band_sharpe", "frozen band"),
+    ):
+        ax.plot(table["cost_bp"], table[col], marker="o", label=label)
+    ax.set_xlabel("transaction cost (bp)")
+    ax.set_ylabel("Sharpe ratio")
+    ax.legend()
+    plt.show()""",
     ),
     (
         "markdown",
-        """### Reading the result
+        """### Optional smoke re-run (off by default)
 
-- At zero cost the learned hedger tracks the delta closely but does not match
-  its Sharpe exactly, because the CVaR objective weights the tail rather than
-  the variance. That is expected and is the reason the frictionless check is
-  reported as a correlation and a slope, not as an equality.
-- As the cost rises, the learned hedger's advantage over the fixed delta
-  changes; the frozen band is a strong comparator because it was tuned on its
-  own pool for a cost aware regime.
-- Run-to-run variance is real: every number here averages three training seeds,
-  and a difference smaller than the spread across those seeds is not a result.
-  The main benchmark reports the per-seed edge and its minimum for exactly this
-  reason.
+Mirrors the frictionless block in `scripts/deep_hedging_replication.py` with a
+tiny budget. Do not cite smoke numbers as report figures.
+""",
+    ),
+    (
+        "code",
+        """if not RUN_TRAINING:
+    print("Set RUN_TRAINING = True to execute the smoke training cell.")
+else:
+    import torch
+    from dataclasses import replace
+
+    from hedging import bs, deep
+    from hedging.hyper import Hyper
+
+    cfg0 = replace(BASE, cost=0.0, n_val_paths=2_000)
+    hyper = Hyper(epochs=20, hidden=64, depth=3, alpha=0.05, torch_seeds=(0,))
+    paths = cfg0.simulate(cfg0.model, 2001, 2_000)
+    tensor = torch.as_tensor(paths, dtype=torch.float32)
+    nets, _ = B.train_ensemble(cfg0, hyper)
+    learned = deep.hedge_positions(tensor, nets[0], cfg0.K, cfg0.dt, cfg0.T)
+    n_steps = paths.shape[1] - 1
+    target = np.stack([
+        bs.bs_delta(paths[:, j], cfg0.K, max(cfg0.T - j * cfg0.dt, 0.0), 0.0, cfg0.sigma_impl, "call")
+        for j in range(n_steps)
+    ], axis=1)
+    x, y = learned.reshape(-1), target.reshape(-1)
+    print("smoke correlation:", round(float(np.corrcoef(x, y)[0, 1]), 4))""",
+    ),
+]
+
+
+CLASSICAL_CELLS = [
+    (
+        "markdown",
+        """# Classical versus learned hedging (display from committed artifacts)
+
+Headline cell: frozen `BenchConfig` (Heston ATM 1M, **20 bp full-rate** cost) and
+`bench/classical_best.json`. Historical 4×5 comparison and the locked holdout
+are already in `REPORT.md` §3; this notebook **loads** the JSON mirror under
+`submission/data/` — it does not re-score paths or invent Sharpe edges.
+
+Re-run writers (optional, slow): `archive/scripts/comparison_study.py`,
+`scripts/holdout_eval.py` (holdout only, once).
+""",
+    ),
+    (
+        "code",
+        """import json
+import pathlib
+import sys
+
+import matplotlib.pyplot as plt
+import polars as pl
+
+ROOT = pathlib.Path.cwd().parent if pathlib.Path.cwd().name == "notebooks" else pathlib.Path.cwd()
+sys.path.insert(0, str(ROOT))
+
+from hedging import bench as B
+
+cfg = B.BenchConfig()
+baseline = B.load_classical_best()
+print("BenchConfig:", cfg.model, "cost=", cfg.cost, "n_steps=", cfg.n_steps)
+print("classical_best.json:", baseline)""",
+    ),
+    (
+        "markdown",
+        """## Fixed-hyper edge map (`comparison_study.py --fixed-hyper`)
+
+Same table as `REPORT.md` §3.1 (model × cost in bp). Edge = mean validation
+Sharpe (learned − classical), averaged over training seeds.
+""",
+    ),
+    (
+        "code",
+        """EDGE_JSON = ROOT / "submission" / "data" / "comparison" / "edge_map_fixed.json"
+EDGE_PNG = ROOT / "submission" / "data" / "comparison" / "edge_map_fixed.png"
+cells = json.loads(EDGE_JSON.read_text())
+edge = pl.DataFrame(cells).with_columns((pl.col("cost") * 1e4).alias("cost_bp"))
+edge.select(
+    "model",
+    "cost_bp",
+    "edge_mean",
+    "edge_min",
+    "win_rate",
+    "deep_sharpe",
+    "classical_sharpe",
+    "deep_std",
+    "classical_std",
+).sort("model", "cost_bp")""",
+    ),
+    (
+        "code",
+        """if EDGE_PNG.is_file():
+    plt.figure(figsize=(8, 5))
+    plt.imshow(plt.imread(EDGE_PNG))
+    plt.axis("off")
+    plt.title("Committed edge map (see REPORT §3.1)")
+    plt.show()""",
+    ),
+    (
+        "markdown",
+        """## Locked holdout (`scripts/holdout_eval.py`)
+
+Single run on the five holdout seeds; summary matches `REPORT.md` §3.4.
+""",
+    ),
+    (
+        "code",
+        """HOLDOUT_LOG = ROOT / "submission" / "data" / "holdout_history.jsonl"
+last = HOLDOUT_LOG.read_text().strip().splitlines()[-1]
+holdout = json.loads(last)
+pl.DataFrame([holdout]).select("edge_mean", "edge_std", "edge_min", "win_rate", "n_seeds", "timestamp")""",
+    ),
+    (
+        "markdown",
+        """### Reading (from the report, not re-derived here)
+
+At **20 bp** on the frozen Heston cell the fixed-hyper comparison is flat
+(`heston` edge about +0.014 in the map above). The holdout mean edge (+0.0339)
+is the same order of magnitude — a small win, not a overturning of the classical
+band story. High-cost Sharpe edges in the map are premium-harvesting artefacts;
+see `REPORT.md` §3.1 regime 3.
+""",
+    ),
+]
+
+
+RESEARCH_CELLS = [
+    (
+        "markdown",
+        """# Research path: RQ-A headline + liquid 10 bp footnote
+
+**Main line (20 bp frozen cell):** RQ-A cost–CVaR Pareto (`scripts/rq_a_pareto.py`
+→ `experiments/rq_a/results/`). Verdict **`dominated`**: deep policies are cheaper
+on mean path cost but sit **above** the classical cost–tail hull on CVaR95.
+
+**Footnote only (10 bp liquid):** Sepp Case I uses **k/2** in eq. (2.5); our
+`hedge.rollout` ledger charges **full-rate** `cost`. Runs at `cost = 0.001` align
+with Sepp liquid-index **k** numerically, not Case I economics. The brittle chain
+**H → K → L → I → J** is indexed in `experiments/README.md` — do **not** promote
+it to the course title (see root README).
+
+This notebook loads committed `experiments/*/results/*.json` only.
+""",
+    ),
+    (
+        "code",
+        """import json
+import pathlib
+import sys
+
+import matplotlib.pyplot as plt
+import polars as pl
+
+ROOT = pathlib.Path.cwd().parent if pathlib.Path.cwd().name == "notebooks" else pathlib.Path.cwd()
+sys.path.insert(0, str(ROOT))
+
+from hedging import bench as B
+
+print("Headline cell:", B.BenchConfig().model, "cost=", B.BenchConfig().cost)""",
+    ),
+    (
+        "markdown",
+        """## RQ-A (headline auxiliary)
+
+Full-run JSON: `experiments/rq_a/results/pareto.json`. Pareto plane uses
+**mean_cost** and **cvar95** from `hedge.rollout` / `hedging/metrics.py` (lower
+is better on both axes).
+""",
+    ),
+    (
+        "code",
+        """RQ_A = json.loads((ROOT / "experiments" / "rq_a" / "results" / "pareto.json").read_text())
+print("verdict:", RQ_A["verdict"])
+classical = pl.DataFrame(RQ_A["classical"])
+deep = pl.DataFrame(RQ_A["deep"])
+cb = classical.filter(pl.col("label") == "classical_best").row(0, named=True)
+print("classical_best mean_cost", cb["mean_cost"], "cvar95", cb["cvar95"])
+deep.select("label", "mean_cost", "cvar95")""",
+    ),
+    (
+        "code",
+        """pareto_png = ROOT / "experiments" / "rq_a" / "results" / "pareto.png"
+if pareto_png.is_file():
+    plt.figure(figsize=(6, 4))
+    plt.imshow(plt.imread(pareto_png))
+    plt.axis("off")
+    plt.title("RQ-A committed Pareto figure")
+    plt.show()""",
+    ),
+    (
+        "markdown",
+        """## Liquid 10 bp footnote chain (soft)
+
+Re-swept classical hull at `cost = 0.001`; never `classical_best.json` as baseline.
+Verdict strings only — details in each folder's `NOTES.md` and `REPORT.md` spine.
+""",
+    ),
+    (
+        "code",
+        """FOOTNOTE = [
+    ("RQ-H", "rq_liquid_10bp", "liquid_10bp.json"),
+    ("RQ-K", "rq_liquid_baseline", "liquid_baseline.json"),
+    ("RQ-L", "rq_liquid_alpha", "liquid_alpha.json"),
+    ("RQ-I", "rq_liquid_robust", "liquid_robust.json"),
+    ("RQ-J", "rq_liquid_anatomy", "liquid_anatomy.json"),
+]
+rows = []
+for tag, folder, fname in FOOTNOTE:
+    path = ROOT / "experiments" / folder / "results" / fname
+    payload = json.loads(path.read_text())
+    rows.append({"step": tag, "folder": folder, "verdict": payload["verdict"]})
+pl.DataFrame(rows)""",
+    ),
+    (
+        "markdown",
+        """### How to read this notebook
+
+- **RQ-A** supports the locked title: classical cost–tail rules remain the
+  reference on the 20 bp cell even when deep hedging trims mean transaction cost.
+- The **liquid chain** is a sensitivity footnote; several steps fail or narrow
+  quickly under robustness checks (`RQ-I`, `RQ-K`). Cite `experiments/README.md`
+  and the JSON audit fields, not notebook-derived Sharpe numbers.
 """,
     ),
 ]
@@ -414,9 +603,14 @@ plt.show()""",
 
 def main() -> None:
     OUT.mkdir(parents=True, exist_ok=True)
+    legacy = OUT / "02_deep_hedging_heston.ipynb"
+    if legacy.exists():
+        legacy.unlink()
     for name, cells in (
         ("01_sepp_replication.ipynb", SEPP_CELLS),
-        ("02_deep_hedging_heston.ipynb", DEEP_CELLS),
+        ("02_deep_hedging.ipynb", DEEP_CELLS),
+        ("03_classical_vs_deep.ipynb", CLASSICAL_CELLS),
+        ("04_research_path.ipynb", RESEARCH_CELLS),
     ):
         path = OUT / name
         path.write_text(json.dumps(_notebook(cells), indent=1) + "\n")
