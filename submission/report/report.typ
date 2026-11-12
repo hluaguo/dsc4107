@@ -150,7 +150,7 @@ floor $f$, so paying more cost buys less. GBM case I optimises at 242 rebalances
 with a Sharpe of 0.83; Heston case I at 75 with 0.43.
 
 The jump-diffusion row needed a real fix. The JD branch had dropped a factor
-$q = sqrt(pi^3)\/4$ that the GBM and SVJ branches carry. `scripts/diagnose_jd.py`
+$q = sqrt(pi^3)\/4$ that the GBM and SVJ branches carry. `archive/scripts/diagnose_jd.py`
 shows the second-moment gamma was correct to 0.2% all along; only the coefficient
 was wrong. Restoring $q$ moves $p$ from 24% below the paper to 5.6% above it and
 brings the analytic JD Sharpe (0.65) onto the simulated one (0.65) in case I.
@@ -216,11 +216,15 @@ edge for Heston at 20 bp (+0.014 fixed hyperparameters, +0.021 after search).
 The small benchmark win is real but small by design: this is the regime where the
 two strategies nearly tie.
 
-It is also not a free improvement. On that cell the two P&L distributions have
-almost the same spread, but the learned one has skew -0.70 against -0.01 and a
-CVaR at 95% of 1.321 against 1.066, which is a 24% worse tail. Whether the edge
-counts as a win depends on whether the desk scores Sharpe or tail risk, and the
-two measures disagree.
+The Sharpe edge is not a tail win. On every one of the five holdout seeds the
+learned CVaR95 is higher than the band, from 1.273 to 1.318 against 1.036 to
+1.080.
+
+It is also not a free improvement. On the validation distribution the two P&L
+distributions have almost the same spread, but the learned one has skew -0.70
+against -0.01 and a CVaR at 95% of 1.321 against 1.066, which is a 24% worse
+tail. Whether the edge counts as a win depends on whether the desk scores Sharpe
+or tail risk, and the two measures disagree.
 
 #heading(outlined: true)[4.1 Mechanism checks (not the headline)]
 
@@ -498,10 +502,10 @@ test suite and the pinned environment. A snapshot is attached under
     [hedging/hyper.py], [Training hyperparameters],
     [scripts/sepp_replication.py], [Sepp Table 2, optima and Monte Carlo check],
     [scripts/deep_hedging_replication.py], [Frictionless check and Heston experiment],
-    [scripts/comparison_study.py], [Head-to-head map and Optuna add-on],
+    [archive/scripts/comparison_study.py], [Head-to-head map and Optuna add-on],
     [scripts/holdout_eval.py], [The single locked holdout run],
-    [#raw("scripts/explore_*.py")], [Objective, feature, transfer and robustness probes],
-    [scripts/sidequest_participation.py], [The participation-dial test],
+    [#raw("archive/scripts/explore_*.py")], [Objective, feature, transfer and robustness probes],
+    [archive/scripts/sidequest_participation.py], [The participation-dial test],
     [tests/], [Analytic and accounting checks (24 tests)],
   ),
   caption: [Repository layout.],
@@ -525,9 +529,9 @@ uv run pytest -q                                          # 24 checks
 uv run python scripts/sepp_replication.py                 # Sepp tables + figures
 uv run python scripts/sepp_replication.py --mc --mc-paths 60000
 uv run python scripts/deep_hedging_replication.py --epochs 100 --hidden 64 --depth 3
-uv run python scripts/comparison_study.py --fixed-hyper \
+uv run python archive/scripts/comparison_study.py --fixed-hyper \
     --costs 0.0 0.002 0.005 0.01 0.02
-uv run python scripts/comparison_study.py --models heston jd \
+uv run python archive/scripts/comparison_study.py --models heston jd \
     --costs 0.002 0.005 0.01 --trials 8
 uv run python scripts/holdout_eval.py                     # final locked run
 ```

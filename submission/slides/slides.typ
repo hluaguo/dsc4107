@@ -100,7 +100,7 @@
   [
     #bullet[Learned − classical Sharpe edges *−0.09 to +0.01* — essentially flat]
     #bullet[Jump models: classical slightly ahead]
-    #bullet[Holdout (5 seeds): mean edge *+0.0339* — real but tiny]
+    #bullet[Holdout on 5 seeds has mean edge *+0.0339*. The edge is real but tiny, and the tail is worse on every seed.]
     #v(0.6em)
     #text(fill: accent, weight: "bold")[Classic hedging is all you need at nominal friction. Deep is not a uniform upgrade.]
   ],

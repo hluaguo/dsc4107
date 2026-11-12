@@ -61,7 +61,7 @@ correspondingly high. Equations (7.13)-(7.14) attach `q` to the whole
 `2 sigma_r^4 + lambda sigma_r^2 nu^2` bracket of `p` and to the jump term of
 `f`; restoring it moves `p` to +5.6% and `f` to -9% of Table 2 and, more
 tellingly, matches the paper's JD Sharpe (0.65 vs 0.66 in case I, 1.01 vs 0.99
-in case II). `scripts/diagnose_jd.py` isolates the fix: the second-moment gamma
+in case II). `archive/scripts/diagnose_jd.py` isolates the fix: the second-moment gamma
 `gamma2` was never the problem (it matches the simulator to 0.2%), only the
 coefficient was.
 
@@ -162,7 +162,7 @@ edge, learned minus classical, averaged over the three training seeds.
 
 ### 3.1 One fixed network configuration everywhere
 
-`scripts/comparison_study.py --fixed-hyper` uses the same explicit
+`archive/scripts/comparison_study.py --fixed-hyper` uses the same explicit
 hyperparameters in every cell (hidden 64, depth 3, lr 1e-3, alpha 0.65, 80
 epochs), so no cell can win by getting a luckier search. The edge map:
 
@@ -220,7 +220,7 @@ the deep Sharpe edge is large) points the same way. The edge map is in
 
 ### 3.2 Optuna hyperparameter search
 
-`scripts/comparison_study.py` also runs the plan's Optuna add-on. Trials are
+`archive/scripts/comparison_study.py` also runs the plan's Optuna add-on. Trials are
 ranked on a fourth seed pool (`SEARCH_SEEDS`) that is disjoint from train,
 validation and holdout, so the search cannot select on the seeds that produce
 the headline number. Searches were run for Heston and jump-diffusion at 20, 50
@@ -279,10 +279,14 @@ fitting its own noise the holdout edge would be near zero or negative; it is
 not, so the small benchmark win is real. It remains small by design: this is the
 regime where the two strategies nearly tie, which is itself the headline result.
 
+The Sharpe edge is not a tail win. On every one of the five holdout seeds the
+learned CVaR95 is higher than the band, from 1.273 to 1.318 against 1.036 to
+1.080.
+
 ### 3.5 The loss distribution
 
 The plan asks for the loss distribution next to the summary statistics, because
-Sharpe alone cannot show where the risk sits. `scripts/explore_distribution.py`
+Sharpe alone cannot show where the risk sits. `archive/scripts/explore_distribution.py`
 plots the pooled terminal P&L of the learned hedger and the band on the frozen
 benchmark (figure `results/exploration/distribution.png`).
 
@@ -321,7 +325,7 @@ desk scores Sharpe or tail risk, and the two disagree.
   and SVJ branches already carried. Restoring it moves `p` from -24% to +5.6%
   of Table 2 and matches the JD Sharpe. The only residual is the paper's own
   variance approximation at case II, where the analytic volatility stays about
-  12% below the simulator; `scripts/diagnose_jd.py` separates the two.
+  12% below the simulator; `archive/scripts/diagnose_jd.py` separates the two.
 - **Classical family.** The classical candidates always open a full initial
   hedge, so they cannot express "under-hedge" or "hold flat". The high-cost deep
   wins are partly an artefact of that asymmetry. Adding an initial-trade flag or
@@ -344,9 +348,9 @@ uv run pytest -q                                        # 23 checks
 uv run python scripts/sepp_replication.py               # Sepp tables + figures
 uv run python scripts/sepp_replication.py --mc --mc-paths 60000
 uv run python scripts/deep_hedging_replication.py --epochs 100 --hidden 64 --depth 3
-uv run python scripts/comparison_study.py --fixed-hyper \
+uv run python archive/scripts/comparison_study.py --fixed-hyper \
     --costs 0.0 0.002 0.005 0.01 0.02
-uv run python scripts/comparison_study.py --models heston jd \
+uv run python archive/scripts/comparison_study.py --models heston jd \
     --costs 0.002 0.005 0.01 --trials 8
 ```
 
@@ -365,7 +369,7 @@ All scripts pick CUDA automatically. Outputs land in `results/sepp/`,
 | `tests/test_sepp.py` | Closed form against Monte Carlo and Table 2 |
 | `scripts/sepp_replication.py` | Section 5 tables and figures |
 | `scripts/deep_hedging_replication.py` | Frictionless check and Heston experiment |
-| `scripts/comparison_study.py` | The head-to-head map and the Optuna add-on |
+| `archive/scripts/comparison_study.py` | The head-to-head map and the Optuna add-on |
 | `scripts/holdout_eval.py` | The single locked holdout run |
 
 ## 8. Footnote: liquid 10 bp full-rate

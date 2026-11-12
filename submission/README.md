@@ -16,9 +16,11 @@ submission/
 ├── slides/
 │   ├── slides.typ         Typst source of the presentation
 │   └── slides.pdf         8-slide deck (16:9)
-├── code/                  source snapshot (the same tree is on GitHub)
+├── code/                  source snapshot
 └── data/                  experimental data and figures
 ```
+
+`code/` is a source snapshot, not a full copy of the GitHub tree, and the frozen band is `bench/classical_best.json`.
 
 ## Entry points
 
@@ -59,9 +61,9 @@ uv run pytest -q                                          # 24 checks
 uv run python scripts/sepp_replication.py                 # Sepp tables + figures
 uv run python scripts/sepp_replication.py --mc --mc-paths 60000
 uv run python scripts/deep_hedging_replication.py --epochs 100 --hidden 64 --depth 3
-uv run python scripts/comparison_study.py --fixed-hyper \
+uv run python archive/scripts/comparison_study.py --fixed-hyper \
     --costs 0.0 0.002 0.005 0.01 0.02
-uv run python scripts/comparison_study.py --models heston jd \
+uv run python archive/scripts/comparison_study.py --models heston jd \
     --costs 0.002 0.005 0.01 --trials 8
 uv run python scripts/holdout_eval.py                     # final locked run
 ```
