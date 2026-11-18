@@ -1,9 +1,10 @@
 """The hedging rollout shared by the classical and learned strategies.
 
-Both approaches are scored through one accounting routine. Giving the network
-its own P&L formula would make the comparison depend on the bookkeeping rather
-than on the hedging, so this engine is deliberately the only route from
-positions to profit and loss.
+Both approaches are scored through one accounting convention. Giving the network
+a different P&L formula would make the comparison depend on the bookkeeping rather
+than on the hedging. ``deep.hedge_pnl`` re-implements this ledger in torch only
+because training needs gradients through it; ``tests/test_hedge.py`` pins the
+two to identical P&L, so this module stays the reference definition.
 """
 
 from __future__ import annotations

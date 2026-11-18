@@ -14,3 +14,6 @@ archive/autoresearch/log.jsonl
 archive/autoresearch/state.json
 
 .DS_Store
+
+# Unrelated coursework (homework assignments)
+asm/

@@ -76,12 +76,14 @@
 Deep hedging is sold as strictly freer than classical bands: given costs, a neural
 policy should beat a tuned delta schedule. Sepp (2013) and Buehler et al. (2019)
 attack the same friction from opposite ends, yet neither runs a fair head-to-head on
-one simulator with a classical baseline re-tuned per regime. We do. At the course's
-nominal 20 bp friction, re-tuned classical does not lose in any hedging sense that
-matters: Sharpe edges sit between about −0.09 and +0.01; a locked holdout confirms
-only +0.0339; and the learned terminal P&L buys mean with skew −0.70 against −0.01
-and a 24% worse CVaR at 95%. Classic hedging is enough; deep is not a uniform
-upgrade. Above roughly 50 bp, large Sharpe gaps track P&L standard deviation rising
+one simulator with a classical baseline re-tuned per regime. We do, and we count a
+learned policy as better only if it beats the tuned band on both mean cost and CVaR
+at 95%. At the course's nominal 20 bp friction, Sharpe edges sit between about −0.09
+and +0.01. On Heston a locked holdout confirms a small learned edge of +0.0339, but
+the learned P&L buys that mean with skew −0.70 against −0.01 and a 24% worse CVaR.
+Nets trained or selected to match the band's tail cost 1–7% more to run. No deep
+policy clears the band on both axes: classic hedging is enough, and deep is not a
+uniform upgrade. Above roughly 50 bp, large Sharpe gaps track P&L standard deviation rising
 toward 3–4 and mean toward the option premium—premium harvesting, not tighter
 hedges. A separate liquid 10 bp side study (Section 5) is recipe-specific and
 brittle and does not reopen the headline.
@@ -107,8 +109,10 @@ edges run from about −0.09 to +0.01; jump models favour classical. A locked ho
 on five unseen seeds gives mean edge +0.0339 (minimum +0.0293, win rate 1.00)—real
 but tiny. Where a small Heston edge survives, it is not free: terminal P&L spread is
 almost unchanged (std 0.626 vs 0.613) but skew is −0.70 against −0.01 and CVaR at
-95% is 1.321 against 1.066, a 24% worse left tail. Classic hedging is all you need
-at nominal friction; deep hedging is not a uniform upgrade.
+95% is 1.321 against 1.066, a 24% worse left tail. Our decision rule requires a
+win on both mean cost and CVaR at 95%; nets tuned to match the band's tail
+(Section 4.1) cost more, so none passes. Classic hedging is all
+you need at nominal friction; deep hedging is not a uniform upgrade.
 
 *The twist.* Above roughly 50 bp the network posts large Sharpe wins, yet its P&L
 standard deviation climbs from about 0.5 toward 3–4 while mean P&L approaches the
@@ -145,7 +149,12 @@ delta.
 
 The closed forms track Table 2. The largest relative error in $u$ is 3.9%, and
 the GBM case I pair (0.5693 against 0.5692) and the SVJ case I pair (0.6551
-against 0.6550) differ by 0.0001. The optimum is interior and moves to lower
+against 0.6550) differ by 0.0001. The printed Sharpe column fits less well in
+case II (GBM 1.18 against 1.30), but most of that gap is in the paper. Plugging
+Sepp's own Table 2 coefficients into his Sharpe formula also gives 1.18, not 1.30.
+The remaining differences come from the cost coefficient $c$ (4–10% below the
+paper) and from $p$, which together move $N^*$ (JD case II: 88 against 75). The
+optimum is interior and moves to lower
 frequency as the model gains complexity: extra trading cannot remove a variance
 floor $f$, so paying more cost buys less. GBM case I optimises at 242 rebalances
 with a Sharpe of 0.83; Heston case I at 75 with 0.43.
@@ -162,9 +171,11 @@ both mean and volatility.
 #heading(outlined: true)[3.2 Deep hedging (Buehler et al. 2019)]
 
 At zero cost the learned policy rediscovers the delta. Over 20,000 paths the
-correlation between learned position and Black-Scholes delta is 0.9907, with
-slope 1.148 and RMSE 0.0581; the mean learned position (0.499) is within 2% of
-the mean delta (0.508).
+correlation between learned position and Black-Scholes delta is 0.9907 and the
+mean learned position (0.499) is within 2% of the mean delta (0.508). The slope of
+1.148 mostly reflects the comparator: the reference delta uses 25% implied
+volatility while paths realise about 20%, and delta at 20% on delta at 25% already
+has slope 1.096. The network tracks the realised-volatility hedge.
 
 The Heston experiment then reproduces the paper's qualitative claim. At zero
 cost the network matches a delta hedge (Sharpe 1.154 against 1.139). As cost
@@ -217,9 +228,11 @@ hedging is a change of risk profile, not evidence of better hedging.
 The locked holdout confirms the moderate-cost result and its size. On five
 unseen seeds the mean edge over the frozen band is +0.0339, with a minimum of
 +0.0293 and a win rate of 1.00—the same order of magnitude as the validation
-edge for Heston at 20 bp (+0.014 fixed hyperparameters, +0.021 after search).
-The small benchmark win is real but small by design: this is the regime where the
-two strategies nearly tie.
+edge for Heston at 20 bp (+0.014 fixed hyperparameters, +0.021 after search), so
+model selection did not overfit the validation seeds. The holdout varies only
+test paths: one three-net ensemble trained once, so its 0.003 spread is test noise,
+not training noise, and averaging three nets' P&L removes noise a single classical
+rule carries. The edge is real for this ensemble, not a general win.
 
 The Sharpe edge is not a tail win. On every one of the five holdout seeds the
 learned CVaR95 is higher than the band, from 1.273 to 1.318 against 1.036 to
@@ -231,7 +244,19 @@ CVaR at 95% of 1.321 against 1.066, which is a 24% worse tail. Whether the edge
 counts as a win depends on whether the desk scores Sharpe or tail risk, and the
 two measures disagree.
 
-#heading(outlined: true)[4.1 Mechanism checks (not the headline)]
+#heading(outlined: true)[4.1 Tail-matched deep hedgers]
+
+The holdout nets train at $alpha = 0.65$, close to a mean objective, so a fatter
+5% tail is expected and the comparison above would be unfair if it stopped there.
+Three follow-ups on the same cell and ledger give the network every chance to match
+the band (mean cost 0.3776, CVaR95 1.0661). Default training (RQ-A) is cheaper
+(0.354–0.369) but every seed has a worse tail (1.25–1.38). Sweeping the training
+$alpha$ and selecting out of sample (RQ-D) reaches the tail at best at cost 0.3939
+and CVaR95 1.0553. A Lagrange cap on batch CVaR95 during training (RQ-F) reaches it
+at best at 0.3821 and 1.0452. Each learned policy is either cheaper with a worse tail
+or matches the tail at 1–7% higher cost; none beats the band on both axes.
+
+#heading(outlined: true)[4.2 Mechanism checks (not the headline)]
 
 CVaR tail fraction, state ablations and a participation dial in an extended
 classical family show that high-cost Sharpe gaps track under-hedging and the
@@ -268,10 +293,11 @@ unit suite, so their results rest on seed discipline.
 #heading(outlined: true)[7. Conclusion]
 // =====================================================================
 
-Classic hedging is all you need at the course's 20 bp benchmark. The trained
-network ties a well-tuned classical delta band on Sharpe (edges about −0.09 to
-+0.01), and the holdout confirms only a tiny gap. Where a small Heston edge
-survives, it buys a worse left tail in CVaR. High-cost Sharpe advantages are
+Classic hedging is all you need at the course's 20 bp benchmark. Across the map
+the trained network's Sharpe sits within about ±0.09 of a well-tuned classical
+delta band. On Heston the holdout confirms a small learned Sharpe edge (+0.034),
+but it buys that edge with a 24% worse CVaR, and tail-matched nets cost more than
+the band. No learned policy beats the band on both cost and tail risk. High-cost Sharpe advantages are
 premium harvesting—visible in the paired P&L standard deviations—not better
 hedges, and deep is not a uniform upgrade across the comparison grid. The
 replications stand: Sepp's coefficients match Table 2, closed forms agree with

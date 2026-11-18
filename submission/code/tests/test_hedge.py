@@ -72,3 +72,30 @@ def test_price_band_ignores_small_moves():
     time = hedge.TimeBasedDelta(100.0, 1 / 12, 0.0, 0.2, "call", dt, 1)
     time_result = hedge.rollout(paths, time, 100.0, "call", premium, 0.0, dt)
     assert band_result.turnover.mean() < time_result.turnover.mean()
+
+
+def test_torch_ledger_matches_numpy_rollout():
+    """The network trains on deep.hedge_pnl but is compared through hedge.rollout.
+
+    If the two ledgers drifted apart, the network would be optimised against a
+    different P&L than the one it is scored on, and the comparison would be unfair.
+    """
+    torch = pytest.importorskip("torch")
+    from hedging import deep
+
+    T, steps, K, cost = 1 / 12, 21, 100.0, 0.002
+    dt = T / steps
+    premium = float(bs.bs_price(100.0, K, T, 0.0, 0.25, "call"))
+    paths = _paths(model=market.HESTON, n=4_000, steps=steps, T=T)
+
+    torch.manual_seed(0)
+    net = deep.HedgeNet(hidden=16, depth=2).double()
+    tensor = torch.as_tensor(paths, dtype=torch.float64)
+    with torch.no_grad():
+        torch_pnl = deep.hedge_pnl(tensor, net, K, "call", premium, cost, dt, T).numpy()
+
+    positions = deep.hedge_positions(tensor, net, K, dt, T)
+    replay = hedge.rollout(
+        paths, lambda j, spot, pos: positions[:, j], K, "call", premium, cost, dt
+    )
+    np.testing.assert_allclose(torch_pnl, replay.pnl, rtol=0, atol=1e-10)

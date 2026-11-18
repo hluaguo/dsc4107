@@ -43,10 +43,12 @@ Index: [`notebooks/README.md`](notebooks/README.md). Regenerate from sources:
    `cost = 0.002` (20 bp **full-rate** ledger), 21 steps. Classical champion pinned in
    `bench/classical_best.json` (delta band 0.1).
 4. **Classical vs deep on that cell.** Historical 4×5 comparison and holdout in
-   [`REPORT.md`](REPORT.md) §2–3: at 20 bp the learned hedger does **not** beat the
-   tuned band on Sharpe; RQ-A (`experiments/rq_a/`) shows the deep policy is **cheaper
-   on mean cost but worse on CVaR95** versus the classical cost–tail hull → verdict
-   `dominated`.
+   [`REPORT.md`](REPORT.md) §2–3. Decision rule: deep wins only if it beats the tuned
+   band on **both** mean cost and CVaR95. At 20 bp the learned hedger has a small
+   Sharpe edge on Heston (+0.034 on the locked holdout) but a 24% worse CVaR95.
+   RQ-A (`experiments/rq_a/`) shows the default deep policy is **cheaper on mean cost
+   but worse on CVaR95**, verdict `dominated`. Tail-matched nets (RQ-D, RQ-F) reach
+   the band's CVaR95 only at higher cost, so none clears the band on both axes.
 5. **Follow-up RQs (same cell, then liquid footnote).** Mandate, risk-matched α, train-time
    CVaR cap, cost stress, policy anatomy — indexed in
    [`experiments/README.md`](experiments/README.md). These sharpen *why* the headline

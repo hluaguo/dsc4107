@@ -57,7 +57,7 @@ The full pipeline runs from the repository root:
 
 ```bash
 uv sync
-uv run pytest -q                                          # 24 checks
+uv run pytest -q                                          # 28 checks
 uv run python scripts/sepp_replication.py                 # Sepp tables + figures
 uv run python scripts/sepp_replication.py --mc --mc-paths 60000
 uv run python scripts/deep_hedging_replication.py --epochs 100 --hidden 64 --depth 3

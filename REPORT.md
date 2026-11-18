@@ -4,13 +4,20 @@ This report documents the Sepp (2013) replication, the Buehler et al. (2019)
 Heston experiment, and a head-to-head comparison neither paper runs. All numbers
 come from `scripts/` into `results/`; nothing here is hand-computed.
 
-The headline is §3. At the course's nominal **20 bp** friction, a classical
-band re-tuned per cell does not lose to the learned hedger in any hedging sense
-that matters: Sharpe edges sit between about −0.09 and +0.01, holdout confirms
-only a tiny positive gap, and the loss distribution shows the network buying mean
-with a fatter left tail (§3.5). High-cost "wins" are premium harvesting, not
-better hedges (§3.1 regime 3). **Classic hedging is enough** at the benchmark
-friction; deep is not a uniform upgrade. Optional §8 records a separate liquid
+The headline is §3. **Decision rule.** Sharpe alone cannot separate a better
+hedge from a riskier one, so a learned policy counts as better only if it beats
+the tuned classical band on *both* mean cost and CVaR95, the seller's tail risk.
+Sharpe is reported throughout, but it does not settle the question by itself.
+
+At the course's nominal **20 bp** friction, the learned hedger does post a small
+Sharpe edge on the Heston benchmark (+0.034 on the locked holdout, every seed
+positive). It pays for that edge with a 24% worse CVaR95 (§3.5). Nets trained or
+selected to match the band's tail then cost more to run than the band (§3.6), so
+no deep policy we trained passes the decision rule. Across the wider 20 bp map,
+Sharpe edges run from about −0.09 to +0.01 and the jump models favour classical.
+High-cost "wins" are premium harvesting, not better hedges (§3.1 regime 3).
+**Classic hedging is enough** at the benchmark friction; deep is not a uniform
+upgrade. Optional §8 records a separate liquid
 10 bp footnote — recipe-specific, mandate-dependent, and brittle — not the lead
 story.
 
@@ -54,6 +61,15 @@ relative error across the eight rows is 3.9%.
 `u` matches to four decimals for GBM case I (0.5693 vs 0.5692) and SVJ case I
 (0.6551 vs 0.6550).
 
+The Sharpe column fits less well, especially in case II (GBM 1.18 vs 1.30, Heston
+0.65 vs 0.73). Most of that gap is in the paper's printed Sharpe column, not in
+our coefficients. Plugging the paper's *own* Table 2 coefficients (`u`, `c`, `p`,
+`f`, `N*`) into the Sharpe formula above gives 1.18 for GBM case II and 0.82 for
+GBM case I, the same values our code produces, not the printed 1.30 and 0.89. The
+remaining differences come from `c` (4–10% below the paper, larger in case II)
+and from `p`, which both feed `N*`. That is also why JD case II optimises at 88
+rather than 75 rebalances.
+
 Jump-diffusion needed a real fix rather than a caveat. The JD branch had
 dropped the same `q = sqrt(pi^3)/4` midpoint normalisation that the GBM and SVJ
 branches carry, so `p` came out 24% below the paper and the optimal frequency
@@ -82,7 +98,7 @@ complex, because a stochastic-volatility or jump process has a variance floor
 | II | heston | 49 | 0.65 | 0.0359 | 0.0730 |
 | II | svj | 45 | 0.68 | 0.0373 | 0.0758 |
 
-Figures: `results/figures/sepp_pnl_case*.png`, `sepp_sharpe_case*.png`,
+Figures (committed copies): `submission/data/figures/sepp_pnl_case*.png`, `sepp_sharpe_case*.png`,
 `sepp_term_structure.png`.
 
 **Monte Carlo cross-check.** `scripts/sepp_replication.py --mc --mc-paths 60000`
@@ -123,10 +139,17 @@ correlation = 0.9907   slope = 1.148   RMSE = 0.0581
 mean learned = 0.499   mean BS delta = 0.508
 ```
 
-The correlation near one says the policy has the right shape; the slope near one
-and the nearly equal means say it is on the right scale. This is the strongest
-single piece of evidence that the learned part of the project is implemented
-correctly.
+The correlation near one says the policy has the right shape, and the nearly
+equal means say it is on the right scale. The slope is not one: the network
+trades about 15% more steeply than the comparator. Most of that is the
+comparator, not the network. The reference delta uses the 25% *implied*
+volatility, while the Heston paths realise about 20%, and a lower-volatility
+delta is steeper around the money. On the same paths, delta at 20% regressed on
+delta at 25% already has slope 1.096 (correlation 0.997), so roughly two thirds
+of the excess slope comes from the volatility premium. The network is tracking
+the realised-volatility hedge, as it should. The remaining ~5% is training error
+at this budget. This check is the strongest single piece of evidence that the
+learned part of the project is implemented correctly.
 
 **The Heston experiment.** `scripts/deep_hedging_replication.py` trains on the
 Heston market with a volatility risk premium (option sold at 25% implied against
@@ -148,7 +171,7 @@ because trading every step is exactly the mistake that costs punish, and it also
 beats the cost-aware frozen band. The result is qualitative, as the paper's is:
 the direction and the ordering are the point, not the fourth decimal. Every
 number averages three independent training seeds and the per-seed minimum is the
-same sign as the mean (see `results/deep_hedging/results.json`).
+same sign as the mean (see `submission/data/deep_hedging/results.json`).
 
 ## 3. The comparison
 
@@ -216,7 +239,7 @@ Three regimes appear.
 The guard rail that makes this visible is the pair of standard-deviation
 columns; the sign flip of `cvar_edge_mean` (negative, i.e. deeper tail, whenever
 the deep Sharpe edge is large) points the same way. The edge map is in
-`results/comparison/edge_map_fixed.png`.
+`submission/data/comparison/edge_map_fixed.png`.
 
 ### 3.2 Optuna hyperparameter search
 
@@ -245,8 +268,10 @@ search cannot repair the jump-diffusion gap at 20 bp.
 ### 3.3 What the comparison says
 
 - With no frictions the network recovers the classical hedge and the two tie.
-- At the benchmark's 20 bp the learned hedger does not beat the best classical
-  band, and on the jump models it is slightly behind.
+- At the benchmark's 20 bp the learned hedger's Sharpe is within about ±0.09 of
+  the best classical band. It is slightly ahead on GBM and Heston and slightly
+  behind on the jump models, and once tail risk is counted it does not beat the
+  band (§3.5–3.6).
 - Above roughly 50 bp the learned hedger's Sharpe advantage is real but is
   mostly the volatility risk premium being harvested by a strategy that has
   learned to stop trading. That is a legitimate strategy, but it is a different
@@ -276,8 +301,16 @@ The holdout edge is the same sign and the same order of magnitude as the
 validation edge for the Heston 20 bp cell (+0.014 fixed-hyper, +0.021 searched,
 +0.020 for the frozen-band comparator in Section 2). If the loop had been
 fitting its own noise the holdout edge would be near zero or negative; it is
-not, so the small benchmark win is real. It remains small by design: this is the
-regime where the two strategies nearly tie, which is itself the headline result.
+not, so the selection process did not overfit the validation seeds.
+
+Two limits on what this shows. First, the five holdout seeds vary only the
+*test* paths: there is one ensemble, trained once on one set of 6,144 training
+paths. The edge std of 0.003 is therefore test-path noise, not training noise,
+and a retrain on fresh training paths could move the edge by more than that.
+Second, the learned strategy is an average of three nets' P&L, which removes
+some idiosyncratic training noise that a single classical rule never carries.
+Both limits favour the learned side. The right reading is "this trained ensemble
+has a small, real Sharpe edge on unseen paths", not "deep hedging beats the band".
 
 The Sharpe edge is not a tail win. On every one of the five holdout seeds the
 learned CVaR95 is higher than the band, from 1.273 to 1.318 against 1.036 to
@@ -288,7 +321,7 @@ learned CVaR95 is higher than the band, from 1.273 to 1.318 against 1.036 to
 The plan asks for the loss distribution next to the summary statistics, because
 Sharpe alone cannot show where the risk sits. `archive/scripts/explore_distribution.py`
 plots the pooled terminal P&L of the learned hedger and the band on the frozen
-benchmark (figure `results/exploration/distribution.png`).
+benchmark (figure `submission/data/exploration/distribution.png`).
 
 | strategy | mean | std | skew | CVaR 95% | 5% quantile |
 | --- | --- | --- | --- | --- | --- |
@@ -299,15 +332,40 @@ The two distributions have nearly the same spread, but the learned one is far
 more negatively skewed. The +0.032 Sharpe edge comes with a CVaR that is 24%
 worse: the network earns its extra mean by accepting a fatter left tail, which
 is exactly the trade the seller's own risk measure is meant to expose. So even
-at 20 bp, the one regime where the bootstrap says the edge is real, the edge is
-not a uniform improvement. Whether it counts as a win depends on whether the
-desk scores Sharpe or tail risk, and the two disagree.
+on the Heston 20 bp cell, where the holdout confirms a positive Sharpe edge,
+the edge is not a uniform improvement. Sharpe and tail risk disagree here, so
+the decision rule from the introduction is needed to call a winner.
+
+### 3.6 Tail-matched deep hedgers
+
+The nets in §3.4–3.5 train with `alpha = 0.65`, which is close to a mean
+objective. A fatter 5% tail is what one would expect from that, so the CVaR
+comparison above would be unfair if it stopped there. Three follow-up runs on the
+same cell, the same eight validation seeds and the same `hedge.rollout` ledger
+give the network every chance to match the band's tail
+(`experiments/rq_a/`, `rq_risk_matched/`, `rq_hard_cvar/`). The band's reference
+values are mean cost **0.3776** and CVaR95 **1.0661**.
+
+| run | how the tail is targeted | best tail-matched seed (cost, CVaR95) | clears band on both? |
+| --- | --- | --- | --- |
+| RQ-A | default `Hyper()` (α = 0.65) | none match: CVaR95 1.25–1.38, cost 0.354–0.369 | no (`dominated`) |
+| RQ-D | training-α swept 0.05–0.65, OOS selection | 0.3939, 1.0553 (seed 1, α = 0.40) | no (`flat`) |
+| RQ-F | Lagrange cap on batch CVaR95 during training | 0.3821, 1.0452 (seed 1) | no (`fails`) |
+
+Every learned policy sits on one side of the band. It is either cheaper with a
+worse tail (RQ-A), or it matches the tail at 1–7% *higher* cost (RQ-D, RQ-F).
+None is strictly better on both axes. That is the evidence behind the title: at
+20 bp the extra freedom of the network buys a different point on the cost–tail
+trade-off, not a better one.
 
 ## 4. Correctness and overfitting guards
 
 - **Frictionless delta recovery** (Section 2) has correlation 0.9907.
 - **Simulator versus closed form** is covered by `tests/test_sepp.py`, which pins
-  the analytic formulas to Monte Carlo (`uv run pytest -q`: 23 passed).
+  the analytic formulas to Monte Carlo (`uv run pytest -q`: 28 passed).
+- **One ledger.** `tests/test_hedge.py` checks that the torch P&L the network
+  trains on equals `hedge.rollout` replayed on the network's positions to 1e-10,
+  so the network is optimised against the same accounting it is scored on.
 - **Disjoint seed pools.** Train, validation, tuning, search and holdout are
   separate; the Optuna search uses `SEARCH_SEEDS` and never the validation seeds.
 - **Multiple training seeds.** Every reported comparison number averages seeds
@@ -336,15 +394,16 @@ desk scores Sharpe or tail risk, and the two disagree.
   Optuna search uses 8 trials. The direction of the results is stable across the
   fixed and searched configurations, but the exact edges should not be read as
   paper-grade magnitudes.
-- **Notebooks.** `notebooks/01_sepp_replication.ipynb` and
-  `notebooks/02_deep_hedging_heston.ipynb` are generated from
-  `scripts/build_notebooks.py`. The executed source of truth is the scripts in
-  `scripts/`; the notebooks need Jupyter installed to show inline outputs.
+- **Notebooks.** The four notebooks in `notebooks/` (`01_sepp_replication`,
+  `02_deep_hedging`, `03_classical_vs_deep`, `04_research_path`) are generated
+  from `scripts/build_notebooks.py` over the committed artifacts. The executed
+  source of truth is the scripts in `scripts/`; the notebooks need Jupyter
+  installed to show inline outputs.
 
 ## 6. How to reproduce
 
 ```bash
-uv run pytest -q                                        # 23 checks
+uv run pytest -q                                        # 28 checks
 uv run python scripts/sepp_replication.py               # Sepp tables + figures
 uv run python scripts/sepp_replication.py --mc --mc-paths 60000
 uv run python scripts/deep_hedging_replication.py --epochs 100 --hidden 64 --depth 3
@@ -355,7 +414,9 @@ uv run python archive/scripts/comparison_study.py --models heston jd \
 ```
 
 All scripts pick CUDA automatically. Outputs land in `results/sepp/`,
-`results/deep_hedging/` and `results/comparison/`.
+`results/deep_hedging/` and `results/comparison/`. `results/` is gitignored, so a
+fresh clone has none of these until the scripts run; the committed copies the
+report cites live under `submission/data/`.
 
 ## 7. File map
 

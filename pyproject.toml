@@ -1,7 +1,7 @@
 [project]
 name = "dsc4107-hedging"
 version = "0.1.0"
-description = "Add your description here"
+description = "Classical vs deep option hedging under transaction costs (Sepp 2013, Buehler et al. 2019)"
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
@@ -9,7 +9,6 @@ dependencies = [
     "numpy>=2.5.3",
     "optuna>=4.0",
     "polars>=1.44.2",
-    "pytest>=9.1.1",
     "scipy>=1.18.1",
     "torch>=2.14.1",
 ]
@@ -17,3 +16,8 @@ dependencies = [
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 norecursedirs = ["submission", "archive", ".venv"]
+
+[dependency-groups]
+dev = [
+    "pytest>=9.2.0",
+]

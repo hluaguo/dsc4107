@@ -176,7 +176,7 @@
 #heading[Conclusion]
 
 #v(0.6em)
-#bullet[At 20 bp a re-tuned classical band does not lose on Sharpe; any tiny learned edge trades tail for mean.]
+#bullet[At 20 bp the learned Sharpe edge is tiny (+0.034 holdout) and costs a 24% worse CVaR; tail-matched nets cost more than the band. Nothing beats it on both.]
 #v(0.5em)
 #bullet[High-cost Sharpe gains track under-hedging — report them with P&L std and CVaR.]
 #v(0.5em)
