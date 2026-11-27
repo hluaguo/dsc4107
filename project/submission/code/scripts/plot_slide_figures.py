@@ -87,6 +87,12 @@ def edge_map():
         ax.plot(x, [p[1] for p in pts], "-o", color=NET, lw=2.2, label="neural network")
         ax.set_title(name, fontsize=14)
         ax.set_xticks([0, 20, 50, 100, 200])
+        # At 20 bp the two curves sit within a line width of each other on this
+        # shared axis, so the gap is printed rather than left for the eye.
+        gap = next(r["edge_mean"] for r in rows if r["model"] == key and r["cost"] == 0.002)
+        label = f"at 20 bp:\nnetwork − classical\n= {gap:+.3f}".replace("-", "−")
+        ax.text(0.97, 0.95, label, transform=ax.transAxes, ha="right", va="top", fontsize=11.5,
+                color="#1f6b42", bbox=dict(boxstyle="round,pad=0.3", fc="#e8f2ec", ec="none"))
         style(ax)
     for ax in axes[1]:
         ax.set_xlabel("trading fee (bp)")
