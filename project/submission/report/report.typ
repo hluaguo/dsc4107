@@ -73,20 +73,19 @@
 #heading(outlined: true)[Abstract]
 // =====================================================================
 
-Deep hedging is sold as strictly freer than classical bands: given costs, a neural
-policy should beat a tuned delta schedule. Sepp (2013) and Buehler et al. (2019)
-attack the same friction from opposite ends, yet neither runs a fair head-to-head on
-one simulator with a classical baseline re-tuned per regime. We do, and we count a
-learned policy as better only if it beats the tuned band on both mean cost and CVaR
-at 95%. At the course's nominal 20 bp friction, Sharpe edges sit between about −0.09
-and +0.01. On Heston a locked holdout confirms a small learned edge of +0.0339, but
-the learned P&L buys that mean with skew −0.70 against −0.01 and a 24% worse CVaR.
-Nets trained or selected to match the band's tail cost 1–7% more to run. No deep
-policy beats the Sharpe-selected band on both axes, although nets trained with a
-low CVaR level reach tails no classical rule in our family reaches. Deep hedging
-offers different trade-offs, not a uniform upgrade. Above roughly 50 bp, large Sharpe gaps track P&L standard deviation rising
-toward 3–4 and mean toward the option premium—premium harvesting, not tighter
-hedges.
+A neural hedger is more flexible than a classical delta band, so it is often expected
+to win once transaction costs bite. Sepp (2013) optimises classical hedging in closed
+form; Buehler et al. (2019) learn the hedge with a network. Neither compares the two
+on one simulator with the classical side re-tuned for every market and cost. We
+replicate both papers and run that comparison, counting the network as better only
+if it beats the tuned band on both mean transaction cost and CVaR at 95%. At the
+20 bp benchmark the Sharpe differences lie between −0.09 and +0.01. On Heston a
+locked holdout gives the network a small Sharpe edge (+0.034), paid for with a 24%
+worse CVaR. Networks trained to match the band's tail cost 1–7% more to run, so no
+network beats the band on both. Low-$alpha$ networks do reach tails no classical rule
+in our family reaches. Above roughly 50 bp the network's large Sharpe gains come from
+not hedging and keeping the premium, which shows in a P&L spread of 3–4 against
+1.7. Deep hedging offers a different trade-off, not a uniform upgrade.
 
 // =====================================================================
 #heading(outlined: true)[1. Introduction]
@@ -103,41 +102,59 @@ analyses show the optimal policy is a no-trade band around the delta
 maps the optimum to price and delta bands. #cite(<buehler2019>, form: "prose") replace that family
 with a network trained on a convex risk measure of terminal P&L, free to trade less
 or hedge partially. The usual reading is that extra freedom should dominate once
-costs bite—but that expectation has never been tested on the same paths, contract
-and cost schedule with a classical side re-tuned in every cell.
+costs bite, but neither paper tests that on the same paths, contract and cost
+schedule with the classical side re-tuned for every market and cost.
 
-*The headline before the details.* At our frozen 20 bp benchmark, learned minus
-classical Sharpe edges run from about −0.09 to +0.01. A locked Heston holdout
-gives a real but tiny edge (+0.0339) paid for with a 24% worse CVaR at 95%. Our
-decision rule requires a win on both mean cost and CVaR at 95%, and nets tuned to
-match the band's tail (Section 4.1) cost more, so none passes. Classic hedging is
-all you need at nominal friction, unless the desk wants a tail tighter than any
-classical rule offers.
-
-*The twist.* Above roughly 50 bp the network's large Sharpe wins come from premium
-harvesting, not better hedging. Section 3 first checks that the simulator and both
-papers' implementations are trustworthy.
+Section 2 sets out that test, Section 3 checks both replications, Section 4 gives
+the comparison and Section 5 a 10 bp side study.
 
 // =====================================================================
 #heading(outlined: true)[2. A fair head-to-head]
 // =====================================================================
 
-*One simulation framework.* Four Sepp market models (GBM @blackscholes1973, jump-diffusion
-@merton1976, #cite(<heston1993>, form: "prose"), Heston with jumps), one at-the-money one-month call, one proportional cost $c$ on every hedge
-trade including open and close. The head-to-head map spans four models and five cost
-levels; the classical baseline is re-tuned in every cell so a stale band cannot
-manufacture a network win.
+*Setup.* A desk sells one at-the-money call ($S_0 = K = 100$, $T = 1\/12$) for the
+Black-Scholes premium $p_0 approx 2.88$ at implied volatility $sigma_i = 25%$, while
+paths realise about 20%. This volatility risk premium stops "do not hedge" from
+winning on Sharpe by default. The desk holds $delta_t$ shares on $N = 21$ trading
+days and pays a proportional cost $k$ on every trade, including the opening and
+closing trades. With $delta_(-1) = delta_N = 0$, the terminal P&L is
 
-*Two implementations, one rollout.* `hedging/sepp.py` supplies the closed forms and `hedging/hedge.py` the classical
-band and time-based strategies;
-`hedging/deep.py` is an MLP on log-moneyness, time and position with CVaR loss
-@rockafellar2000 at $alpha = 0.65$. Both use the same P&L rollout and cost accounting.
+$ X = p_0 + sum_(t=0)^(N-1) delta_t (S_(t+1) - S_t)
+  - k sum_(t=0)^(N) |delta_t - delta_(t-1)| S_t - (S_T - K)^+. $
 
-*Controls.* Disjoint train, validation, tuning, search and holdout seed pools;
-reported means average three training seeds with per-seed minima and win rates
-published. The frozen benchmark adds a 25% implied versus 20% realised volatility
-risk premium so "do not hedge" cannot dominate Sharpe. The frictionless check is the
-correctness anchor: at zero cost the learned policy must recover the Black-Scholes
+Paths come from Sepp's four models: GBM @blackscholes1973, jump-diffusion
+@merton1976, Heston @heston1993 and Heston with jumps. The comparison covers these
+four models at five costs, $k in {0, 20, 50, 100, 200}$ bp; the benchmark is Heston
+at 20 bp.
+
+*Strategies.* The classical band moves to the Black-Scholes delta $Delta_t$ (at
+$sigma_i$) only when the position has drifted too far:
+
+$ delta_t = cases(Delta_t & "if" |delta_(t-1) - Delta_t| > epsilon,
+  delta_(t-1) & "otherwise,") $
+
+alongside price bands and rules that rebalance every $f$ days. The classical side is
+re-tuned on its own seed pool for every model and cost, so a stale band cannot hand
+the network a win. The learned hedger is a small multilayer perceptron
+$delta_t = f_theta (ln(S_t \/ K), T - t, delta_(t-1))$ trained to minimise the
+CVaR of its loss @rockafellar2000,
+
+$ min_theta thick "CVaR"_alpha (-X) = EE[-X | X <= q_alpha (X)], $
+
+the mean loss over the worst $alpha$ fraction of paths, with $alpha = 0.65$ by
+default. Both sides run through one P&L ledger; a test checks that the network's
+training loss equals it to $10^(-10)$.
+
+*Decision rule.* Sharpe, $"SR" = EE[X] \/ "sd"(X)$, is reported throughout, but a
+policy that stops hedging can raise it. With $C = k sum_t |delta_t - delta_(t-1)| S_t$
+the transaction cost per path and $"CVaR"_95$ the mean loss over the worst 5% of
+paths, the network wins only if
+
+$ EE[C_"net"] < EE[C_"band"] quad "and" quad "CVaR"_95 (X_"net") <= "CVaR"_95 (X_"band"). $
+
+*Controls.* Train, validation, tuning, search and holdout seed pools are disjoint.
+Reported means average three training seeds, with per-seed minima and win rates.
+The correctness anchor: at zero cost the network must recover the Black-Scholes
 delta.
 
 // =====================================================================
@@ -145,6 +162,14 @@ delta.
 // =====================================================================
 
 #heading(outlined: true)[3.1 Sepp (2013)]
+
+Sepp writes the annualised Sharpe of a delta hedge rebalanced $N$ times a year as
+
+$ S(N) = (u - c sqrt(N)) / (sqrt(T) sqrt(p \/ N + f)), $
+
+where $u$ is the mean P&L from the volatility premium, $c sqrt(N)$ the expected
+cost, $p \/ N$ the hedging error that more trading removes and $f$ the variance floor
+it cannot remove. The optimal frequency $N^*$ solves $S'(N) = 0$.
 
 The closed forms track Table 2. The largest relative error in $u$ is 3.9%, and
 the GBM case I pair (0.5693 against 0.5692) and the SVJ case I pair (0.6551
@@ -162,9 +187,8 @@ floor $f$, so paying more cost buys less. GBM case I optimises at 242 rebalances
 with a Sharpe of 0.83; Heston case I at 75 with 0.43.
 
 The jump-diffusion row needed a real fix. The JD branch had dropped a factor
-$q = sqrt(pi^3)\/4$ that the GBM and SVJ branches carry. `archive/scripts/diagnose_jd.py`
-shows the second-moment gamma was correct to 0.2% all along; only the coefficient
-was wrong. Restoring $q$ moves $p$ from 24% below the paper to 5.6% above it and
+$q = sqrt(pi^3)\/4$ that the GBM and SVJ branches carry; the second-moment gamma
+was correct to 0.2% all along. Restoring $q$ moves $p$ from 24% below the paper to 5.6% above it and
 brings the analytic JD Sharpe (0.65) onto the simulated one (0.65) in case I.
 The remaining case-II gap of about 12% in volatility is Sepp's own variance
 approximation. For the other three models the Monte Carlo volatility matches the
@@ -182,9 +206,9 @@ has slope 1.096. The network tracks the realised-volatility hedge.
 
 The Heston experiment then reproduces the paper's qualitative claim. At zero
 cost the network matches a delta hedge (Sharpe 1.154 against 1.139). As cost
-rises it moves ahead of every-step delta hedging. It also beats the frozen band,
-but that band is tuned at 20 bp, so only the 20 bp row is like for like; Section 4
-re-tunes the band per cost and shows the high-cost wins are premium harvesting.
+rises it moves ahead of every-step delta hedging. It also beats the band tuned at
+20 bp, but only the 20 bp row is like for like; Section 4 re-tunes the band for
+each cost.
 
 #figure(
   table(
@@ -195,7 +219,7 @@ re-tunes the band per cost and shows the high-cost wins are premium harvesting.
       [*Cost (bp)*],
       [*Learned*],
       [*BS delta*],
-      [*Frozen band*],
+      [*20 bp band*],
       [*Edge vs delta*],
       [*Edge vs band*],
     ),
@@ -211,19 +235,14 @@ re-tunes the band per cost and shows the high-cost wins are premium harvesting.
 #heading(outlined: true)[4. Head-to-head comparison]
 // =====================================================================
 
-The edge map has three regimes, and the P&L standard deviations explain the
-third.
-
-Near zero cost the two approaches tie, which is the expected outcome once the
-frictionless check passes. At 20 bp—the benchmark's own cost—the comparison is
+The edge map (learned minus classical Sharpe) has three regimes. Near zero cost
+the two tie, as the frictionless check predicts. At 20 bp the comparison is
 essentially flat: edges run from −0.09 to +0.01, and on the jump models the
-learned hedger is slightly behind. This is the headline result: classic hedging
-is all you need at nominal friction. Above 50 bp the network's Sharpe edge becomes
+learned hedger is slightly behind. Above 50 bp the network's Sharpe edge becomes
 large and consistent, but its P&L standard deviation climbs from about 0.5 to 3 or
 4 while its mean P&L approaches the option premium. The network has learned to
 stop hedging and collect the volatility risk premium. That is a legitimate
-strategy but a different product from a hedge; a Sharpe win produced by not
-hedging is a change of risk profile, not evidence of better hedging.
+strategy, but a different product from a hedge.
 
 #figure(
   image("figures/edge_map_fixed.png", width: 88%),
@@ -231,7 +250,7 @@ hedging is a change of risk profile, not evidence of better hedging.
 )
 
 The locked holdout confirms the sign of the moderate-cost result. On five
-unseen seeds the mean edge over the frozen band is +0.0339, with a minimum of
+unseen seeds the mean edge over the tuned band is +0.0339, with a minimum of
 +0.0293 and a win rate of 1.00. That is the same sign as the validation edges for
 Heston at 20 bp (+0.014 fixed hyperparameters, +0.021 after search), which argues
 against overfitting the validation seeds. It is larger, but the holdout uses the
@@ -252,12 +271,12 @@ but the learned skew is −0.70 against −0.01 and CVaR95 is 1.321 against 1.06
 The holdout nets train at $alpha = 0.65$, close to a mean objective, so a fatter
 5% tail is expected and the comparison above would be unfair if it stopped there.
 Here "mean cost" is the average transaction cost paid per path. Three follow-ups
-on the same cell and ledger give the network every chance to match the band (mean
+on the same market, cost and ledger give the network every chance to match the band (mean
 cost 0.3776, CVaR95 1.0661). With default training the nets are cheaper
 (0.354–0.369) but every seed has a worse tail (1.25–1.38). Sweeping the training
 $alpha$ and selecting out of sample reaches the tail at best at cost 0.3939 and
-CVaR95 1.0553. A Lagrange cap on batch CVaR95 during training reaches it at best at
-0.3821 and 1.0452. Each learned policy is either cheaper with a worse tail or
+CVaR95 1.0553. Adding a training penalty whenever the batch CVaR95 exceeds the band's (a
+Lagrange multiplier) reaches it at best at 0.3821 and 1.0452. Each learned policy is either cheaper with a worse tail or
 matches the tail at 1–7% higher cost; none beats the band on both axes.
 
 The verdict is relative to the Sharpe-selected band, not to the whole classical
@@ -267,12 +286,22 @@ outward on the tail side: the tightest classical tail is CVaR95 0.9928 at cost
 desk that wants a tail tighter than any band can offer should consider the
 network; a desk satisfied with the band's tail gains nothing from it.
 
+#figure(
+  image("figures/frontier.png", width: 80%),
+  caption: [Mean transaction cost against CVaR95 at 20 bp (Heston). Each blue dot is a
+  trained network; orange dots are classical rules; the star is the tuned band. No
+  network is both cheaper and safer than the band.],
+)
+
 #heading(outlined: true)[4.2 Mechanism checks (not the headline)]
 
-CVaR tail fraction, state ablations and a participation dial in an extended
-classical family show that high-cost Sharpe gaps track under-hedging and the
-map's rule that classical strategies always open a full delta at $t = 0$. Details
-are in Appendix A figures; they do not overturn the 20 bp tie.
+Three further probes explain the high-cost results: sweeping the CVaR level
+$alpha$, removing network inputs, and adding a classical rule that hedges only a
+fraction $lambda$ of delta. Above 20 bp the best $lambda$ is zero, and the network
+scores below simply not hedging. So the high-cost Sharpe gaps come from
+under-hedging and from the classical rules always buying the full delta at
+$t = 0$, not from better hedging (Appendix A.6–A.7). None of this changes the
+20 bp tie.
 
 // =====================================================================
 #heading(outlined: true)[5. Footnote: liquid 10 bp full-rate]
@@ -291,12 +320,12 @@ and the winning policies trade much like a band. It does not reopen the 20 bp he
 
 Limited computing resources constrained training: 80 to 100 epochs and a 64-unit
 network across the map (200 epochs and 128 units for the holdout), 2,048 training
-paths per seed, three seeds and eight Optuna trials per cell. The direction of
+paths per seed, three seeds and eight Optuna trials per setting. The direction of
 the results is stable across fixed and searched configurations, but the exact
 edges are not paper-grade magnitudes. The classical family in the map always
 opens a full initial hedge, so it cannot express "under-hedge" or "hold flat";
-the sidequest repairs that for interpretation but stayed outside the frozen
-benchmark. The comparison scripts are covered by smoke tests rather than the
+the partial-hedge rule in Section 4.2 addresses that for interpretation but is
+not part of the main comparison. The comparison scripts are covered by smoke tests rather than the
 unit suite, so their results rest on seed discipline.
 
 // =====================================================================
@@ -676,7 +705,7 @@ Monte Carlo, and the frictionless network recovers the Black-Scholes delta. The
   caption: [Optuna search ranked on a disjoint search pool. The search does not change the qualitative picture.],
 )
 
-#heading(outlined: true)[A.5 Terminal P&L distribution on the frozen benchmark]
+#heading(outlined: true)[A.5 Terminal P&L distribution on the benchmark]
 
 #figure(
   table(
@@ -692,7 +721,7 @@ Monte Carlo, and the frictionless network recovers the Black-Scholes delta. The
   caption: [Same spread, worse left tail. The +0.03 Sharpe edge is partly bought with a 24% worse CVaR.],
 )
 
-#heading(outlined: true)[A.6 Sidequest participation frontier]
+#heading(outlined: true)[A.6 Partial-hedge (participation) frontier]
 
 #figure(
   table(
@@ -750,7 +779,7 @@ Monte Carlo, and the frictionless network recovers the Black-Scholes delta. The
 
 #figure(
   image("figures/distribution.png", width: 88%),
-  caption: [Terminal P&L on the frozen benchmark. The learned distribution has the same spread as the band but a heavier left tail.],
+  caption: [Terminal P&L on the benchmark. The learned distribution has the same spread as the band but a heavier left tail.],
 )
 
 #figure(
@@ -774,7 +803,8 @@ The complete source code is on GitHub:
 The repository holds every module used to produce the numbers in this report:
 the four market simulators, the shared P&L rollout, the Sepp closed forms, the
 learned hedger and the comparison and exploration scripts. It also carries the
-test suite and the pinned environment. A snapshot is attached under
+test suite and the pinned environment. The code lives in the `project/` folder;
+the paths below are relative to it. A snapshot is attached under
 `submission/code/`, and the raw experimental data sits under `submission/data/`.
 
 #figure(
@@ -800,7 +830,7 @@ test suite and the pinned environment. A snapshot is attached under
     [#raw("archive/scripts/explore_*.py")],
     [Objective, feature, transfer and robustness probes],
 
-    [archive/scripts/sidequest_participation.py], [The participation-dial test],
+    [archive/scripts/sidequest_participation.py], [The partial-hedge (participation) test],
     [#raw("scripts/rq_{a_pareto,risk_matched,hard_cvar}.py")],
     [Tail-matched deep hedgers (Section 4.1)],
 
@@ -817,12 +847,12 @@ test suite and the pinned environment. A snapshot is attached under
 #heading(outlined: true)[Appendix C. How to reproduce]
 // =====================================================================
 
-The full environment is pinned in `uv.lock`. Clone the repository and sync it:
+The full environment is pinned in `uv.lock`. Clone the repository, enter the
+`project/` folder and sync it:
 
 ```bash
-# from the repository root
 git clone https://github.com/hluaguo/dsc4107.git
-cd dsc4107
+cd dsc4107/project
 uv sync
 uv run pytest -q                                          # 28 checks
 uv run python scripts/sepp_replication.py                 # Sepp tables + figures

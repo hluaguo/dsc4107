@@ -53,21 +53,22 @@ to hold, and pays a fee of 0.2% on every trade. On the last day, the bank sells
 whatever shares are left and pays the client whatever the option owes. The money
 left over is the profit or loss for that month.
 
-I simulate both method under four market models: a smooth one, one with sudden jumps, one where the volatility moves around, and one with both.
+I test both methods under four market models: a smooth one, one with sudden jumps, one where the volatility moves around, and one with both.
 
 Every strategy goes through the same accounting code. Training, tuning and the
-final test each use separate data/seed. And the classical band is re-tuned for every model and fee, so it never loses just because it was set up badly.
+final test each use separate data. And the classical band is re-tuned for every model and fee, so it never loses just because it was set up badly.
 
 One detail in the box: the option is priced as if the stock moves 25% a year,
 but it really moves about 20%. That gives the bank a small built-in margin, like
 an insurer. So the real question is how much protection is worth paying for.
 
 My main case is the moving-volatility model, called Heston, with a fee of 20
-basis points which 20 basis points is 0.2% per trade — 20 cents on a $100 trade. also it is a realistic fee ratio in real world
+basis points. 20 basis points is 0.2% per trade — 20 cents on a $100 trade, which
+is a realistic fee for trading a single stock.
 
 ## Slide 5 · Why Sharpe is not enough (3:34–4:16)
 
-Before the results, theres one thing need to noted, Sharpe can be fooled. A strategy that simply stops protecting itself and keeps the $2.88 can look good on Sharpe while taking huge risk of option lost.
+Before the results, one thing to note: Sharpe can be fooled. A strategy that simply stops protecting itself and keeps the $2.88 can look good on Sharpe while taking huge risk of option lost.
 
 A bank cares about two things. First, mean cost: how much it pays in trading fees
 on average. Second, tail loss: in the worst 5% of possible futures, how much it
@@ -96,7 +97,7 @@ almost exactly that: a 0.99 correlation.
 
 Then I add fees: 20, 50, and 100 basis points. At 20 basis points, the network
 scores a Sharpe of 0.37, against 0.25 for the simple strategy of trading at every
-step. As fees rise, the network stays ahead — that's what the paper claims
+step. As fees rise, the network stays ahead — that's what the paper claims.
 
 So both copies work. But does the network still win against a properly tuned
 classical rule?
@@ -141,7 +142,7 @@ That corner is empty. Every network is either cheaper but riskier, or safer but
 more expensive.
 
 There is one niche. The dashed line is the safest any classical rule gets. Some
-networks go below it — safer than any classical rule — but they pay about 8% more in fees. 
+networks go below it — safer than any classical rule — but they pay about 8% more in fees.
 
 ## Slide 11 · The high-cost twist (7:52–8:38)
 
@@ -159,24 +160,33 @@ riskier bet.
 ## Slide 12 · Caveats (8:38–9:11)
 
 A few limitations. My computing resources were limited — small networks and
-limited training so the exact
-numbers are less precise than a full research paper's.
+limited training — so the exact numbers are less precise than a full research
+paper's. But the direction held when I let an automatic search tune the network.
 
 Also, in the final test the network was an average of three trained networks
-against a single classical rule. That actually favours the network 
+against a single classical rule. That actually favours the network.
+
+On the right: I repeated the test at 10 basis points, a fee closer to very liquid
+index products. One training recipe does narrowly win there — about 0.4% cheaper —
+but only at one setting and on fewer than half of the random seeds. It's too
+fragile to change the headline.
 
 ## Slide 13 · Conclusion (9:11–9:41)
 
 To sum up.
 
-at realistic fees, the network's advantage is tiny and comes with worse bad
+One: at realistic fees, the network's advantage is tiny and comes with worse bad
 days. Nothing beats the classical band on both cost and safety.
 
-big Sharpe wins at high fees come from not hedging at all — so always
+Two: the network is not useless. Trained to focus on bad days, it reaches a
+safer tail than any classical rule — 0.94 against 0.99 — if a desk is willing to
+pay for it.
+
+Three: big Sharpe wins at high fees come from not hedging at all — so always
 report the spread and the tail loss alongside Sharpe.
 
-Three: both papers' results reproduce.
-So my answer: classic hedging is all you need. Thank you
+And both papers' results reproduce.
+So my answer: classic hedging is all you need. Thank you.
 
 ---
 
@@ -191,7 +201,7 @@ So my answer: classic hedging is all you need. Thank you
 | Sharpe ratio             | Average profit ÷ how much profit swings. Higher is better                            |
 | Standard deviation (std) | How widely outcomes spread                                                           |
 | Tail loss (CVaR95)       | Average loss in the worst 5% of outcomes. Lower is safer                             |
-| Skew                     | Negative = bad surprises bigger than good 1ones                                      |
+| Skew                     | Negative = bad surprises bigger than good ones                                      |
 | The band                 | Sepp-style rule: trade only when the position drifts too far                         |
 | Alpha (α)                | Share of worst outcomes the network trains on. 0.65 ≈ average; 0.05 = worst 5% only  |
 
@@ -227,12 +237,12 @@ which is the realistic setting for an option desk.
 ### About the neural network
 
 **Q: What does the neural network actually look like?**
-A: A small network with three hidden layers of 64 units. Each day it sees three
+A: A small network with three hidden layers of 64 units (128 for the final test). Each day it sees three
 things: where the stock is relative to the strike, how much time is left, and how
 many shares it currently holds. It outputs how many shares to hold next.
 
 **Q: How was it trained?**
-A: On 2,048 simulated months per training run, for 80 to 100 epoachs. It is
+A: On 2,048 simulated months per training run, for 80 to 100 epochs (200 for the final test). It is
 trained to minimise the average of its worst outcomes, which is the objective
 from the Buehler paper. Every result averages three separately trained networks.
 
@@ -256,7 +266,9 @@ it to be both cheaper and safer.
 
 **Q: How do you know the +0.034 isn't just luck?**
 A: It was positive on all five test batches — even the smallest was 0.029.
-So it's a real edge, just a very small one.
+So it's a real edge on unseen data, just a very small one. One caveat: all five
+batches were scored by the same trained networks, so retraining on fresh data could
+move it by more than that.
 
 **Q: Isn't the network's worse tail just because you trained it on averages?**
 A: That's exactly the objection slide 10 answers. When I retrained it to focus on
@@ -270,9 +282,11 @@ in fees.
 
 **Q: Why does the network stop hedging when fees are high?**
 A: Because at 1 to 2% per trade, the fees cost more than the protection is worth,
-and the bank still keeps the option fee. A classical rule given the same choice
-also decides not to hedge at those fees, so this isn't the network being clever;
-it's the rational move, but it's no longer under the umbrella of hedging.
+and the bank still keeps the option fee. The classical rules can't make that
+choice — they always buy the full hedge on day one — so part of the network's
+high-fee edge is a choice the classical side doesn't have. When I added a
+classical rule that can hedge only part of delta, its best setting at those fees
+was zero: don't hedge. So it's the rational move, but it's no longer hedging.
 
 **Q: How is the classical rule tuned? Isn't that unfair to the network?**
 A: For each market model and fee, I try a set of classical rules on separate
