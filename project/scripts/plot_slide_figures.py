@@ -45,7 +45,7 @@ def frontier():
     x0, x1, y0, y1 = 0.33, 0.47, 0.90, 1.42
 
     ax.add_patch(plt.Rectangle((x0, y0), bx - x0, by - y0, color="#2e8b57", alpha=0.12, lw=0))
-    ax.text(x0 + 0.004, y0 + 0.02, "cheaper AND safer\nthan the band:\nno network here",
+    ax.text(x0 + 0.004, y0 + 0.02, "cheaper AND safer\nthan the Sepp band:\nno network here",
             color="#1f6b42", fontsize=14, fontweight="bold", va="bottom")
     ax.hlines(floor, bx, x1, color=BAND, lw=1.5, ls="--")
     ax.text(x1 - 0.002, floor + 0.03, "safest classical rule", color="#c0651f",
@@ -57,8 +57,8 @@ def frontier():
     ax.scatter([r["mean_cost"] for r in deep], [r["cvar95"] for r in deep],
                s=55, color=NET, alpha=0.8, label="neural networks")
     ax.scatter([r["mean_cost"] for r in classical], [r["cvar95"] for r in classical],
-               s=80, color=BAND, label="classical rules")
-    ax.scatter([bx], [by], s=420, marker="*", color=RED, zorder=5, label="the band (benchmark)")
+               s=80, color=BAND, label="other classical rules")
+    ax.scatter([bx], [by], s=420, marker="*", color=RED, zorder=5, label="Sepp band (benchmark)")
 
     ax.set_xlim(x0, x1)
     ax.set_ylim(y0, y1)
@@ -83,7 +83,7 @@ def edge_map():
         x = [p[0] for p in pts]
         ax.axvspan(12, 28, color="#2e8b57", alpha=0.12, lw=0)
         ax.axhline(0, color="black", lw=0.6)
-        ax.plot(x, [p[2] for p in pts], "-o", color=BAND, lw=2.2, label="classical (re-tuned)")
+        ax.plot(x, [p[2] for p in pts], "-o", color=BAND, lw=2.2, label="classical (best Sepp-style rule, re-tuned)")
         ax.plot(x, [p[1] for p in pts], "-o", color=NET, lw=2.2, label="neural network")
         ax.set_title(name, fontsize=14)
         ax.set_xticks([0, 20, 50, 100, 200])
@@ -107,7 +107,7 @@ def sharpe_vs_cost():
     costs = [c["cost"] * 1e4 for c in res["costs"]]
     series = [
         ("deep_sharpe", "neural network", NET),
-        ("band_sharpe", "classical band", BAND),
+        ("band_sharpe", "Sepp band (tuned at 20 bp)", BAND),
         ("bs_delta_sharpe", "trade every day (textbook)", DELTA),
     ]
     fig, ax = plt.subplots(figsize=(8.0, 5.4), dpi=200)
@@ -132,7 +132,7 @@ def tail():
     w = 0.36
     for i, (_, key) in enumerate(groups):
         for j, (who, color, name) in enumerate(
-            [("learned", NET, "neural network"), ("band", BAND, "classical band")]
+            [("learned", NET, "neural network"), ("band", BAND, "Sepp band")]
         ):
             v = d[who][key]
             x = i + (j - 0.5) * w

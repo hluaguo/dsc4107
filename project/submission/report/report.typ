@@ -246,7 +246,8 @@ strategy, but a different product from a hedge.
 
 #figure(
   image("figures/edge_map.png", width: 85%),
-  caption: [Sharpe of the network (blue) and the re-tuned classical band (orange) by
+  caption: [Sharpe of the network (blue) and the best classical rule re-tuned for each market and cost (orange;
+  a Sepp-style delta band or time schedule) by
   market model and cost. At 20 bp (shaded) the lines coincide; the network's
   high-cost lead comes with a P&L spread of 3–4 against 1.7 (Appendix A.3).],
 )
@@ -297,7 +298,8 @@ network; a desk satisfied with the band's tail gains nothing from it.
 #figure(
   image("figures/frontier.png", width: 68%),
   caption: [Mean transaction cost against CVaR95 at 20 bp (Heston). Each blue dot is a
-  trained network; orange dots are classical rules; the star is the tuned band. No
+  trained network; orange dots are other classical rules; the star is the Sepp delta band
+  tuned at 20 bp. No
   network is both cheaper and safer than the band.],
 )
 
@@ -772,7 +774,7 @@ Monte Carlo, and the frictionless network recovers the Black-Scholes delta. The
 
 #figure(
   image("figures/sharpe_vs_cost.png", width: 78%),
-  caption: [Heston deep-hedging replication: Sharpe against cost for the network, the band tuned at 20 bp, and Black-Scholes delta rebalanced every day.],
+  caption: [Heston deep-hedging replication: Sharpe against cost for the network, the Sepp delta band tuned at 20 bp, and Black-Scholes delta rebalanced every day.],
 )
 
 #figure(

@@ -123,7 +123,7 @@
     #bullet[Thousands of price paths per model]
     #bullet[Same accounting code for every strategy]
     #bullet[Separate data for training, tuning and the final test]
-    #bullet[Classical band re-tuned for every model and fee]
+    #bullet[Classical rules (Sepp band or time schedule) re-tuned for every model and fee]
   ],
 )
 

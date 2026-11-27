@@ -105,7 +105,7 @@ classical rule?
 ## Slide 8 · 20 bp: the headline (5:24–6:10)
 
 This is the main result. There's one panel per market model. Blue is the
-network's Sharpe, orange is the classical rule's, and the fee goes up from left
+network's Sharpe, orange is the best classical rule's — re-tuned for every panel and fee, and the fee goes up from left
 to right.
 
 Look at the green strip — 20 basis points, my main test. In every panel, the two
@@ -135,7 +135,7 @@ A fair objection: the network was trained mostly on average outcomes. So I retra
 one retrained network.
 
 Here's how to read the chart. Left is cheaper. Down is safer. The red star is the
-classical band. To beat it, a network has to land in the green corner — cheaper
+Sepp band, my benchmark. The orange dots are the other classical rules. To beat it, a network has to land in the green corner — cheaper
 and safer.
 
 That corner is empty. Every network is either cheaper but riskier, or safer but
