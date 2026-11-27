@@ -235,9 +235,9 @@ each cost.
 #heading(outlined: true)[4. Head-to-head comparison]
 // =====================================================================
 
-The edge map (learned minus classical Sharpe) has three regimes. Near zero cost
+Figure 1 compares the two Sharpe ratios and shows three regimes. Near zero cost
 the two tie, as the frictionless check predicts. At 20 bp the comparison is
-essentially flat: edges run from −0.09 to +0.01, and on the jump models the
+essentially flat: Sharpe differences run from −0.09 to +0.01, and on the jump models the
 learned hedger is slightly behind. Above 50 bp the network's Sharpe edge becomes
 large and consistent, but its P&L standard deviation climbs from about 0.5 to 3 or
 4 while its mean P&L approaches the option premium. The network has learned to
@@ -245,8 +245,10 @@ stop hedging and collect the volatility risk premium. That is a legitimate
 strategy, but a different product from a hedge.
 
 #figure(
-  image("figures/edge_map_fixed.png", width: 88%),
-  caption: [Learned minus classical Sharpe. High-cost wins arrive with a tripled P&L spread.],
+  image("figures/edge_map.png", width: 85%),
+  caption: [Sharpe of the network (blue) and the re-tuned classical band (orange) by
+  market model and cost. At 20 bp (shaded) the lines coincide; the network's
+  high-cost lead comes with a P&L spread of 3–4 against 1.7 (Appendix A.3).],
 )
 
 The locked holdout confirms the sign of the moderate-cost result. On five
@@ -265,6 +267,12 @@ The Sharpe edge is not a tail win. On every holdout seed the learned CVaR95 is
 higher (1.273–1.318 against 1.036–1.080). On validation paths the spreads match,
 but the learned skew is −0.70 against −0.01 and CVaR95 is 1.321 against 1.066, a
 24% worse tail.
+
+#figure(
+  image("figures/tail.png", width: 52%),
+  caption: [Heston at 20 bp, dollars per option. The P&L spread is almost the same,
+  but the network's mean loss in the worst 5% of paths is 24% larger.],
+)
 
 #heading(outlined: true)[4.1 Tail-matched deep hedgers]
 
@@ -287,7 +295,7 @@ desk that wants a tail tighter than any band can offer should consider the
 network; a desk satisfied with the band's tail gains nothing from it.
 
 #figure(
-  image("figures/frontier.png", width: 80%),
+  image("figures/frontier.png", width: 68%),
   caption: [Mean transaction cost against CVaR95 at 20 bp (Heston). Each blue dot is a
   trained network; orange dots are classical rules; the star is the tuned band. No
   network is both cheaper and safer than the band.],
@@ -764,7 +772,7 @@ Monte Carlo, and the frictionless network recovers the Black-Scholes delta. The
 
 #figure(
   image("figures/sharpe_vs_cost.png", width: 78%),
-  caption: [Heston deep-hedging replication: Sharpe against transaction cost for the learned, BS delta and band strategies.],
+  caption: [Heston deep-hedging replication: Sharpe against cost for the network, the band tuned at 20 bp, and Black-Scholes delta rebalanced every day.],
 )
 
 #figure(
