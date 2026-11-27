@@ -63,6 +63,8 @@
       DSC4107 Final Project \
       #v(0.3em)
       Lau Cheuk Yin
+      #v(0.8em)
+      Code: #link("https://github.com/hluaguo/dsc4107")[github.com/hluaguo/dsc4107]
     ]
   ]
 ]
