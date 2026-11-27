@@ -1,5 +1,5 @@
 // Final presentation slides. 16:9, compiled with Typst. Target: 10 minutes.
-// Build: typst compile --root . slides/slides.typ slides/slides.pdf
+// Build: typst compile --root . slides/slides.typ slides/project_slide_lau_cheuk_yin_58525058.pdf
 
 #set page(
   width: 33.87cm,
@@ -342,4 +342,4 @@
 #v(1.0em)
 #text(size: 22pt)[#link("https://github.com/hluaguo/dsc4107")[github.com/hluaguo/dsc4107]]
 #v(0.4em)
-#small[Full tables: `submission/report/report.pdf`.]
+#small[Full tables: `submission/report/project_report_lau_cheuk_yin_58525058.pdf`.]

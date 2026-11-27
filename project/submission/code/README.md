@@ -7,7 +7,7 @@ the underlying, pay proportional transaction costs), then ask whether a neural
 hedger beats a strong classical policy on a **fixed** benchmark cell.
 
 **Title (locked):** **Classic hedging is all you need** at the course cell (Heston,
-one-month ATM call, **20 bp** full-rate cost). Details and numbers: [`submission/report/report.pdf`](submission/report/report.pdf).
+one-month ATM call, **20 bp** full-rate cost). Details and numbers: [`submission/report/project_report_lau_cheuk_yin_58525058.pdf`](submission/report/project_report_lau_cheuk_yin_58525058.pdf).
 
 ## Quick start
 
@@ -42,7 +42,7 @@ Index: [`notebooks/README.md`](notebooks/README.md). Regenerate from sources:
    `cost = 0.002` (20 bp **full-rate** ledger), 21 steps. Classical champion pinned in
    `bench/classical_best.json` (delta band 0.1).
 4. **Classical vs deep on that cell.** Historical 4×5 comparison and holdout in
-   the [report](submission/report/report.pdf). Decision rule: deep wins only if it beats the tuned
+   the [report](submission/report/project_report_lau_cheuk_yin_58525058.pdf). Decision rule: deep wins only if it beats the tuned
    band on **both** mean cost and CVaR95. At 20 bp the learned hedger has a small
    Sharpe edge on Heston (+0.034 on the locked holdout) but a 24% worse CVaR95.
    RQ-A (`experiments/rq_a/`) shows the default deep policy is **cheaper on mean cost
@@ -67,7 +67,7 @@ Committed full-run JSON and figures: `experiments/*/results/` and
 | Path | Role |
 | --- | --- |
 | [`notebooks/`](notebooks/) | **Public notebook path** — four notebooks (see [`notebooks/README.md`](notebooks/README.md)) |
-| [`submission/report/report.pdf`](submission/report/report.pdf) | Full report (replications, comparison, holdout) |
+| [`submission/report/project_report_lau_cheuk_yin_58525058.pdf`](submission/report/project_report_lau_cheuk_yin_58525058.pdf) | Full report (replications, comparison, holdout) |
 | [`experiments/README.md`](experiments/README.md) | RQ-A … RQ-L index and verdicts |
 | [`submission/`](submission/) | PDF report, slides, mirrored artifacts |
 | [`docs/papers/`](docs/papers/) | Sepp & Buehler PDFs |

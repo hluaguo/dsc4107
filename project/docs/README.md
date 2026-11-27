@@ -1,7 +1,7 @@
 # Background notes (optional)
 
 Not part of the grading path. Start at the root [`README.md`](../README.md) and
-the report [`submission/report/report.pdf`](../submission/report/report.pdf).
+the report [`submission/report/project_report_lau_cheuk_yin_58525058.pdf`](../submission/report/project_report_lau_cheuk_yin_58525058.pdf).
 
 | Path | Contents |
 | --- | --- |

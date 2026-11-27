@@ -15,7 +15,7 @@ Committed full runs: `results/*.json` and `*.png` inside each folder. Re-run via
 | RQ-F | [`rq_hard_cvar/`](rq_hard_cvar/) | `fails` | Train-time Lagrange CVaR cap does not clear CB on both axes. |
 | RQ-G | [`rq_cost_stress/`](rq_cost_stress/) | `mixed` | Hull domination at 10 & 20 bp; at **50 bp** the cell is `flat` (not a deep win story). |
 
-Headline: [report](../submission/report/report.pdf) + RQ-A. Do not oversell 50 bp or high-cost Sharpe edges
+Headline: [report](../submission/report/project_report_lau_cheuk_yin_58525058.pdf) + RQ-A. Do not oversell 50 bp or high-cost Sharpe edges
 from premium harvesting (see the report).
 
 ## Liquid 10 bp footnote only (`cost = 0.001`)

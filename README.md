@@ -3,5 +3,5 @@
 CityU DSC4107 final project. Everything lives in [`project/`](project/).
 
 - Start here: [`project/README.md`](project/README.md)
-- Report (PDF): [`project/submission/report/report.pdf`](project/submission/report/report.pdf)
-- Slides (PDF): [`project/submission/slides/slides.pdf`](project/submission/slides/slides.pdf)
+- Report (PDF): [`project/submission/report/project_report_lau_cheuk_yin_58525058.pdf`](project/submission/report/project_report_lau_cheuk_yin_58525058.pdf)
+- Slides (PDF): [`project/submission/slides/project_slide_lau_cheuk_yin_58525058.pdf`](project/submission/slides/project_slide_lau_cheuk_yin_58525058.pdf)
