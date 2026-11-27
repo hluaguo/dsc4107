@@ -62,7 +62,7 @@
     #text(size: 11pt)[
       DSC4107 Final Project \
       #v(0.3em)
-      Lau Cheuk Yin
+      LAU Cheuk Yin (58525058)
       #v(0.8em)
       Code: #link("https://github.com/hluaguo/dsc4107")[github.com/hluaguo/dsc4107]
     ]
