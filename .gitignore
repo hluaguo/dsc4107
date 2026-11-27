@@ -6,7 +6,7 @@ __pycache__/
 .mypy_cache/
 *.egg-info/
 
-# Regenerated replication outputs (see REPORT.md §6); frozen RQ artifacts live under experiments/
+# Regenerated replication outputs (see README "Reproduce"); frozen RQ artifacts live under experiments/
 results/
 
 # Autoresearch session state (scripts stay in archive/autoresearch/)
